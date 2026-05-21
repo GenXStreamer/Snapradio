@@ -1,0 +1,7 @@
+Flask
+mutagen
+Pillow
+Requests
+streamlink
+yt_dlp
+python-vlc

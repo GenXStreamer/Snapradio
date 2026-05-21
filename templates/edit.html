@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Stations</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link href="{{ url_for('static', filename='css/edit.css') }}" rel="stylesheet" />
+</head>
+<body class="container-fluid mt-4">
+
+  <h2>Edit Radio Stations</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <input type="text" id="searchBox" class="form-control form-control-sm w-50" placeholder="Search stations..." />
+  <button id="saveAllBtn" class="btn btn-sm btn-success">Save All</button>
+</div>
+
+<div class="mb-3">
+  <button id="add-row-btn" class="btn btn-success btn-sm">Add New Station</button>
+</div>
+
+
+  <div class="table-responsive">
+    <table id="stationsTable" class="table table-sm table-bordered align-middle mb-0" style="font-size: 0.85rem; width: 100%;">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Code</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Comment</th>
+          <th>Bitrate</th>
+          <th>Stereo/Mono</th>
+          <th>StreamURL</th>
+          <th>Working</th>
+          <th>WorkingDate</th>
+          <th>IMG</th>
+          <th>Codec</th>
+          <th>Sample Rate</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for station in stations %}
+        <tr id="row-{{ station[0] }}">
+          <td>{{ station[0] }}</td>
+          {% for i in range(1, 14) %}
+          <td>
+            {% if i == 5 or i == 6 %}
+              <input type="number" value="{{ station[i] }}" class="form-control form-control-sm" />
+            {% elif i == 9 %}
+              {% if station[i] == 1 %}
+                <span class="badge bg-success">OK</span>
+              {% elif station[i] == 0 %}
+                <span class="badge bg-danger">Fail</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Unknown</span>
+              {% endif %}
+            {% elif i == 11 %}
+              <div class="dropzone" data-rowid="{{ station[0] }}" style="font-size: 0.8rem;">
+                {{ station[i] or "Drag here" }}
+              </div>
+            {% else %}
+              <input type="text" value="{{ station[i] }}" class="form-control form-control-sm" />
+            {% endif %}
+          </td>
+          {% endfor %}
+<td>
+  <button class="btn btn-sm btn-primary save-btn me-1" data-rowid="{{ station[0] }}">Save</button>
+  <button class="btn btn-sm btn-danger delete-btn" data-rowid="{{ station[0] }}">Delete</button>
+</td>
+
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+  <!-- colResizable plugin -->
+  <script src="https://cdn.jsdelivr.net/gh/alvaro-prieto/colResizable/colResizable-1.6.min.js"></script>
+
+  <!-- Custom JS -->
+  <script src="{{ url_for('static', filename='js/edit.js') }}"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dan's Internet Radio Player</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="manifest" href="/static/site.webmanifest">
+</head>
+
+<body class="container py-4">
+
+    <div class="tab-container">
+        <div class="tab active"> <a href="/">Radio Streams</a></div>
+        <div class="tab"> <a href="/twitch">Twitch Streams</a></div>
+        <div class="tab"> <a href="/mixcloud">Mixcloud Downloader</a></div>
+    </div>  
+    <br> 
+
+    {% if now_playing %}
+    <div class="alert alert-success text-center p-4">
+
+      <div class="mb-3">
+        <img src="{{ url_for('static', filename='logos/' + (now_playing.IMG if now_playing.IMG else 'placeholder.png')) }}" class="img-fluid" style="max-height:128px;border-radius: 8px;">
+      </div>
+
+      <div class="mb-3">
+        <h5 class="mb-1">{{ now_playing.Name }}</h5>
+        <p class="mb-0" style="font-size: 0.95rem;">
+          {% if now_playing.Bitrate %} {{ now_playing.Bitrate }} Kbit/s {% endif %}
+          {% if now_playing.Codec %} | {{ now_playing.Codec|upper }} {% else %} AAC {% endif %}
+          {% if now_playing.SampleRate %} | {{ (now_playing.SampleRate|int / 1000)|round(1) }} kHz {% else %} &nbsp; {% endif %}
+          <br>
+          {% if now_playing.Category %} {{ now_playing.Category }} {% endif %} | {% if now_playing.Description %} {{ now_playing.Description }} {% endif %}
+        </p>
+      </div>
+
+      {% if now_playing.is_icy %}
+      <div id="liveTrackContainer" class="mb-3">
+        <hr class="my-3">
+        <p id="liveTrackTitle" class="mb-0 fw-bold text-primary" style="font-size: 1.15rem;">
+          &nbsp;
+        </p>
+      </div>
+      {% endif %}
+
+      <div class="d-flex justify-content-center gap-2">
+        <a href="{{ url_for('stop_stream') }}" class="btn btn-danger btn-lg">Stop</a>
+        <button id="recordBtn" class="btn btn-lg btn-outline-danger"
+                onclick="toggleRecording('{{ now_playing.FinalURL }}', '{{ now_playing.Name }}')">
+          ⏺ Record
+        </button>
+      </div>
+      <div id="recordingStatus" class="mt-2 small text-muted" style="display:none;"></div>
+
+    </div>
+    {% endif %}
+
+    <script>
+    let _recording = false;
+
+    async function toggleRecording(url, label) {
+      const btn = document.getElementById('recordBtn');
+      const status = document.getElementById('recordingStatus');
+      if (!_recording) {
+        const resp = await fetch('/record/start', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({url, label})
+        });
+        const data = await resp.json();
+        if (data.status === 'recording') {
+          _recording = true;
+          btn.classList.replace('btn-outline-danger', 'btn-danger');
+          btn.textContent = '⏹ Stop Recording';
+          status.style.display = '';
+          status.textContent = '● Recording to ' + data.path;
+        }
+      } else {
+        const resp = await fetch('/record/stop', {method: 'POST'});
+        const data = await resp.json();
+        _recording = false;
+        btn.classList.replace('btn-danger', 'btn-outline-danger');
+        btn.textContent = '⏺ Record';
+        status.textContent = 'Saved to ' + data.path;
+      }
+    }
+
+    // Sync button state on page load in case recording is already active
+    fetch('/record/status').then(r => r.json()).then(data => {
+      if (data.recording) {
+        _recording = true;
+        const btn = document.getElementById('recordBtn');
+        if (btn) {
+          btn.classList.replace('btn-outline-danger', 'btn-danger');
+          btn.textContent = '⏹ Stop Recording';
+          const status = document.getElementById('recordingStatus');
+          status.style.display = '';
+          status.textContent = '● Recording to ' + data.path;
+        }
+      }
+    });
+    </script>
+
+    <table id="stationsTable" class="table table-hover table-striped align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Logo</th>
+                <th>Last Play Status</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Format</th>
+                <th>Stereo/Mono</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for station in stations %}
+            <tr class="{% if station[9] != 1 %}table-warning{% endif %}">
+                <td><img src="{{ url_for('static', filename='logos/' + (station[11] if station[11] else 'placeholder.png')) }}" height="64"></td>
+                <td>
+                  {% if station[9] == 1 %}
+                    <span class="badge bg-success">OK</span>
+                    <p class="mb-0 small text-muted">Last tried: {{ station[10] }}</p>
+                  {% elif station[9] == 0 %}
+                    <span class="badge bg-danger">Fail</span>
+                    <p class="mb-0 small text-muted">Last tried: {{ station[10] }}</p>
+                  {% else %}
+                    <span class="badge bg-warning">Unknown</span>
+                  {% endif %}
+                </td>
+                <td><strong>{{ station[1] }}</strong></td>
+                <td>{{ station[3] }}</td>
+                <td>{{ station[4] }}</td>
+                <td>
+                    {% if station[6] %} {{ station[6] }} Kbit/s {% endif %}
+                    {% if station[12] %} / {{ station[12]|upper }} {% else %} / AAC {% endif %}
+                    {% if station[13] %} / {{ (station[13]|int / 1000)|round(1) }} kHz {% endif %}
+                </td>
+                <td>{{ station[7] }}</td>
+                <td>
+                    <a href="{{ url_for('play_station', station_id=station[0]) }}" class="btn btn-success">Play</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+    $(document).ready(function() {
+        $('#stationsTable').DataTable({
+            paging: false,
+            info: false
+        });
+    });
+    </script>
+
+    <script src="{{ url_for('static', filename='js/radio_metadata.js') }}"></script>
+
+</body>
+</html>

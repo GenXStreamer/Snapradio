@@ -1,0 +1,229 @@
+:root {
+  --primary-color: #2a9d8f;
+  --secondary-color: #264653;
+  --accent-color: #e76f51;
+  --bg-color: #f4f9f9;
+  --text-color: #333;
+}
+
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+h2 {
+  color: var(--secondary-color);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.now-playing {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.now-playing .info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex: 1 1 300px;
+}
+
+.now-playing img {
+  border-radius: 8px;
+  height: 64px;
+  width: auto;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.now-playing-details {
+  font-size: 0.9rem;
+}
+
+.now-playing-details h5 {
+  margin-bottom: 0.2rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.now-playing-details p {
+  margin: 0;
+  color: var(--text-color);
+  opacity: 0.8;
+  line-height: 1.3;
+}
+
+.btn-stop {
+  background-color: var(--accent-color);
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  flex-shrink: 0;
+  transition: background-color 0.3s ease;
+  user-select: none;
+}
+.btn-stop:hover {
+  background-color: #d95f43;
+}
+
+/* Table improvements */
+table.dataTable tbody tr:hover {
+  background-color: #d1f0f0 !important;
+  cursor: pointer;
+}
+
+table.dataTable thead {
+  background-color: var(--secondary-color);
+  color: white;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+table.dataTable td, table.dataTable th {
+  vertical-align: middle !important;
+  font-size: 0.95rem;
+}
+
+table.dataTable tbody td img {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Make Play buttons larger on mobile */
+@media (max-width: 576px) {
+  .btn-success {
+    font-size: 1.1rem;
+    padding: 0.5rem 0.8rem;
+    min-width: 100%;
+    margin-top: 0.3rem;
+  }
+
+  table.dataTable tbody td {
+    display: block;
+    width: 100%;
+  }
+  table.dataTable tbody tr {
+    margin-bottom: 1rem;
+    display: block;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  table.dataTable thead {
+    display: none;
+  }
+}
+
+.tab-container {
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      border-bottom: 2px solid #ccc;
+      margin-top: 20px;
+}
+
+.tab {
+      flex: 1;
+      text-align: center;
+      padding: 15px 0;
+      cursor: pointer;
+      background: #ddd;
+      border: 1px solid #ccc;
+      border-bottom: none;
+      transition: background 0.3s;
+      text-decoration: none;   /* removes underline */
+      color: black;          /* makes it use parent text color */
+}
+
+    .tab:hover {
+      background: #bbb;
+    }
+
+    .tab.active {
+      background: white;
+      font-weight: bold;
+      border-top: 3px solid #007BFF;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+      border-bottom: none;
+    }
+
+.tab a {
+    display: block;
+    padding: 0.5rem 1rem; /* The whole padded region becomes cleanly clickable */
+    color: #495057;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+#working-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75);
+            color: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            z-index: 9999;
+        }
+
+.spinner {
+    border: 6px solid #ccc;
+    border-top: 6px solid #0f0;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: auto;
+    margin-bottom: 1em;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+       #working-box {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #222;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 1rem;
+            z-index: 1000;
+        }
+        form {
+            margin-top: 30px;
+        }

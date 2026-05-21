@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Twitch Streams</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="manifest" href="/static/site.webmanifest">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script defer src="{{ url_for('static', filename='js/twitch.js') }}"></script>
+
+    <style>
+        .list-group-item.stream-row:hover {
+            background-color: #f8f9fa !important;
+            cursor: pointer;
+        }
+
+        .live-row {
+            background-color: #f0f5f2;  /* very light green */
+        }
+    </style>
+</head>
+<body class="container py-4">
+	<div class="tab-container">
+		<div class="tab"> <a href="/">Radio Streams</a></div>
+		<div class="tab active"> <a href="/twitch">Twitch Streams</a></div>
+		<div class="tab"> <a href="/mixcloud">Mixcloud Downloader</a></div>
+	</div>
+	<br>
+    <div id="now_playing_twitch" class="alert alert-primary justify-content-between align-items-center d-none">
+        <div>
+            🎙️ <strong id="np_name">Now Playing</strong> <small id="np_status" class="text-muted"></small>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <small id="recordingStatus" class="text-muted" style="display:none;"></small>
+            <button id="recordBtn" class="btn btn-sm btn-outline-danger" onclick="toggleRecording()">⏺ Record</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="stopStream()">Stop</button>
+        </div>
+    </div>
+
+    <div id="stream_starting" class="alert alert-info" style="display: none;">
+        🎧 Stream starting... Please wait.
+    </div>
+
+    <div id="adbreak" class="alert alert-warning" style="display:none;"></div>
+
+{% set live_streams = streams | selectattr("live", "equalto", 1) | list %}
+{% set offline_streams = streams | selectattr("live", "equalto", 0) | list %}
+
+{% if live_streams %}
+<h4>Live Streams</h4>
+{% for stream in live_streams %}
+<div class="list-group-item stream-row live-row" onclick="playStream({{ stream.rowid }}, '{{ stream.streamer }}', '{{ stream.url }}')">
+    <span style="color:green; font-weight: bold;">🟢</span>
+    <strong>{{ stream.streamer }}</strong><br>
+    <small class="text-muted">{{ stream.url }}</small>
+</div>
+{% endfor %}
+{% endif %}
+
+<br>
+
+{% if offline_streams %}
+<h4>Offline Streams</h4>
+{% for stream in offline_streams %}
+<div class="list-group-item stream-row" onclick="playStream({{ stream.rowid }}, '{{ stream.streamer }}', '{{ stream.url }}')">
+    <span style="color:red; font-weight: bold;">🔴</span>
+    <strong>{{ stream.streamer }}</strong><br>
+    <small class="text-muted">{{ stream.url }}</small>
+</div>
+{% endfor %}
+{% endif %}
+
+
+
+<script>
+// Recording — works alongside twitch.js's playStream/stopStream
+let _recording = false;
+let _currentUrl = null;
+let _currentStreamer = null;
+
+// Wrap base playStream function safely after script evaluation
+function playStream(rowid, streamer, url) {
+    _currentUrl      = url;
+    _currentStreamer  = streamer;
+    if (typeof _basePlayStream === 'function') {
+        _basePlayStream(rowid, streamer);
+    }
+}
+
+async function toggleRecording() {
+    const btn    = document.getElementById('recordBtn');
+    const status = document.getElementById('recordingStatus');
+    if (!_recording) {
+        const resp = await fetch('/record/start', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({url: _currentUrl, label: _currentStreamer || 'twitch'})
+        });
+        const data = await resp.json();
+        if (data.status === 'recording') {
+            _recording = true;
+            btn.classList.replace('btn-outline-danger', 'btn-danger');
+            btn.textContent = '⏹ Stop Recording';
+            status.style.display = '';
+            status.textContent = '● ' + data.path;
+        }
+    } else {
+        const resp = await fetch('/record/stop', {method: 'POST'});
+        const data = await resp.json();
+        _recording = false;
+        btn.classList.replace('btn-danger', 'btn-outline-danger');
+        btn.textContent = '⏺ Record';
+        status.textContent = 'Saved: ' + data.path;
+    }
+}
+
+// Sync on load
+fetch('/record/status').then(r => r.json()).then(data => {
+    if (data.recording) {
+        _recording = true;
+        const btn = document.getElementById('recordBtn');
+        if (btn) {
+            btn.classList.replace('btn-outline-danger', 'btn-danger');
+            btn.textContent = '⏹ Stop Recording';
+            const status = document.getElementById('recordingStatus');
+            status.style.display = '';
+            status.textContent = '● ' + data.path;
+        }
+    }
+});
+</script>
+
+</body>
+</html>

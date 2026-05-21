@@ -1,0 +1,75 @@
+$(function() {
+  // Initialize colResizable
+  $("#stationsTable").colResizable({
+    liveDrag: true,
+    gripInnerHtml: "<div class='grip'></div>",
+    draggingClass: "dragging"
+  });
+
+  // Save button click handler
+$('.save-btn').click(function() {
+  const rowid = $(this).data('rowid');
+  const row = $('#row-' + rowid).find('td');
+
+  const data = {
+    rowid: rowid,
+    Name: row.eq(1).find('input').val(),
+    Code: row.eq(2).find('input').val(),
+    Description: row.eq(3).find('input').val(),
+    Category: row.eq(4).find('input').val(),
+    Comment: row.eq(5).find('input').val(),
+    Bitrate: row.eq(6).find('input').val(),
+    StereoMono: row.eq(7).find('input').val(),
+    StreamURL: row.eq(8).find('input').val(),
+    // Working is readonly badge now — skip
+    WorkingDate: row.eq(10).find('input').val(),
+    IMG: row.eq(11).text().trim()
+  };
+
+  $.ajax({
+    url: '/update_station',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(data),
+    success: function(response) {
+      alert('Saved!');
+    },
+    error: function(err) {
+      alert('Error saving station: ' + err.responseText);
+    }
+  });
+});
+
+  // Drag and drop image uploads
+  $('.dropzone').on('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).css('background-color', '#e0f7fa');
+  }).on('dragleave drop', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).css('background-color', '');
+
+    if (e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.files.length) {
+      const file = e.originalEvent.dataTransfer.files[0];
+      const rowid = $(this).data('rowid');
+      const dropzone = $(this);
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      $.ajax({
+        url: '/upload_logo/' + file.name,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(res) {
+          dropzone.text(file.name);
+          alert('Image uploaded: ' + file.name);
+        }
+      });
+    }
+  });
+});
+
