@@ -168,6 +168,62 @@ Advertisements ──> /tmp/Ads ─────────┘
 
 This allows SnapRadio to provide continuous audio playback while inserting custom announcements whenever advertisements are detected.
 
+
+## Snapserver Configuration
+
+Example `snapserver.conf` input configuration:
+
+```ini
+source = pipe:///tmp/snapcastDAB?name=DAB&mode=read
+source = pipe:///tmp/TwitchFIFO?name=Twitch_Hidden&codec=null
+source = pipe:///tmp/Ads?name=Ads&codec=null
+source = meta:///Ads/Twitch_Hidden/?name=Twitch
+```
+
+### How It Works
+
+| Source | Purpose |
+|----------|----------|
+| `DAB` | Internet radio output from SnapRadio |
+| `Twitch_Hidden` | Raw Twitch audio stream |
+| `Ads` | Advertisement or announcement audio |
+| `Twitch` | Combined metadata source that mixes Ads and Twitch audio |
+
+### Notes
+
+- The `codec=null` parameter hides a source from the Snapweb interface while still allowing it to be used internally by Snapserver.
+- `Twitch_Hidden` and `Ads` are intended as internal sources only.
+- The `meta:///Ads/Twitch_Hidden/` source creates a single visible stream called `Twitch`, allowing advertisements or announcements to be injected into the Twitch audio path.
+- The `DAB` source remains available as a standalone radio stream.
+
+### Source Layout
+
+```text
+                 +----------------+
+                 | /tmp/Ads       |
+                 +--------+-------+
+                          |
+                          v
++----------------+    +--------------------+
+| /tmp/TwitchFIFO| -> | meta:///Ads/       |
+| Twitch_Hidden  |    | Twitch_Hidden/     |
++----------------+    +---------+----------+
+                                |
+                                v
+                           Visible as
+                             "Twitch"
+
+
++----------------+
+| /tmp/snapcastDAB |
++--------+-------+
+         |
+         v
+    Visible as
+       "DAB"
+```
+
+
 ## License
 
 Add your preferred license here.
