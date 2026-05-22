@@ -6,13 +6,15 @@ function pollStatus() {
             const adDiv = document.getElementById('adbreak');
 
             if (data.status === 'playing') {
+                // Remove hidden utilities and enforce display rules explicitly
                 nowDiv.classList.remove('d-none');
-                nowDiv.classList.add('d-flex');
+                nowDiv.style.setProperty('display', 'flex', 'important');
+                
                 document.getElementById('np_name').textContent = data.streamer;
-                document.getElementById('np_status').textContent = 'playing';
+                document.getElementById('np_status').textContent = '(Live)';
             } else {
+                nowDiv.style.setProperty('display', 'none', 'important');
                 nowDiv.classList.add('d-none');
-                nowDiv.classList.remove('d-flex');
             }
 
             if (data.ad_break) {
@@ -32,12 +34,10 @@ function stopStream() {
     fetch('/twitch/stop', { method: 'POST' })
         .then(res => res.json())
         .then(data => {
-            // Instantly evaluate status changes to clear the UI element clean out
             pollStatus();
         });
 }
 
-// Map the worker function so that inline HTML hooks wrapper execution safely
 function _basePlayStream(rowid, streamer) {
     const startingIndicator = document.getElementById('stream_starting');
     if (startingIndicator) startingIndicator.style.display = 'block';
@@ -55,10 +55,7 @@ function _basePlayStream(rowid, streamer) {
 }
 
 function waitUntilStreamStarts(callback, attempts = 40) {
-    // Twitch stream resolution (especially with ad-handling) can take 15-20s.
-    // Poll every 750ms for up to 40 attempts (30 seconds total).
     if (attempts <= 0) {
-        // Timed out — hide the "starting" indicator and give up gracefully
         const startingIndicator = document.getElementById('stream_starting');
         if (startingIndicator) startingIndicator.style.display = 'none';
         return;

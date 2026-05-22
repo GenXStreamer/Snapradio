@@ -27,7 +27,7 @@
         }
 
         .live-row {
-            background-color: #f0f5f2;  /* very light green */
+            background-color: #f0f5f2;
         }
     </style>
 </head>
@@ -82,18 +82,14 @@
 {% endfor %}
 {% endif %}
 
-
-
 <script>
-// Recording — works alongside twitch.js's playStream/stopStream
-let _recording = false;
-let _currentUrl = null;
-let _currentStreamer = null;
+window._recording = false;
+window._currentUrl = null;
+window._currentStreamer = null;
 
-// Wrap base playStream function safely after script evaluation
 function playStream(rowid, streamer, url) {
-    _currentUrl      = url;
-    _currentStreamer  = streamer;
+    window._currentUrl = url;
+    window._currentStreamer = streamer;
     if (typeof _basePlayStream === 'function') {
         _basePlayStream(rowid, streamer);
     }
@@ -102,34 +98,37 @@ function playStream(rowid, streamer, url) {
 async function toggleRecording() {
     const btn    = document.getElementById('recordBtn');
     const status = document.getElementById('recordingStatus');
-    if (!_recording) {
+    if (!window._recording) {
+        if (!window._currentUrl) {
+            alert("No stream URL active to record!");
+            return;
+        }
         const resp = await fetch('/record/start', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({url: _currentUrl, label: _currentStreamer || 'twitch'})
+            body: JSON.stringify({url: window._currentUrl, label: window._currentStreamer || 'twitch'})
         });
         const data = await resp.json();
-        if (data.status === 'recording') {
-            _recording = true;
+        if (data.status === 'recording' || data.status === 'already_recording') {
+            window._recording = true;
             btn.classList.replace('btn-outline-danger', 'btn-danger');
             btn.textContent = '⏹ Stop Recording';
             status.style.display = '';
-            status.textContent = '● ' + data.path;
+            status.textContent = '● ' + (data.path || 'Recording...');
         }
     } else {
         const resp = await fetch('/record/stop', {method: 'POST'});
         const data = await resp.json();
-        _recording = false;
+        window._recording = false;
         btn.classList.replace('btn-danger', 'btn-outline-danger');
         btn.textContent = '⏺ Record';
         status.textContent = 'Saved: ' + data.path;
     }
 }
 
-// Sync on load
 fetch('/record/status').then(r => r.json()).then(data => {
     if (data.recording) {
-        _recording = true;
+        window._recording = true;
         const btn = document.getElementById('recordBtn');
         if (btn) {
             btn.classList.replace('btn-outline-danger', 'btn-danger');
@@ -141,6 +140,5 @@ fetch('/record/status').then(r => r.json()).then(data => {
     }
 });
 </script>
-
 </body>
 </html>

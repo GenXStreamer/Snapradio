@@ -237,24 +237,13 @@ def test_stream(url, timeout=5):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Station connectivity checker
-# Drop this block into app.py.  Call start_station_checker_daemon() at startup
-# alongside start_twitch_poller_daemon().
 # ─────────────────────────────────────────────────────────────────────────────
 
-# How many days between full re-checks (override with env var)
 STATION_CHECK_INTERVAL_DAYS = int(os.environ.get("STATION_CHECK_INTERVAL_DAYS", "7"))
-
-# How many stations to test concurrently (keeps wall-clock time reasonable)
 STATION_CHECK_WORKERS = int(os.environ.get("STATION_CHECK_WORKERS", "10"))
 
 
 def _check_one_station(rowid: int, name: str, url: str) -> tuple[int, bool]:
-    """
-    Test a single station URL and return (rowid, is_working).
-
-    Uses the existing test_stream() helper so the logic stays consistent
-    with what play_station() already does.
-    """
     try:
         result = test_stream(url)
         app_log(f"[StationChecker] {'OK' if result else 'FAIL'} — {name} ({url})")
@@ -265,15 +254,6 @@ def _check_one_station(rowid: int, name: str, url: str) -> tuple[int, bool]:
 
 
 def check_all_stations(interval_days: int = STATION_CHECK_INTERVAL_DAYS) -> None:
-    """
-    Fetch every station whose StreamURL has not been checked within
-    *interval_days* days, test each one concurrently, and write the
-    result back to the database.
-
-    Stations with a NULL / empty StreamURL are skipped silently.
-    Twitch URLs (twitch.tv) are excluded — those are managed separately
-    by the Twitch poller.
-    """
     cutoff = (datetime.now() - __import__("datetime").timedelta(days=interval_days)).strftime("%Y-%m-%d")
 
     with get_db() as conn:
@@ -329,13 +309,6 @@ def check_all_stations(interval_days: int = STATION_CHECK_INTERVAL_DAYS) -> None
 
 
 def _station_checker_loop() -> None:
-    """
-    Daemon loop: run check_all_stations() once immediately at startup,
-    then sleep for the configured interval and repeat.
-
-    Sleeping in short increments (60 s) keeps the thread responsive to
-    interpreter shutdown without busy-waiting.
-    """
     interval_seconds = STATION_CHECK_INTERVAL_DAYS * 24 * 3600
 
     while True:
@@ -344,8 +317,6 @@ def _station_checker_loop() -> None:
         except Exception as exc:
             app_log(f"[StationChecker] Loop error: {exc}")
 
-        # Sleep until the next full cycle, waking every 60 s so the
-        # thread notices a clean interpreter exit quickly.
         elapsed = 0
         while elapsed < interval_seconds:
             time.sleep(60)
@@ -565,18 +536,23 @@ def streamlink_thread(url):
     global _stream_fd, ffmpeg_process, twitch_pwcat_process, ad_break_message
 
     from streamlink import Streamlink
-    from streamlink.plugins.twitch import __plugin__ as Twitch
+    from streamlink.options import Options
 
     _stop_event.clear()
 
     try:
         session = Streamlink()
         session.set_option("stream-timeout", 30)
-        plugin = Twitch(session, url, options={"disable-ads": True, "low-latency": True})
-        streams = plugin.streams()
+        
+        # Correct way to pass options to Streamlink's modern HLS plugin architecture
+        options = Options()
+        options.set("disable-ads", True)
+        options.set("low-latency", True)
+        
+        # Fetching streams natively from the session manages the lifecycle correctly
+        streams = session.streams(url, options=options)
     except Exception as e:
         app_log(f"[streamlink_thread] Failed to resolve stream: {e}")
-        # Clean up DB status if stream initialization fails instantly
         clear_nowplaying_twitch()
         return
 
@@ -593,6 +569,7 @@ def streamlink_thread(url):
         clear_nowplaying_twitch()
         return
 
+    # Success! Assigning the global tracker so now_playing endpoint sees it
     with _state_lock:
         _stream_fd = fd
 
@@ -658,34 +635,22 @@ def streamlink_thread(url):
             _stream_fd           = None
             ffmpeg_process       = None
             twitch_pwcat_process = None
-        # Make sure database row is fully flushed when the process loop finishes
         clear_nowplaying_twitch()
 
-
-
-
-# Twitch Helix API credentials — set via environment variables.
-# Get a free Client ID + Secret at https://dev.twitch.tv/console/apps
 TWITCH_CLIENT_ID     = os.environ.get("TWITCH_CLIENT_ID", "")
 TWITCH_CLIENT_SECRET = os.environ.get("TWITCH_CLIENT_SECRET", "")
 
-# Cached app access token (expires after ~60 days; refreshed automatically)
 _twitch_access_token = None
 _twitch_token_expiry = 0.0   # unix timestamp
 
 
 def _get_twitch_app_token() -> str | None:
-    """
-    Obtain (or return a cached) Twitch app access token via client credentials flow.
-    Returns None if credentials are not configured.
-    """
     global _twitch_access_token, _twitch_token_expiry
 
     if not TWITCH_CLIENT_ID or not TWITCH_CLIENT_SECRET:
         app_log("[Twitch Poller] TWITCH_CLIENT_ID / TWITCH_CLIENT_SECRET not set — cannot poll live status")
         return None
 
-    # Return cached token if still valid (with a 60-second buffer)
     if _twitch_access_token and time.time() < _twitch_token_expiry - 60:
         return _twitch_access_token
 
@@ -711,9 +676,6 @@ def _get_twitch_app_token() -> str | None:
 
 
 def _extract_twitch_login(url: str) -> str | None:
-    """Extract the channel login name from a twitch.tv URL."""
-    # e.g. https://www.twitch.tv/dj_op1  →  dj_op1
-    import re
     m = re.search(r"twitch\.tv/([A-Za-z0-9_]+)", url)
     return m.group(1).lower() if m else None
 
@@ -733,19 +695,18 @@ def twitch_poller():
     if not rows:
         return
 
-    # Build login → rowid map, skipping any rows with unparseable URLs
+    # CRITICAL FIX: Ensure the keys mapped are explicitly lowercased 
     login_to_rowid = {}
     for row in rows:
         login = _extract_twitch_login(row["URL"])
         if login:
-            login_to_rowid[login] = row["rowid"]
+            login_to_rowid[login.lower()] = row["rowid"]
         else:
             app_log(f"[Twitch Poller] Could not parse login from URL: {row['URL']}")
 
     if not login_to_rowid:
         return
 
-    # Helix /streams accepts up to 100 user_login params in one request
     try:
         params = [("user_login", login) for login in login_to_rowid]
         r = requests.get(
@@ -758,12 +719,14 @@ def twitch_poller():
             timeout=10,
         )
         r.raise_for_status()
+        
+        # Enforce lowercase mapping on API returns
         live_logins = {stream["user_login"].lower() for stream in r.json().get("data", [])}
     except Exception as e:
         app_log(f"[Twitch Poller] Helix API error: {e}")
         return
 
-    # Write results back — channels absent from the response are offline
+    # Write results back smoothly — now safely insulated against case variance
     with get_db() as conn:
         for login, rowid in login_to_rowid.items():
             is_live = login in live_logins
@@ -771,7 +734,6 @@ def twitch_poller():
 
     live_count = len(live_logins)
     app_log(f"[Twitch Poller] Checked {len(login_to_rowid)} channel(s) — {live_count} live")
-
 
 def _twitch_poller_loop():
     while True:
@@ -1065,11 +1027,8 @@ def twitch_page():
 
 @app.route('/twitch/play/<int:rowid>', methods=['POST'])
 def play_stream(rowid):
-    global now_playing_rowid, now_playing_streamer
-
-    with _state_lock:
-        if _stream_fd is not None:
-            return jsonify({'status': 'already_playing'})
+    # CRITICAL FIX: Explicitly import global references so Python maps scope correctly
+    global now_playing_rowid, now_playing_streamer, _stream_fd, ffmpeg_process, twitch_pwcat_process
 
     with get_db() as conn:
         result = conn.execute("SELECT Streamer, URL FROM Twitch WHERE rowid = ?", (rowid,)).fetchone()
@@ -1079,6 +1038,41 @@ def play_stream(rowid):
 
     streamer_name = result['Streamer']
     url = result['URL']
+
+    # CHANNEL CHANGING FIX: Shut down any active processes before launching a new stream
+    with _state_lock:
+        if _stream_fd is not None:
+            app_log(f"[play_stream] Channel change detected. Stopping current stream for new selection: {streamer_name}")
+
+            # 1. Signal active loop to terminate cleanly
+            _stop_event.set()
+
+            # 2. Safely extract references to close outside of lock context
+            old_fd = _stream_fd
+            old_ff = ffmpeg_process
+            old_pw = twitch_pwcat_process
+
+            # 3. Wipe global references immediately so the next thread can use them safely
+            _stream_fd = None
+            ffmpeg_process = None
+            twitch_pwcat_process = None
+        else:
+            old_fd = old_ff = old_pw = None
+
+    # Tear down old streaming processes and connections safely outside the lock state
+    if old_fd:
+        try:
+            old_fd.close()
+        except Exception as e:
+            app_log(f"[play_stream] Error closing old stream file descriptor: {e}")
+
+    if old_ff:
+        _kill_proc_tree(old_ff)
+    if old_pw:
+        _kill_proc_tree(old_pw)
+
+    # Re-arm the stop event flag so the new worker thread loop can run
+    _stop_event.clear()
 
     with _state_lock:
         now_playing_streamer = streamer_name
@@ -1097,13 +1091,12 @@ def play_stream(rowid):
     threading.Thread(target=streamlink_thread, args=(url,), daemon=True).start()
     return jsonify({'status': 'playing', 'streamer': streamer_name})
 
+
 @app.route('/twitch/stop', methods=['POST'])
 def twitch_stop_stream():
     global ffmpeg_process, now_playing_rowid, now_playing_streamer
 
-    # Immediate database drop so the frontend template UI element goes away cleanly
     clear_nowplaying_twitch()
-
     _stop_event.set()
 
     with _state_lock:
@@ -1113,7 +1106,6 @@ def twitch_stop_stream():
         now_playing_streamer = ""
 
     _kill_proc_tree(ff_proc)
-
     return jsonify({'status': 'stopped' if had_stream else 'not_running'})
 
 @app.route('/twitch/now_playing')
@@ -1123,17 +1115,18 @@ def now_playing_status():
             "SELECT rowid, streamer FROM TwitchStatus WHERE id = 1"
         ).fetchone()
 
-    # CRITICAL UI CHECK: Confirm if the background processing stream is actually running
     with _state_lock:
         is_running = _stream_fd is not None
 
-    if result and is_running:
-        status, rowid, streamer = 'playing', result['rowid'], result['streamer']
+    if result:
+        # If a row exists in the database, we are either resolving/buffering or playing
+        status = 'playing'
+        rowid = result['rowid']
+        streamer = result['streamer']
     else:
-        # If the backend worker thread died or stopped, ensure DB matches it exactly
-        if result and not is_running:
-            clear_nowplaying_twitch()
-        status, rowid, streamer = 'stopped', None, None
+        status = 'stopped'
+        rowid = None
+        streamer = None
 
     with _state_lock:
         ad_msg = ad_break_message
@@ -1235,7 +1228,6 @@ def mixcloud():
     return render_template("mixcloud_index.html")
 
 
-# Cleanup tables at application instance boot execution paths
 clear_nowplaying()
 clear_nowplaying_twitch()
 
@@ -1247,10 +1239,31 @@ start_station_checker_daemon()
 
 threading.Thread(target=_radio_metadata_poller_loop, daemon=True).start()
 
+# Remove the loose functions from running on imports/reloads here.
+# Instead, bundle them safely inside the standard Python entrypoint context.
+
 if __name__ == '__main__':
+    # Ensure cleanup and background tasks only initialize on the main child process,
+    # even when Flask's debug auto-reloader forces process forks.
+    if not os.environ.get("WERKZEUG_RUN_MAIN"):
+        app_log("[Startup] Master reloader process initializing...")
+    else:
+        app_log("[Startup] Active worker process running. Executing initial table cleanup.")
+        clear_nowplaying()
+        clear_nowplaying_twitch()
+
+        ensure_fifo(SNAPCAST_FIFO)
+        app_log(f"[Startup] FIFO ready: {SNAPCAST_FIFO}")
+
+        start_twitch_poller_daemon()
+        start_station_checker_daemon()
+        threading.Thread(target=_radio_metadata_poller_loop, daemon=True).start()
+
     try:
         app.run(debug=True, host='0.0.0.0', port=8881)
     except KeyboardInterrupt:
         pass
     finally:
-        _shutdown_all_streams()
+        # Only clean up streams if this is the active main worker process
+        if os.environ.get("WERKZEUG_RUN_MAIN"):
+            _shutdown_all_streams()
