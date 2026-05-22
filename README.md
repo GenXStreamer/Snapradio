@@ -223,6 +223,69 @@ source = meta:///Ads/Twitch_Hidden/?name=Twitch
        "DAB"
 ```
 
+## Radio Station Database
+
+SnapRadio stores radio station information in:
+
+```text
+stations.db
+```
+
+This SQLite database contains station names, stream URLs, metadata, and RadioFeeds identifiers.
+
+### Editing Stations
+
+Stations can be managed through the built-in web editor:
+
+```text
+http://your-server-ip:8881/edit
+```
+
+The editor allows stations to be added, removed, or modified without directly accessing the database.
+
+### Station Sources
+
+Most UK radio stations are sourced from:
+
+:contentReference[oaicite:0]{index=0}
+
+RadioFeeds provides an extensive and regularly maintained catalogue of Internet radio stream URLs.
+
+---
+
+## RadioFeeds Update Script
+
+A companion update script is included to keep station URLs current.
+
+The script:
+
+1. Reads station records from `stations.db`
+2. Uses the stored RadioFeeds station ID to look up the latest stream information
+3. Checks for updated stream URLs on RadioFeeds
+4. Updates the database automatically when changes are found
+5. Prefers AAC streams over MP3 streams when multiple formats are available
+
+This helps ensure stations continue to work when broadcasters change streaming providers or URLs.
+
+---
+
+## Acknowledgements
+
+### RadioFeeds UK
+
+Special thanks to:
+
+:contentReference[oaicite:1]{index=1}
+
+for maintaining one of the most comprehensive and reliable sources of UK Internet radio stream information.
+
+### Snapcast
+
+SnapRadio is designed to work alongside:
+
+:contentReference[oaicite:2]{index=2}
+
+an excellent multi-room audio synchronization system that makes it possible to distribute radio and Twitch audio throughout a home or network with precise synchronization.
 
 ## License
 
