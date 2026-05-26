@@ -1,0 +1,38 @@
+[Unit]
+Description=Radioplayer Flask App (Gunicorn)
+After=network.target
+
+[Service]
+Type=notify
+WorkingDirectory=/path/to/Snapradio
+
+ExecStart=/path/to/venv/bin/gunicorn \
+    --workers 2 \
+    --timeout 300 \
+    --bind 0.0.0.0:8881 \
+    --pid /run/user/%U/radioplayer.pid \
+    --access-logfile - \
+    --error-logfile - \
+    app:app
+
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -TERM $MAINPID
+PIDFile=/run/user/%U/radioplayer.pid
+
+Restart=on-failure
+RestartSec=5
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+# Environment and path setup
+Environment="PATH=/home/dan/venv/bin:/usr/bin:/usr/local/bin"
+Environment="FLASK_ENV=production"
+Environment="PYTHONUNBUFFERED=1"
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
+
