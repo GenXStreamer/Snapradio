@@ -20,6 +20,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from urllib.parse import urlparse
 
+
 import yt_dlp
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, TIT2, TPE1, APIC
@@ -42,8 +43,8 @@ FFMPEG_BIN        = os.environ.get("FFMPEG_BIN",        "/usr/bin/ffmpeg")
 RECORDING_DIR     = os.environ.get("RECORDING_DIR",     os.path.expanduser("~/Recordings"))
 RADIO_CHANNELS    = int(os.environ.get("RADIO_CHANNELS",  "2"))
 RADIO_SAMPLE_RATE = int(os.environ.get("RADIO_SAMPLE_RATE", "48000"))
-STATION_CHECK_INTERVAL_DAYS = 3   # re-check every 3 days
-STATION_CHECK_WORKERS = 20        # more concurrency
+STATION_CHECK_INTERVAL_DAYS=3   # re-check every 3 days
+STATION_CHECK_WORKERS=20        # more concurrency
 ALLOWED_LOGO_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 # Thread safety for mutable globals
@@ -69,8 +70,7 @@ now_playing_rowid = None
 now_playing_streamer = ""
 
 # Globals (Recording)
-_record_proc       = None   # ffmpeg subprocess for radio recording
-_twitch_record_ff  = None   # ffmpeg subprocess dedicated strictly to Twitch recording
+_record_proc       = None   # ffmpeg subprocess for recording
 _recording_path    = None   # current output file path
 
 PWCAT_BIN         = os.environ.get("PWCAT_BIN",         "/usr/bin/pw-cat")
@@ -161,17 +161,30 @@ def _radio_metadata_poller_loop():
 
 
 def _kill_proc_tree(proc):
-    """Terminate a subprocess, escalating to SIGKILL after 3 s."""
+    """Terminate a subprocess using process groups, escalating to SIGKILL after 3 s."""
     if proc is None or proc.poll() is not None:
         return
     try:
-        proc.terminate()
+        # Send termination signal directly to the process group if available
+        if hasattr(proc, 'pid') and proc.pid > 0:
+            os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+        else:
+            proc.terminate()
+        
         try:
             proc.wait(timeout=3)
         except subprocess.TimeoutExpired:
-            proc.kill()
+            if hasattr(proc, 'pid') and proc.pid > 0:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+            else:
+                proc.kill()
     except OSError:
-        pass
+        # Fallback if process group structure isn't mapped or already gone
+        try:
+            proc.terminate()
+            proc.wait(timeout=1)
+        except Exception:
+            pass
 
 
 def _shutdown_all_streams():
@@ -187,7 +200,6 @@ def _shutdown_all_streams():
         radio_ff     = _radio_ffmpeg_proc
         radio_pwcat  = _radio_pwcat_proc
         rec          = _record_proc
-        twitch_rec   = _twitch_record_ff
 
     if fd is not None:
         try:
@@ -200,7 +212,6 @@ def _shutdown_all_streams():
     _kill_proc_tree(radio_ff)
     _kill_proc_tree(radio_pwcat)
     _kill_proc_tree(rec)
-    _kill_proc_tree(twitch_rec)
 
 
 atexit.register(_shutdown_all_streams)
@@ -237,6 +248,13 @@ def test_stream(url, timeout=5):
     except requests.RequestException:
         return False
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Station connectivity checker
+# ─────────────────────────────────────────────────────────────────────────────
+
+STATION_CHECK_INTERVAL_DAYS = int(os.environ.get("STATION_CHECK_INTERVAL_DAYS", "7"))
+STATION_CHECK_WORKERS = int(os.environ.get("STATION_CHECK_WORKERS", "10"))
+
 
 def _check_one_station(rowid: int, name: str, url: str) -> tuple[int, bool]:
     try:
@@ -266,7 +284,12 @@ def check_all_stations(interval_days: int = STATION_CHECK_INTERVAL_DAYS) -> None
         ).fetchall()
 
     if not rows:
+        app_log("[StationChecker] All stations checked recently — nothing to do.")
         return
+
+    app_log(f"[StationChecker] Checking {len(rows)} station(s) "
+            f"not tested since {cutoff} (interval={interval_days}d, "
+            f"workers={STATION_CHECK_WORKERS})")
 
     today = datetime.now().strftime("%Y-%m-%d")
 
@@ -281,7 +304,9 @@ def check_all_stations(interval_days: int = STATION_CHECK_INTERVAL_DAYS) -> None
         for future in as_completed(futures):
             try:
                 rowid, is_working = future.result()
-            except Exception:
+            except Exception as exc:
+                row = futures[future]
+                app_log(f"[StationChecker] Unexpected future error for {row['Name']}: {exc}")
                 continue
 
             try:
@@ -290,12 +315,15 @@ def check_all_stations(interval_days: int = STATION_CHECK_INTERVAL_DAYS) -> None
                         "UPDATE stations SET Working = ?, WorkingDate = ? WHERE rowid = ?",
                         (1 if is_working else 0, today, rowid),
                     )
-            except Exception:
-                pass
+            except Exception as exc:
+                app_log(f"[StationChecker] DB write error for rowid={rowid}: {exc}")
+
+    app_log("[StationChecker] Batch complete.")
 
 
 def _station_checker_loop() -> None:
     interval_seconds = STATION_CHECK_INTERVAL_DAYS * 24 * 3600
+
     while True:
         try:
             check_all_stations()
@@ -309,17 +337,23 @@ def _station_checker_loop() -> None:
 
 
 def start_station_checker_daemon() -> None:
+    """Spawn the station connectivity checker as a background daemon thread."""
     t = threading.Thread(target=_station_checker_loop, daemon=True, name="StationChecker")
     t.start()
-
+    app_log(
+        f"[StationChecker] Daemon started "
+        f"(interval={STATION_CHECK_INTERVAL_DAYS}d, workers={STATION_CHECK_WORKERS})"
+    )
 
 def _radio_stream_thread(url):
+    """Fetch a network radio stream and deliver it to PipeWire via pw-cat."""
     global _radio_ffmpeg_proc, _radio_pwcat_proc
     _radio_stop_event.clear()
 
     ensure_fifo(SNAPCAST_FIFO)
     app_log(f"[Radio] Starting stream: {url}")
 
+    # preexec_fn=os.setsid allows complete process group tracking and insulation
     ffmpeg_proc = subprocess.Popen(
         [
             FFMPEG_BIN,
@@ -334,6 +368,7 @@ def _radio_stream_thread(url):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=False,
+        preexec_fn=os.setsid
     )
 
     pwcat_proc = subprocess.Popen(
@@ -349,6 +384,7 @@ def _radio_stream_thread(url):
         stdin=ffmpeg_proc.stdout,
         stderr=subprocess.PIPE,
         text=False,
+        preexec_fn=os.setsid
     )
     ffmpeg_proc.stdout.close()
 
@@ -377,8 +413,11 @@ def _radio_stream_thread(url):
         _radio_ffmpeg_proc = None
         _radio_pwcat_proc  = None
 
+    app_log("[Radio] Stream stopped")
+
 
 def start_stream(url):
+    """Stop any existing radio stream then launch a new one in a daemon thread."""
     _radio_stop_event.set()
     with _state_lock:
         old_proc   = _radio_ffmpeg_proc
@@ -395,7 +434,8 @@ def is_icy_stream(url):
         response = requests.head(url, timeout=5, allow_redirects=True)
         return any(h.lower().startswith("icy-") for h in response.headers) or \
                "audio" in response.headers.get("Content-Type", "").lower()
-    except requests.RequestException:
+    except requests.RequestException as e:
+        app_log(f"HEAD request failed: {e}")
         return False
 
 def get_stream_url_from_playlist(url):
@@ -403,25 +443,37 @@ def get_stream_url_from_playlist(url):
         url_path = url.lower().split('?')[0]
         is_playlist = url_path.endswith(('.pls', '.m3u', '.m3u8'))
         if is_icy_stream(url) and not is_playlist:
+            app_log(f"[get_stream_url_from_playlist] Detected ICY or direct audio stream: {url}")
             final_url = url
         else:
-            headers = {'User-Agent': 'Mozilla/5.0'}
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+            }
+            app_log (f"[get_stream_url_from_playlist] Fetching playlist: {url}")
             response = requests.get(url, timeout=1, headers=headers)
             response.raise_for_status()
             content = response.text.strip()
 
             if content.lower().startswith("[playlist]"):
+                app_log (f"[get_stream_url_from_playlist] Detected PLS format.")
                 stream_url = parse_pls(content)
             else:
+                app_log (f"[get_stream_url_from_playlist] Assuming M3U format.")
                 stream_url = parse_m3u(content)
     
             if not stream_url:
+                app_log (f"[get_stream_url_from_playlist] No stream URLs found in the playlist.")
                 return None
+
+            app_log (f"[get_stream_url_from_playlist] Found stream URL in playlist: {stream_url}")
 
             final_response = requests.get(stream_url, stream=True, timeout=10, allow_redirects=True, headers=headers)
             final_url = final_response.url
+            app_log (f"[get_stream_url_from_playlist] Resolved final stream URL: {final_url}")
         return final_url
-    except Exception:
+
+    except requests.RequestException as e:
+        app_log (f"[get_stream_url_from_playlist] Error fetching or resolving stream URL: {e}")
         return None
 
 def parse_m3u(content):
@@ -437,31 +489,67 @@ def parse_pls(content):
 
 def get_stream_info(stream_url, timeout=8):
     try:
+        app_log(f"[get_stream_info] Probing stream: {stream_url}")
         result = subprocess.run(
             [
-                "/usr/bin/ffprobe", "-v", "error", "-user_agent", "Mozilla/5.0",
+                "/usr/bin/ffprobe",
+                "-v", "error",
+                "-user_agent", "Mozilla/5.0",
                 "-protocol_whitelist", "file,http,https,tcp,tls,icy",
-                "-show_streams", "-show_format", "-of", "json", stream_url
+                "-show_streams",
+                "-show_format",
+                "-of", "json",
+                stream_url
             ],
             capture_output=True, text=True, check=True, timeout=timeout
         )
         info = json.loads(result.stdout)
-        audio = next((s for s in info.get("streams", []) if s.get("codec_type") == "audio"), None)
+
+        audio = next(
+            (s for s in info.get("streams", []) if s.get("codec_type") == "audio"),
+            None
+        )
         if not audio:
+            app_log("[get_stream_info] No audio stream found")
             return None
 
+        codec       = audio.get("codec_name")
+        sample_rate = audio.get("sample_rate")
+        channels    = audio.get("channels")
+        layout      = audio.get("channel_layout")
+
+        bitrate_bps = audio.get("bit_rate") or info.get("format", {}).get("bit_rate")
+        bitrate_kbps = int(bitrate_bps) // 1000 if bitrate_bps else None
+
+        app_log(f"[get_stream_info] Codec: {codec}  Sample rate: {sample_rate} Hz  "
+                f"Channels: {channels} ({layout})  Bitrate: {bitrate_kbps} kbps")
+
         return {
-            'codec':        audio.get("codec_name"),
-            'sample_rate':  audio.get("sample_rate"),
-            'bitrate_kbps': int(audio.get("bit_rate") or info.get("format", {}).get("bit_rate", 0)) // 1000,
+            'codec':        codec,
+            'sample_rate':  sample_rate,
+            'bitrate_kbps': bitrate_kbps,
             'resolved_url': stream_url,
         }
-    except Exception:
+
+    except subprocess.TimeoutExpired:
+        app_log(f"[get_stream_info] Timeout probing {stream_url}")
+        return None
+    except subprocess.CalledProcessError as e:
+        app_log(f"[get_stream_info] Error probing stream: {e}")
+        return None
+    except Exception as e:
+        app_log(f"[get_stream_info] Unexpected error: {e}")
         return None
 
 
+def probe(url, timeout=1):
+    info = get_stream_info(url, timeout=timeout)
+    return ({"streams": []}, url) if info is None else (info, url)
+
+
 def streamlink_thread(url):
-    global _stream_fd, ffmpeg_process, twitch_pwcat_process, _twitch_record_ff
+    """Open the Twitch stream entirely in Python and stream to TWITCH_PIPEWIRE_TARGET."""
+    global _stream_fd, ffmpeg_process, twitch_pwcat_process, ad_break_message
 
     from streamlink import Streamlink
     from streamlink.options import Options
@@ -471,70 +559,86 @@ def streamlink_thread(url):
     try:
         session = Streamlink()
         session.set_option("stream-timeout", 30)
+        
+        # Correct way to pass options to Streamlink's modern HLS plugin architecture
         options = Options()
         options.set("disable-ads", True)
         options.set("low-latency", True)
+        
+        # Fetching streams natively from the session manages the lifecycle correctly
         streams = session.streams(url, options=options)
     except Exception as e:
-        app_log(f"[streamlink_thread] Resolution error: {e}")
+        app_log(f"[streamlink_thread] Failed to resolve stream: {e}")
         clear_nowplaying_twitch()
         return
 
     stream = streams.get("audio_only") or streams.get("worst")
     if not stream:
+        app_log(f"[streamlink_thread] No suitable stream found for {url}")
         clear_nowplaying_twitch()
         return
 
     try:
         fd = stream.open()
-    except Exception:
+    except Exception as e:
+        app_log(f"[streamlink_thread] Failed to open stream: {e}")
         clear_nowplaying_twitch()
         return
 
+    # Success! Assigning the global tracker so now_playing endpoint sees it
     with _state_lock:
         _stream_fd = fd
 
     ffmpeg_proc = subprocess.Popen(
-        [FFMPEG_BIN, "-loglevel", "warning", "-i", "pipe:0", "-ac", "2", "-f", "s16le", "-ar", "48000", "-"],
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        [FFMPEG_BIN, "-loglevel", "warning",
+         "-i", "pipe:0", "-ac", "2", "-f", "s16le", "-ar", "48000", "-"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        preexec_fn=os.setsid
     )
     pwcat_proc = subprocess.Popen(
-        [PWCAT_BIN, "--playback", f"--target={TWITCH_PIPEWIRE_TARGET}", "--format=s16", "--rate=48000", "--channels=2", "-"],
-        stdin=ffmpeg_proc.stdout, stderr=subprocess.PIPE,
+        [PWCAT_BIN, "--playback",
+         f"--target={TWITCH_PIPEWIRE_TARGET}",
+         "--format=s16", "--rate=48000", "--channels=2", "-"],
+        stdin=ffmpeg_proc.stdout,
+        stderr=subprocess.PIPE,
+        preexec_fn=os.setsid
     )
-    if ffmpeg_proc.stdout:
-        ffmpeg_proc.stdout.close()
+    ffmpeg_proc.stdout.close()
 
     with _state_lock:
         ffmpeg_process       = ffmpeg_proc
         twitch_pwcat_process = pwcat_proc
 
+    app_log(f"[streamlink_thread] Stream open — ffmpeg pid={ffmpeg_proc.pid} pw-cat pid={pwcat_proc.pid}")
+
+    def _log_stderr(proc, label):
+        for raw in proc.stderr:
+            line = raw.decode("utf-8", errors="replace").strip()
+            if line:
+                app_log(f"[{label}] {line}")
+
+    threading.Thread(target=_log_stderr, args=(ffmpeg_proc, "ffmpeg/twitch"), daemon=True).start()
+    threading.Thread(target=_log_stderr, args=(pwcat_proc,  "pw-cat/twitch"), daemon=True).start()
+
     try:
         while not _stop_event.is_set():
             try:
                 data = fd.read(8192)
-            except Exception:
+            except Exception as e:
+                app_log(f"[streamlink_thread] Read error: {e}")
                 break
             if not data:
+                app_log("[streamlink_thread] Stream ended (EOF)")
                 break
-            
             try:
                 ffmpeg_proc.stdin.write(data)
-                ffmpeg_proc.stdin.flush()
-            except (BrokenPipeError, OSError):
+            except BrokenPipeError:
+                app_log("[streamlink_thread] ffmpeg stdin closed (BrokenPipe)")
                 break
-
-            with _state_lock:
-                rec_proc = _twitch_record_ff
-
-            if rec_proc and rec_proc.poll() is None:
-                try:
-                    rec_proc.stdin.write(data)
-                    rec_proc.stdin.flush()
-                except (BrokenPipeError, OSError):
-                    with _state_lock:
-                        _twitch_record_ff = None
     finally:
+        app_log("[streamlink_thread] Cleaning up")
         try:
             fd.close()
         except Exception:
@@ -543,20 +647,8 @@ def streamlink_thread(url):
             ffmpeg_proc.stdin.close()
         except Exception:
             pass
-            
         _kill_proc_tree(ffmpeg_proc)
         _kill_proc_tree(pwcat_proc)
-        
-        with _state_lock:
-            rec_proc = _twitch_record_ff
-            _twitch_record_ff = None
-        if rec_proc:
-            try:
-                rec_proc.stdin.close()
-            except Exception:
-                pass
-            _kill_proc_tree(rec_proc)
-
         with _state_lock:
             _stream_fd           = None
             ffmpeg_process       = None
@@ -565,48 +657,70 @@ def streamlink_thread(url):
 
 TWITCH_CLIENT_ID     = os.environ.get("TWITCH_CLIENT_ID", "")
 TWITCH_CLIENT_SECRET = os.environ.get("TWITCH_CLIENT_SECRET", "")
+
 _twitch_access_token = None
-_twitch_token_expiry = 0.0
+_twitch_token_expiry = 0.0   # unix timestamp
 
 
 def _get_twitch_app_token() -> str | None:
     global _twitch_access_token, _twitch_token_expiry
+
     if not TWITCH_CLIENT_ID or not TWITCH_CLIENT_SECRET:
+        app_log("[Twitch Poller] TWITCH_CLIENT_ID / TWITCH_CLIENT_SECRET not set — cannot poll live status")
         return None
+
     if _twitch_access_token and time.time() < _twitch_token_expiry - 60:
         return _twitch_access_token
+
     try:
         r = requests.post(
             "https://id.twitch.tv/oauth2/token",
-            params={"client_id": TWITCH_CLIENT_ID, "client_secret": TWITCH_CLIENT_SECRET, "grant_type": "client_credentials"},
+            params={
+                "client_id":     TWITCH_CLIENT_ID,
+                "client_secret": TWITCH_CLIENT_SECRET,
+                "grant_type":    "client_credentials",
+            },
             timeout=10,
         )
         r.raise_for_status()
         data = r.json()
         _twitch_access_token = data["access_token"]
         _twitch_token_expiry = time.time() + data.get("expires_in", 3600)
+        app_log("[Twitch Poller] App access token refreshed")
         return _twitch_access_token
-    except Exception:
+    except Exception as e:
+        app_log(f"[Twitch Poller] Failed to get app access token: {e}")
         return None
+
 
 def _extract_twitch_login(url: str) -> str | None:
     m = re.search(r"twitch\.tv/([A-Za-z0-9_]+)", url)
     return m.group(1).lower() if m else None
 
+
 def twitch_poller():
+    """
+    Check live status for all Twitch channels using the Helix Streams API.
+    Makes a single batched API call for all channels rather than one per channel.
+    """
     token = _get_twitch_app_token()
     if not token:
         return
+
     with get_db() as conn:
         rows = conn.execute("SELECT rowid, Streamer, URL FROM Twitch").fetchall()
+
     if not rows:
         return
 
+    # CRITICAL FIX: Ensure the keys mapped are explicitly lowercased 
     login_to_rowid = {}
     for row in rows:
         login = _extract_twitch_login(row["URL"])
         if login:
             login_to_rowid[login.lower()] = row["rowid"]
+        else:
+            app_log(f"[Twitch Poller] Could not parse login from URL: {row['URL']}")
 
     if not login_to_rowid:
         return
@@ -615,25 +729,36 @@ def twitch_poller():
         params = [("user_login", login) for login in login_to_rowid]
         r = requests.get(
             "https://api.twitch.tv/helix/streams",
-            headers={"Client-Id": TWITCH_CLIENT_ID, "Authorization": f"Bearer {token}"},
-            params=params, timeout=10,
+            headers={
+                "Client-Id":     TWITCH_CLIENT_ID,
+                "Authorization": f"Bearer {token}",
+            },
+            params=params,
+            timeout=10,
         )
         r.raise_for_status()
+        
+        # Enforce lowercase mapping on API returns
         live_logins = {stream["user_login"].lower() for stream in r.json().get("data", [])}
-    except Exception:
+    except Exception as e:
+        app_log(f"[Twitch Poller] Helix API error: {e}")
         return
 
+    # Write results back smoothly — now safely insulated against case variance
     with get_db() as conn:
         for login, rowid in login_to_rowid.items():
             is_live = login in live_logins
             conn.execute("UPDATE Twitch SET online = ? WHERE rowid = ?", (1 if is_live else 0, rowid))
 
+    live_count = len(live_logins)
+    app_log(f"[Twitch Poller] Checked {len(login_to_rowid)} channel(s) — {live_count} live")
+
 def _twitch_poller_loop():
     while True:
         try:
             twitch_poller()
-        except Exception:
-            pass
+        except Exception as e:
+            app_log(f"[Twitch Poller] Error: {e}")
         time.sleep(60)
 
 def start_twitch_poller_daemon():
@@ -658,7 +783,8 @@ def index():
                    s.Bitrate, s."Stereo/Mono", s.StreamURL, s.Working, s.WorkingDate, s.IMG,
                    s.Codec, s.SampleRate
             FROM now_playing np
-            JOIN stations s ON s.rowid = np.station_id LIMIT 1
+            JOIN stations s ON s.rowid = np.station_id
+            LIMIT 1
         """).fetchone()
 
     now_playing = None
@@ -680,6 +806,7 @@ def play_station(station_id):
 
     stream_url = station['StreamURL']
     today = datetime.now().strftime("%Y-%m-%d")
+
     is_working = test_stream(stream_url)
 
     codec = sample_rate = bitrate_kbps = None
@@ -687,6 +814,7 @@ def play_station(station_id):
     if is_working:
         final_url = get_stream_url_from_playlist(stream_url)
         info = get_stream_info(final_url)
+
         if info:
             codec        = info.get("codec")
             sample_rate  = info.get("sample_rate")
@@ -695,17 +823,24 @@ def play_station(station_id):
     with get_db() as conn:
         conn.execute("""
             UPDATE stations
-            SET Working      = ?, WorkingDate  = ?, Bitrate      = COALESCE(?, Bitrate),
-                Codec        = COALESCE(?, Codec), SampleRate   = COALESCE(?, SampleRate)
+            SET Working      = ?,
+                WorkingDate  = ?,
+                Bitrate      = COALESCE(?, Bitrate),
+                Codec        = COALESCE(?, Codec),
+                SampleRate   = COALESCE(?, SampleRate)
             WHERE rowid = ?
         """, (1 if is_working else 0, today, bitrate_kbps, codec, sample_rate, station_id))
 
         if is_working:
             conn.execute("DELETE FROM now_playing")
-            conn.execute("INSERT INTO now_playing (station_id, started_at) VALUES (?, ?)", (station_id, today))
+            conn.execute(
+                "INSERT INTO now_playing (station_id, started_at) VALUES (?, ?)",
+                (station_id, today)
+            )
 
     if is_working and final_url:
         global _current_radio_url, _current_track_title, _is_current_stream_icy
+        
         try:
             r = requests.get(final_url, headers={'Icy-MetaData': '1', 'User-Agent': 'Mozilla/5.0'}, stream=True, timeout=2)
             has_icy = 'icy-metaint' in r.headers
@@ -740,22 +875,29 @@ def stop_stream():
 
 def _start_recording(url, label):
     global _record_proc, _recording_path
+
     os.makedirs(RECORDING_DIR, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_label = "".join(c for c in label if c.isalnum() or c in " ._-").strip()
-    out_path = os.path.join(RECORDING_DIR, f"{timestamp}_{safe_label}.mp3")
+    filename = f"{timestamp}_{safe_label}.mp3"
+    out_path = os.path.join(RECORDING_DIR, filename)
 
-    app_log(f"[Record] Launching Radio Recording process for URL: {url}")
     proc = subprocess.Popen(
-        [FFMPEG_BIN, "-loglevel", "warning", "-i", url, "-vn", "-codec:a", "libmp3lame", "-b:a", "320k", out_path],
+        [FFMPEG_BIN, "-loglevel", "warning",
+         "-i", url,
+         "-vn",
+         "-codec:a", "libmp3lame",
+         "-b:a", "320k",
+         out_path],
         stderr=subprocess.PIPE,
+        preexec_fn=os.setsid
     )
-    
+
     def _log_stderr():
         for raw in proc.stderr:
             line = raw.decode("utf-8", errors="replace").strip()
             if line:
-                app_log(f"[record/radio] {line}")
+                app_log(f"[record] {line}")
     threading.Thread(target=_log_stderr, daemon=True).start()
 
     with _state_lock:
@@ -769,17 +911,8 @@ def _stop_recording():
         proc, _record_proc   = _record_proc, None
         path, _recording_path = _recording_path, None
     if proc and proc.poll() is None:
-        app_log("[Record] Terminating Radio recording engine process.")
-        proc.terminate()
-        try:
-            proc.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            proc.kill()
+        _kill_proc_tree(proc)
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# RESTORED POPOUT PLAYER ROUTES
-# ─────────────────────────────────────────────────────────────────────────────
 
 @app.route('/radio/popout/<int:station_id>')
 def radio_popout(station_id):
@@ -809,9 +942,11 @@ def resolve_stream():
     if not url:
         return jsonify({'url': ''})
 
+    # If it is already a direct HLS manifest stream, bypass backend inspection completely
     if '.m3u8' in url.lower():
         return jsonify({'url': url})
 
+    # Process Plain-text metadata files (.m3u, .pls, or radiofeeds hooks)
     if any(ext in url.lower() for ext in ['.m3u', '.pls', 'sharptemp.pls']):
         try:
             app_log(f"[Resolver] Inspecting playlist container: {url}")
@@ -823,10 +958,12 @@ def resolve_stream():
                 if not line:
                     continue
 
+                # Case 1: M3U parsing - Skip comment lines, return the first direct URL found
                 if line.startswith('http://') or line.startswith('https://'):
                     app_log(f"[Resolver] Found M3U direct audio endpoint: {line}")
                     return jsonify({'url': line})
 
+                # Case 2: PLS parsing - Look for structural assignments (e.g., File1=http://...)
                 if '=' in line:
                     key, value = line.split('=', 1)
                     if key.strip().lower().startswith('file') and ('http://' in value or 'https://' in value):
@@ -837,78 +974,38 @@ def resolve_stream():
         except Exception as e:
             app_log(f"[Resolver] Error parsing container text file {url}: {e}")
 
+    # Fallback: If it's already a raw Icecast stream mountpoint, return it directly
     return jsonify({'url': url})
-
-# ─────────────────────────────────────────────────────────────────────────────
-
 
 @app.route('/record/start', methods=['POST'])
 def record_start():
-    data = request.get_json() or {}
+    data = request.get_json()
     url   = data.get('url')
     label = data.get('label', 'recording')
     if not url:
         return jsonify({'status': 'error', 'message': 'No URL provided'}), 400
-
-    global _recording_path, _twitch_record_ff
     with _state_lock:
-        radio_rec_active = _record_proc is not None and _record_proc.poll() is None
-        twitch_rec_active = _twitch_record_ff is not None and _twitch_record_ff.poll() is None
-        twitch_active = _stream_fd is not None
-
-    if radio_rec_active or twitch_rec_active:
-        return jsonify({'status': 'already_recording', 'path': _recording_path})
-
-    os.makedirs(RECORDING_DIR, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    safe_label = "".join(c for c in label if c.isalnum() or c in " ._-").strip()
-    out_path = os.path.join(RECORDING_DIR, f"{timestamp}_{safe_label}.mp3")
-
-    if twitch_active:
-        app_log(f"[Record] Attaching Twitch fork-recorder pipeline to output: {out_path}")
-        proc = subprocess.Popen(
-            [FFMPEG_BIN, "-loglevel", "warning", "-i", "pipe:0", "-vn", "-codec:a", "libmp3lame", "-b:a", "320k", out_path],
-            stdin=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        with _state_lock:
-            _recording_path = out_path
-            _twitch_record_ff = proc
-        return jsonify({'status': 'recording', 'path': out_path})
-    else:
-        _start_recording(url, label)
-        with _state_lock:
-            current_saved_path = _recording_path
-        return jsonify({'status': 'recording', 'path': current_saved_path})
+        already = _record_proc is not None and _record_proc.poll() is None
+    if already:
+        return jsonify({'status': 'already_recording'})
+    _start_recording(url, label)
+    with _state_lock:
+        path = _recording_path
+    return jsonify({'status': 'recording', 'path': path})
 
 
 @app.route('/record/stop', methods=['POST'])
 def record_stop():
-    global _recording_path, _twitch_record_ff
     with _state_lock:
         path = _recording_path
-        twitch_rec = _twitch_record_ff
-        _twitch_record_ff = None
-
-    if twitch_rec:
-        app_log("[Record] Stopping active Twitch fork-recording engine pipeline.")
-        try:
-            twitch_rec.stdin.close()
-        except Exception:
-            pass
-        _kill_proc_tree(twitch_rec)
-        with _state_lock:
-            _recording_path = None
-        return jsonify({'status': 'stopped', 'path': path})
-    else:
-        _stop_recording()
-        return jsonify({'status': 'stopped', 'path': path})
+    _stop_recording()
+    return jsonify({'status': 'stopped', 'path': path})
 
 
 @app.route('/record/status')
 def record_status():
     with _state_lock:
-        active = (_record_proc is not None and _record_proc.poll() is None) or \
-                 (_twitch_record_ff is not None and _twitch_record_ff.poll() is None)
+        active = _record_proc is not None and _record_proc.poll() is None
         path   = _recording_path
     return jsonify({'recording': active, 'path': path})
 
@@ -937,6 +1034,7 @@ def update_station():
             ))
         return jsonify({'status': 'success'})
     except Exception as e:
+        app_log(traceback.format_exc())
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/upload_logo/<filename>', methods=['POST'])
@@ -987,10 +1085,14 @@ def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
+# Twitch app routes
 @app.route('/twitch')
 def twitch_page():
     with get_db() as conn:
-        rows = conn.execute("SELECT rowid, streamer, url, online FROM Twitch ORDER BY streamer ASC").fetchall()
+        rows = conn.execute(
+            "SELECT rowid, streamer, url, online FROM Twitch ORDER BY streamer ASC"
+        ).fetchall()
+
     enriched = []
     for row in rows:
         enriched.append({
@@ -1004,8 +1106,10 @@ def twitch_page():
 @app.route('/twitch/play/<int:rowid>', methods=['POST'])
 def play_stream(rowid):
     global now_playing_rowid, now_playing_streamer, _stream_fd, ffmpeg_process, twitch_pwcat_process
+
     with get_db() as conn:
         result = conn.execute("SELECT Streamer, URL FROM Twitch WHERE rowid = ?", (rowid,)).fetchone()
+
     if not result:
         return jsonify({'status': 'error'})
 
@@ -1014,6 +1118,7 @@ def play_stream(rowid):
 
     with _state_lock:
         if _stream_fd is not None:
+            app_log(f"[play_stream] Channel change detected. Stopping current stream for new selection: {streamer_name}")
             _stop_event.set()
             old_fd = _stream_fd
             old_ff = ffmpeg_process
@@ -1025,10 +1130,16 @@ def play_stream(rowid):
             old_fd = old_ff = old_pw = None
 
     if old_fd:
-        try: old_fd.close()
-        except Exception: pass
-    _kill_proc_tree(old_ff)
-    _kill_proc_tree(old_pw)
+        try:
+            old_fd.close()
+        except Exception as e:
+            app_log(f"[play_stream] Error closing old stream file descriptor: {e}")
+
+    if old_ff:
+        _kill_proc_tree(old_ff)
+    if old_pw:
+        _kill_proc_tree(old_pw)
+
     _stop_event.clear()
 
     with _state_lock:
@@ -1037,8 +1148,12 @@ def play_stream(rowid):
 
     with get_db() as conn:
         conn.execute("""
-            INSERT INTO TwitchStatus (id, rowid, streamer, started_at) VALUES (1, ?, ?, datetime('now'))
-            ON CONFLICT(id) DO UPDATE SET rowid=excluded.rowid, streamer=excluded.streamer, started_at=excluded.started_at
+            INSERT INTO TwitchStatus (id, rowid, streamer, started_at)
+            VALUES (1, ?, ?, datetime('now'))
+            ON CONFLICT(id) DO UPDATE SET
+                rowid=excluded.rowid,
+                streamer=excluded.streamer,
+                started_at=excluded.started_at
         """, (rowid, streamer_name))
 
     threading.Thread(target=streamlink_thread, args=(url,), daemon=True).start()
@@ -1048,23 +1163,48 @@ def play_stream(rowid):
 @app.route('/twitch/stop', methods=['POST'])
 def twitch_stop_stream():
     global ffmpeg_process, now_playing_rowid, now_playing_streamer
+
     clear_nowplaying_twitch()
     _stop_event.set()
+
     with _state_lock:
         ff_proc, ffmpeg_process = ffmpeg_process, None
         had_stream = _stream_fd is not None
         now_playing_rowid    = None
         now_playing_streamer = ""
+
     _kill_proc_tree(ff_proc)
     return jsonify({'status': 'stopped' if had_stream else 'not_running'})
 
 @app.route('/twitch/now_playing')
 def now_playing_status():
     with get_db() as conn:
-        result = conn.execute("SELECT rowid, streamer FROM TwitchStatus WHERE id = 1").fetchone()
+        result = conn.execute(
+            "SELECT rowid, streamer FROM TwitchStatus WHERE id = 1"
+        ).fetchone()
+
+    with _state_lock:
+        is_running = _stream_fd is not None
+
     if result:
-        return jsonify({'status': 'playing', 'rowid': result['rowid'], 'streamer': result['streamer']})
-    return jsonify({'status': 'stopped', 'rowid': None, 'streamer': None})
+        status = 'playing'
+        rowid = result['rowid']
+        streamer = result['streamer']
+    else:
+        status = 'stopped'
+        rowid = None
+        streamer = None
+
+    with _state_lock:
+        ad_msg = ad_break_message
+
+    return jsonify({'status': status, 'rowid': rowid, 'streamer': streamer, 'ad_break': ad_msg})
+
+@app.route('/twitch/status')
+def status():
+    with _state_lock:
+        ad_msg = ad_break_message
+    return jsonify({'ad_break': ad_msg})
 
 @app.route("/mixcloud", methods=["GET", "POST"])
 def mixcloud():
@@ -1156,6 +1296,8 @@ def mixcloud():
 
 
 if __name__ == '__main__':
+    # Ensure cleanup and background tasks only initialize on the main child process,
+    # even when Flask's debug auto-reloader forces process forks.
     if not os.environ.get("WERKZEUG_RUN_MAIN"):
         app_log("[Startup] Master reloader process initializing...")
     else:
@@ -1175,5 +1317,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     finally:
+        # Only clean up streams if this is the active main worker process
         if os.environ.get("WERKZEUG_RUN_MAIN"):
             _shutdown_all_streams()
