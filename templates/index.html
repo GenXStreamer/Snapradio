@@ -108,6 +108,21 @@
         }
       }
     });
+
+function openPopout(stationId) {
+    // Defines an clean, tool-bar-free standalone canvas interface layout
+    const width = 450;
+    const height = 300;
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2);
+    
+    window.open(
+        '/radio/popout/' + stationId,
+        'RadioPopout_' + stationId,
+        `width=${width},height=${height},top=${top},left=${left},status=no,menubar=no,toolbar=no,location=no,resizable=yes`
+    );
+}
+
     </script>
 
     <table id="stationsTable" class="table table-hover table-striped align-middle">
@@ -147,9 +162,14 @@
                     {% if station[13] %} / {{ (station[13]|int / 1000)|round(1) }} kHz {% endif %}
                 </td>
                 <td>{{ station[7] }}</td>
-                <td>
-                    <a href="{{ url_for('play_station', station_id=station[0]) }}" class="btn btn-success">Play</a>
-                </td>
+		<td>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('play_station', station_id=station[0]) }}" class="btn btn-success">Play</a>
+        <button class="btn btn-outline-info" onclick="openPopout({{ station[0] }}); event.stopPropagation();">
+            ↗ Pop-out
+        </button>
+    </div>
+</td>
             </tr>
         {% endfor %}
         </tbody>

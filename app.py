@@ -70,7 +70,8 @@ now_playing_rowid = None
 now_playing_streamer = ""
 
 # Globals (Recording)
-_record_proc       = None   # ffmpeg subprocess for recording
+_record_proc       = None   # ffmpeg subprocess for radio recording
+_twitch_record_ff  = None   # ffmpeg subprocess dedicated strictly to Twitch recording
 _recording_path    = None   # current output file path
 
 PWCAT_BIN         = os.environ.get("PWCAT_BIN",         "/usr/bin/pw-cat")
@@ -187,6 +188,7 @@ def _shutdown_all_streams():
         radio_ff     = _radio_ffmpeg_proc
         radio_pwcat  = _radio_pwcat_proc
         rec          = _record_proc
+        twitch_rec   = _twitch_record_ff
 
     if fd is not None:
         try:
@@ -199,6 +201,7 @@ def _shutdown_all_streams():
     _kill_proc_tree(radio_ff)
     _kill_proc_tree(radio_pwcat)
     _kill_proc_tree(rec)
+    _kill_proc_tree(twitch_rec)
 
 
 atexit.register(_shutdown_all_streams)
@@ -532,8 +535,8 @@ def probe(url, timeout=1):
 
 
 def streamlink_thread(url):
-    """Open the Twitch stream entirely in Python and stream to TWITCH_PIPEWIRE_TARGET."""
-    global _stream_fd, ffmpeg_process, twitch_pwcat_process, ad_break_message
+    """Open the Twitch stream entirely in Python and stream to TWITCH_PIPEWIRE_TARGET without loop disruptions."""
+    global _stream_fd, ffmpeg_process, twitch_pwcat_process, ad_break_message, _twitch_record_ff
 
     from streamlink import Streamlink
     from streamlink.options import Options
@@ -544,12 +547,10 @@ def streamlink_thread(url):
         session = Streamlink()
         session.set_option("stream-timeout", 30)
         
-        # Correct way to pass options to Streamlink's modern HLS plugin architecture
         options = Options()
         options.set("disable-ads", True)
         options.set("low-latency", True)
         
-        # Fetching streams natively from the session manages the lifecycle correctly
         streams = session.streams(url, options=options)
     except Exception as e:
         app_log(f"[streamlink_thread] Failed to resolve stream: {e}")
@@ -569,13 +570,18 @@ def streamlink_thread(url):
         clear_nowplaying_twitch()
         return
 
-    # Success! Assigning the global tracker so now_playing endpoint sees it
     with _state_lock:
         _stream_fd = fd
 
+    # Standard playback engine configuration (runs uninterrupted)
+    ffmpeg_args = [
+        FFMPEG_BIN, "-loglevel", "warning",
+        "-i", "pipe:0", "-ac", "2", "-f", "s16le", "-ar", "48000", "-"
+    ]
+    app_log("[streamlink_thread] Starting Twitch playback pipeline")
+
     ffmpeg_proc = subprocess.Popen(
-        [FFMPEG_BIN, "-loglevel", "warning",
-         "-i", "pipe:0", "-ac", "2", "-f", "s16le", "-ar", "48000", "-"],
+        ffmpeg_args,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -587,13 +593,12 @@ def streamlink_thread(url):
         stdin=ffmpeg_proc.stdout,
         stderr=subprocess.PIPE,
     )
-    ffmpeg_proc.stdout.close()
+    if ffmpeg_proc.stdout:
+        ffmpeg_proc.stdout.close()
 
     with _state_lock:
         ffmpeg_process       = ffmpeg_proc
         twitch_pwcat_process = pwcat_proc
-
-    app_log(f"[streamlink_thread] Stream open — ffmpeg pid={ffmpeg_proc.pid} pw-cat pid={pwcat_proc.pid}")
 
     def _log_stderr(proc, label):
         for raw in proc.stderr:
@@ -612,15 +617,26 @@ def streamlink_thread(url):
                 app_log(f"[streamlink_thread] Read error: {e}")
                 break
             if not data:
-                app_log("[streamlink_thread] Stream ended (EOF)")
                 break
+            
+            # Feed the primary playback ffmpeg instance
             try:
                 ffmpeg_proc.stdin.write(data)
             except BrokenPipeError:
-                app_log("[streamlink_thread] ffmpeg stdin closed (BrokenPipe)")
                 break
+
+            # FORK DATA LIVE TO RECORDER SUBPROCESS IF ENGAGED
+            # No hardware output spawned, purely file encoding
+            with _state_lock:
+                rec_proc = _twitch_record_ff
+
+            if rec_proc and rec_proc.poll() is None:
+                try:
+                    rec_proc.stdin.write(data)
+                except BrokenPipeError:
+                    with _state_lock:
+                        _twitch_record_ff = None
     finally:
-        app_log("[streamlink_thread] Cleaning up")
         try:
             fd.close()
         except Exception:
@@ -631,6 +647,17 @@ def streamlink_thread(url):
             pass
         _kill_proc_tree(ffmpeg_proc)
         _kill_proc_tree(pwcat_proc)
+        
+        with _state_lock:
+            rec_proc = _twitch_record_ff
+            _twitch_record_ff = None
+        if rec_proc:
+            try:
+                rec_proc.stdin.close()
+            except Exception:
+                pass
+            _kill_proc_tree(rec_proc)
+
         with _state_lock:
             _stream_fd           = None
             ffmpeg_process       = None
@@ -648,7 +675,6 @@ def _get_twitch_app_token() -> str | None:
     global _twitch_access_token, _twitch_token_expiry
 
     if not TWITCH_CLIENT_ID or not TWITCH_CLIENT_SECRET:
-        app_log("[Twitch Poller] TWITCH_CLIENT_ID / TWITCH_CLIENT_SECRET not set — cannot poll live status")
         return None
 
     if _twitch_access_token and time.time() < _twitch_token_expiry - 60:
@@ -668,7 +694,6 @@ def _get_twitch_app_token() -> str | None:
         data = r.json()
         _twitch_access_token = data["access_token"]
         _twitch_token_expiry = time.time() + data.get("expires_in", 3600)
-        app_log("[Twitch Poller] App access token refreshed")
         return _twitch_access_token
     except Exception as e:
         app_log(f"[Twitch Poller] Failed to get app access token: {e}")
@@ -681,10 +706,6 @@ def _extract_twitch_login(url: str) -> str | None:
 
 
 def twitch_poller():
-    """
-    Check live status for all Twitch channels using the Helix Streams API.
-    Makes a single batched API call for all channels rather than one per channel.
-    """
     token = _get_twitch_app_token()
     if not token:
         return
@@ -695,14 +716,11 @@ def twitch_poller():
     if not rows:
         return
 
-    # CRITICAL FIX: Ensure the keys mapped are explicitly lowercased 
     login_to_rowid = {}
     for row in rows:
         login = _extract_twitch_login(row["URL"])
         if login:
             login_to_rowid[login.lower()] = row["rowid"]
-        else:
-            app_log(f"[Twitch Poller] Could not parse login from URL: {row['URL']}")
 
     if not login_to_rowid:
         return
@@ -719,21 +737,16 @@ def twitch_poller():
             timeout=10,
         )
         r.raise_for_status()
-        
-        # Enforce lowercase mapping on API returns
         live_logins = {stream["user_login"].lower() for stream in r.json().get("data", [])}
     except Exception as e:
         app_log(f"[Twitch Poller] Helix API error: {e}")
         return
 
-    # Write results back smoothly — now safely insulated against case variance
     with get_db() as conn:
         for login, rowid in login_to_rowid.items():
             is_live = login in live_logins
             conn.execute("UPDATE Twitch SET online = ? WHERE rowid = ?", (1 if is_live else 0, rowid))
 
-    live_count = len(live_logins)
-    app_log(f"[Twitch Poller] Checked {len(login_to_rowid)} channel(s) — {live_count} live")
 
 def _twitch_poller_loop():
     while True:
@@ -899,6 +912,55 @@ def _stop_recording():
             proc.kill()
 
 
+@app.route('/radio/popout/<int:station_id>')
+def radio_popout(station_id):
+    with get_db() as conn:
+        station = conn.execute("SELECT * FROM stations WHERE rowid=?", (station_id,)).fetchone()
+
+    if not station:
+        return "Station not found", 404
+
+    return render_template(
+        "popout.html",
+        name=station['Name'],
+        stream_url=station['StreamURL'],
+        category=station['Category'],
+        img=station['IMG']
+    )
+
+
+@app.route('/radio/resolve_stream')
+def resolve_stream():
+    url = request.args.get('url', '')
+    if not url:
+        return jsonify({'url': ''})
+
+    if '.m3u8' in url.lower():
+        return jsonify({'url': url})
+
+    if any(ext in url.lower() for ext in ['.m3u', '.pls', 'sharptemp.pls']):
+        try:
+            r = requests.get(url, timeout=5, headers={'User-Agent': 'Mozilla/5.0'})
+            lines = r.text.splitlines()
+
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+
+                if line.startswith('http://') or line.startswith('https://'):
+                    return jsonify({'url': line})
+
+                if '=' in line:
+                    key, value = line.split('=', 1)
+                    if key.strip().lower().startswith('file') and ('http://' in value or 'https://' in value):
+                        return jsonify({'url': value.strip()})
+
+        except Exception as e:
+            app_log(f"[Resolver] Error parsing container text file {url}: {e}")
+
+    return jsonify({'url': url})
+
 @app.route('/record/start', methods=['POST'])
 def record_start():
     data = request.get_json()
@@ -906,28 +968,73 @@ def record_start():
     label = data.get('label', 'recording')
     if not url:
         return jsonify({'status': 'error', 'message': 'No URL provided'}), 400
+
+    global _recording_path, _twitch_record_ff
+
     with _state_lock:
-        already = _record_proc is not None and _record_proc.poll() is None
-    if already:
+        radio_rec_active = _record_proc is not None and _record_proc.poll() is None
+        twitch_rec_active = _twitch_record_ff is not None and _twitch_record_ff.poll() is None
+        twitch_active = _stream_fd is not None
+
+    if radio_rec_active or twitch_rec_active:
         return jsonify({'status': 'already_recording'})
-    _start_recording(url, label)
-    with _state_lock:
-        path = _recording_path
-    return jsonify({'status': 'recording', 'path': path})
+
+    os.makedirs(RECORDING_DIR, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_label = "".join(c for c in label if c.isalnum() or c in " ._-").strip()
+    filename = f"{timestamp}_{safe_label}.mp3"
+    out_path = os.path.join(RECORDING_DIR, filename)
+
+    if twitch_active:
+        # Spawn an isolated ffmpeg process listening to a stdin pipe.
+        # This process encodes incoming stream chunks to MP3 without opening any hardware audio device.
+        rec_args = [
+            FFMPEG_BIN, "-loglevel", "warning",
+            "-i", "pipe:0", "-vn", "-codec:a", "libmp3lame", "-b:a", "320k", out_path
+        ]
+        
+        proc = subprocess.Popen(rec_args, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        
+        with _state_lock:
+            _recording_path = out_path
+            _twitch_record_ff = proc
+            
+        app_log(f"[Recording] Dynamic background Twitch file logger initialized at: {out_path}")
+        return jsonify({'status': 'recording', 'path': out_path})
+    else:
+        # Standard radio recording fallback
+        _start_recording(url, label)
+        return jsonify({'status': 'recording', 'path': out_path})
 
 
 @app.route('/record/stop', methods=['POST'])
 def record_stop():
+    global _recording_path, _twitch_record_ff
+    
     with _state_lock:
         path = _recording_path
-    _stop_recording()
-    return jsonify({'status': 'stopped', 'path': path})
+        twitch_rec = _twitch_record_ff
+        _twitch_record_ff = None
+        _recording_path = None
+
+    if twitch_rec:
+        try:
+            twitch_rec.stdin.close()
+        except Exception:
+            pass
+        _kill_proc_tree(twitch_rec)
+        app_log(f"[Recording] Dynamic background Twitch recorder stopped. File stored at: {path}")
+        return jsonify({'status': 'stopped', 'path': path})
+    else:
+        _stop_recording()
+        return jsonify({'status': 'stopped', 'path': path})
 
 
 @app.route('/record/status')
 def record_status():
     with _state_lock:
-        active = _record_proc is not None and _record_proc.poll() is None
+        active = (_record_proc is not None and _record_proc.poll() is None) or \
+                 (_twitch_record_ff is not None and _twitch_record_ff.poll() is None)
         path   = _recording_path
     return jsonify({'recording': active, 'path': path})
 
@@ -1027,7 +1134,6 @@ def twitch_page():
 
 @app.route('/twitch/play/<int:rowid>', methods=['POST'])
 def play_stream(rowid):
-    # CRITICAL FIX: Explicitly import global references so Python maps scope correctly
     global now_playing_rowid, now_playing_streamer, _stream_fd, ffmpeg_process, twitch_pwcat_process
 
     with get_db() as conn:
@@ -1039,39 +1145,31 @@ def play_stream(rowid):
     streamer_name = result['Streamer']
     url = result['URL']
 
-    # CHANNEL CHANGING FIX: Shut down any active processes before launching a new stream
     with _state_lock:
         if _stream_fd is not None:
-            app_log(f"[play_stream] Channel change detected. Stopping current stream for new selection: {streamer_name}")
-
-            # 1. Signal active loop to terminate cleanly
             _stop_event.set()
 
-            # 2. Safely extract references to close outside of lock context
             old_fd = _stream_fd
             old_ff = ffmpeg_process
             old_pw = twitch_pwcat_process
 
-            # 3. Wipe global references immediately so the next thread can use them safely
             _stream_fd = None
             ffmpeg_process = None
             twitch_pwcat_process = None
         else:
             old_fd = old_ff = old_pw = None
 
-    # Tear down old streaming processes and connections safely outside the lock state
     if old_fd:
         try:
             old_fd.close()
-        except Exception as e:
-            app_log(f"[play_stream] Error closing old stream file descriptor: {e}")
+        except Exception:
+            pass
 
     if old_ff:
         _kill_proc_tree(old_ff)
     if old_pw:
         _kill_proc_tree(old_pw)
 
-    # Re-arm the stop event flag so the new worker thread loop can run
     _stop_event.clear()
 
     with _state_lock:
@@ -1115,11 +1213,7 @@ def now_playing_status():
             "SELECT rowid, streamer FROM TwitchStatus WHERE id = 1"
         ).fetchone()
 
-    with _state_lock:
-        is_running = _stream_fd is not None
-
     if result:
-        # If a row exists in the database, we are either resolving/buffering or playing
         status = 'playing'
         rowid = result['rowid']
         streamer = result['streamer']
@@ -1239,12 +1333,7 @@ start_station_checker_daemon()
 
 threading.Thread(target=_radio_metadata_poller_loop, daemon=True).start()
 
-# Remove the loose functions from running on imports/reloads here.
-# Instead, bundle them safely inside the standard Python entrypoint context.
-
 if __name__ == '__main__':
-    # Ensure cleanup and background tasks only initialize on the main child process,
-    # even when Flask's debug auto-reloader forces process forks.
     if not os.environ.get("WERKZEUG_RUN_MAIN"):
         app_log("[Startup] Master reloader process initializing...")
     else:
@@ -1264,6 +1353,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     finally:
-        # Only clean up streams if this is the active main worker process
         if os.environ.get("WERKZEUG_RUN_MAIN"):
             _shutdown_all_streams()

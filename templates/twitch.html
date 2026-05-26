@@ -18,7 +18,6 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script defer src="{{ url_for('static', filename='js/twitch.js') }}"></script>
 
     <style>
         .list-group-item.stream-row:hover {
@@ -38,6 +37,7 @@
 		<div class="tab"> <a href="/mixcloud">Mixcloud Downloader</a></div>
 	</div>
 	<br>
+    
     <div id="now_playing_twitch" class="alert alert-primary justify-content-between align-items-center d-none">
         <div>
             🎙️ <strong id="np_name">Now Playing</strong> <small id="np_status" class="text-muted"></small>
@@ -60,6 +60,7 @@
 
 {% if live_streams %}
 <h4>Live Streams</h4>
+<div class="list-group mb-4">
 {% for stream in live_streams %}
 <div class="list-group-item stream-row live-row" onclick="playStream({{ stream.rowid }}, '{{ stream.streamer }}', '{{ stream.url }}')">
     <span style="color:green; font-weight: bold;">🟢</span>
@@ -67,12 +68,12 @@
     <small class="text-muted">{{ stream.url }}</small>
 </div>
 {% endfor %}
+</div>
 {% endif %}
-
-<br>
 
 {% if offline_streams %}
 <h4>Offline Streams</h4>
+<div class="list-group">
 {% for stream in offline_streams %}
 <div class="list-group-item stream-row" onclick="playStream({{ stream.rowid }}, '{{ stream.streamer }}', '{{ stream.url }}')">
     <span style="color:red; font-weight: bold;">🔴</span>
@@ -80,6 +81,7 @@
     <small class="text-muted">{{ stream.url }}</small>
 </div>
 {% endfor %}
+</div>
 {% endif %}
 
 <script>
@@ -87,17 +89,68 @@ window._recording = false;
 window._currentUrl = null;
 window._currentStreamer = null;
 
-function playStream(rowid, streamer, url) {
+// Directly fires backend ingestion without external javascript file hooks
+async function playStream(rowid, streamer, url) {
     window._currentUrl = url;
     window._currentStreamer = streamer;
-    if (typeof _basePlayStream === 'function') {
-        _basePlayStream(rowid, streamer);
+    
+    const startingAlert = document.getElementById('stream_starting');
+    if (startingAlert) startingAlert.style.display = 'block';
+
+    try {
+        const resp = await fetch(`/twitch/play/${rowid}`, { method: 'POST' });
+        const data = await resp.json();
+        if (data.status === 'playing') {
+            updateNowPlayingUI(streamer);
+        }
+    } catch (err) {
+        console.error("Playback request failed:", err);
+    } finally {
+        if (startingAlert) startingAlert.style.display = 'none';
+    }
+}
+
+async function stopStream() {
+    try {
+        const resp = await fetch('/twitch/stop', { method: 'POST' });
+        const data = await resp.json();
+        
+        // Reset local scope values
+        window._currentUrl = null;
+        window._currentStreamer = null;
+        
+        // Hide panel
+        const dashboard = document.getElementById('now_playing_twitch');
+        dashboard.classList.add('d-none');
+        dashboard.classList.remove('d-flex');
+        
+        // Auto kill recording state if active
+        if (window._recording) {
+            window._recording = false;
+            const btn = document.getElementById('recordBtn');
+            btn.classList.replace('btn-danger', 'btn-outline-danger');
+            btn.textContent = '⏺ Record';
+            document.getElementById('recordingStatus').style.display = 'none';
+        }
+    } catch (err) {
+        console.error("Stop request failed:", err);
+    }
+}
+
+function updateNowPlayingUI(streamer) {
+    const dashboard = document.getElementById('now_playing_twitch');
+    const nameLabel = document.getElementById('np_name');
+    if (dashboard && nameLabel) {
+        nameLabel.textContent = streamer;
+        dashboard.classList.remove('d-none');
+        dashboard.classList.add('d-flex');
     }
 }
 
 async function toggleRecording() {
     const btn    = document.getElementById('recordBtn');
     const status = document.getElementById('recordingStatus');
+    
     if (!window._recording) {
         if (!window._currentUrl) {
             alert("No stream URL active to record!");
@@ -114,7 +167,7 @@ async function toggleRecording() {
             btn.classList.replace('btn-outline-danger', 'btn-danger');
             btn.textContent = '⏹ Stop Recording';
             status.style.display = '';
-            status.textContent = '● ' + (data.path || 'Recording...');
+            status.textContent = '● Recording...';
         }
     } else {
         const resp = await fetch('/record/stop', {method: 'POST'});
@@ -122,23 +175,49 @@ async function toggleRecording() {
         window._recording = false;
         btn.classList.replace('btn-danger', 'btn-outline-danger');
         btn.textContent = '⏺ Record';
-        status.textContent = 'Saved: ' + data.path;
+        status.textContent = 'Saved!';
+        setTimeout(() => { status.style.display = 'none'; }, 4000);
     }
 }
 
-fetch('/record/status').then(r => r.json()).then(data => {
-    if (data.recording) {
-        window._recording = true;
-        const btn = document.getElementById('recordBtn');
-        if (btn) {
-            btn.classList.replace('btn-outline-danger', 'btn-danger');
-            btn.textContent = '⏹ Stop Recording';
-            const status = document.getElementById('recordingStatus');
-            status.style.display = '';
-            status.textContent = '● ' + data.path;
-        }
-    }
-});
+// Check initial server states upon page visibility changes/render loops
+function checkServerStatus() {
+    fetch('/twitch/now_playing')
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'playing' && data.streamer) {
+                updateNowPlayingUI(data.streamer);
+                window._currentStreamer = data.streamer;
+                
+                // Track down the corresponding list URL to restore mapping parameters
+                const items = document.querySelectorAll('.stream-row');
+                items.forEach(item => {
+                    const streamerName = item.querySelector('strong').textContent.trim();
+                    if (streamerName === data.streamer) {
+                        window._currentUrl = item.querySelector('small').textContent.trim();
+                    }
+                });
+            }
+        });
+
+    fetch('/record/status')
+        .then(r => r.json())
+        .then(data => {
+            if (data.recording) {
+                window._recording = true;
+                const btn = document.getElementById('recordBtn');
+                if (btn) {
+                    btn.classList.replace('btn-outline-danger', 'btn-danger');
+                    btn.textContent = '⏹ Stop Recording';
+                    const status = document.getElementById('recordingStatus');
+                    status.style.display = '';
+                    status.textContent = '● Recording active';
+                }
+            }
+        });
+}
+
+document.addEventListener("DOMContentLoaded", checkServerStatus);
 </script>
 </body>
 </html>
