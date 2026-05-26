@@ -18,10 +18,10 @@ mkdir -p ~/.config/systemd/user
 Create the service file:
 
 ```bash
-nano ~/.config/systemd/user/snapradio.service
+nano ~/.config/systemd/user/Snapradio.service
 ```
 
-Add the content of snapradio.service to it, replacing the paths as appropriate.
+Add the content of Snapradio.service to it, replacing the paths as appropriate.
 
 Reload the user systemd daemon:
 
@@ -32,25 +32,25 @@ systemctl --user daemon-reload
 Enable the service to start automatically when the user logs in:
 
 ```bash
-systemctl --user enable snapradio.service
+systemctl --user enable Snapradio.service
 ```
 
 Start the service:
 
 ```bash
-systemctl --user start snapradio.service
+systemctl --user start Snapradio.service
 ```
 
 Check service status:
 
 ```bash
-systemctl --user status snapradio.service
+systemctl --user status Snapradio.service
 ```
 
 View logs:
 
 ```bash
-journalctl --user -u snapradio.service -f
+journalctl --user -u Snapradio.service -f
 ```
 
 ---
