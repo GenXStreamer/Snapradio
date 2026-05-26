@@ -163,10 +163,10 @@ function openPopout(stationId) {
                 </td>
                 <td>{{ station[7] }}</td>
 		<td>
-    <div class="d-flex gap-2">
+    <div class="d-grid gap-2 d-sm-flex justify-content-sm-start"> 
         <a href="{{ url_for('play_station', station_id=station[0]) }}" class="btn btn-success">Play</a>
-        <button class="btn btn-outline-info" onclick="openPopout({{ station[0] }}); event.stopPropagation();">
-            ↗ Pop-out
+        <button class="btn btn-secondary" onclick="openPopout({{ station[0] }}); event.stopPropagation();">
+            Pop-out Player (local)
         </button>
     </div>
 </td>
