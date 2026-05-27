@@ -88,8 +88,8 @@ To enable Twitch streaming functionality, you must register this application wit
 When registering your app, use the following settings:
 
 - **Name:** Any descriptive name (e.g. your app name)
-- **OAuth Redirect URLs:** `http://localhost` (or any localhost URL if required)
-- **Category:** Application Integration
+- **OAuth Redirect URLs:** `https://localhost` (or any localhost URL if required)
+- **Category:** Website Integration
 - **Client Type:** Confidential
 
 ### 3. Retrieve credentials
