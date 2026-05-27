@@ -56,11 +56,6 @@ _radio_ffmpeg_proc = None   # ffmpeg subprocess for radio playback
 _radio_pwcat_proc  = None   # pw-cat subprocess for radio playback
 _current_radio_url = None   # resolved stream URL currently playing (for recording)
 
-# Asynchronous Metadata caching variables (Radio Only)
-_current_track_title = ""
-_current_track_image = ""
-_is_current_stream_icy = False
-
 # Globals (Twitch)
 _stream_fd           = None   # file-like fd from streamlink stream.open()
 ffmpeg_process       = None   # single ffmpeg subprocess we control
@@ -100,37 +95,6 @@ def ensure_fifo(path):
         os.mkfifo(path)
 
 
-#def get_icy_metadata(url):
-    #"""Parse ICY metadata from the live audio stream container."""
-    #headers = {'Icy-MetaData': '1', 'User-Agent': 'Mozilla/5.0'}
-    #try:
-        #response = requests.get(url, headers=headers, stream=True, timeout=4)
-        #metaint = response.headers.get('icy-metaint')
-        #if not metaint:
-            #return None, False
-        #
-        #metaint = int(metaint)
-        #stream = response.raw
-        #
-        ## Read past the first chunk of audio bytes
-        #stream.read(metaint)
-        #length_byte = stream.read(1)
-        #if not length_byte:
-            #return None, True
-        #
-        #metadata_length = ord(length_byte) * 16
-        ##if metadata_length == 0:
-            #return None, True
-            #
-        #metadata_raw = stream.read(metadata_length).decode('utf-8', errors='replace')
-        #match = re.search(r"StreamTitle='(.*?)';", metadata_raw)
-        #if match:
-            #return match.group(1).strip(), True
-        #return None, True
-    #except Exception:
-        #pass
-    #return None, False
-
 def get_icy_metadata(url):
     """Parse ICY metadata from the live audio stream container."""
     headers = {'Icy-MetaData': '1', 'User-Agent': 'Mozilla/5.0'}
@@ -161,46 +125,9 @@ def get_icy_metadata(url):
         app_log(f"[Metadata HTTP Error] Failed fetching ICY stream bytes: {e}")
     return None, False
 
-#def _radio_metadata_poller_loop():
-#    """Background polling loop for Radio ICY metadata."""
-#    global _current_track_title, _is_current_stream_icy
-#    app_log("[Metadata Poller] Loop worker thread has officially started.")
-#
-#    while True:
-#        try:
-#            with _state_lock:
-#                url = _current_radio_url
-#
-#            if url:
-#                app_log(f"[Metadata Poller] Checking stream: {url}")
-#                title, is_icy = get_icy_metadata(url)
-#
-#                with _state_lock:
-#                    _is_current_stream_icy = is_icy
-#                    if is_icy:
-#                        if title and title.strip():
-#                            app_log(f"[Metadata Poller] Found ICY Title: {title}")
-#                            _current_track_title = title
-#                        else:
-#                            _current_track_title = ""
-#                    else:
-##                        app_log("[Metadata Poller] Stream connected but is not returning ICY headers.")
-#                        _current_track_title = ""
-#            else:
-#                # Commented out to prevent app.log bloat every 10 seconds when idle
-#                # app_log("[Metadata Poller] Idle — No radio station actively playing.")
-#                with _state_lock:
-#                    _current_track_title = ""
-#                    _is_current_stream_icy = False
-#        except Exception as e:
-#            app_log(f"[Metadata Poller Exception] Critical Failure in Loop: {e}")
-#
-#        time.sleep(10)
 
 def _radio_metadata_poller_loop():
-    """Background polling loop for Radio ICY metadata with image lookup."""
-    global _current_track_title, _current_track_image, _is_current_stream_icy
-    
+    """Background polling loop for Radio ICY metadata writing directly to the database."""
     while True:
         try:
             with _state_lock:
@@ -208,47 +135,53 @@ def _radio_metadata_poller_loop():
             
             if url:
                 title, is_icy = get_icy_metadata(url)
-                with _state_lock:
-                    _is_current_stream_icy = is_icy
-                    if is_icy and title and title.strip():
-                        # ONLY trigger API fetch if track title changed
-                        if title != _current_track_title:
-                            app_log(f"[Metadata Poller] New track hit: '{title}'. Looking up artwork...")
-                            _current_track_title = title
-                            
-                            # Fetch artwork outside the state lock to prevent thread stalls
-                            _state_lock.release()
-                            img_url = fetch_track_artwork(title)
-                            _state_lock.acquire()
-                            
-                            _current_track_image = img_url
-                    else:
-                        _current_track_title = ""
-                        _current_track_image = ""
+                if is_icy and title and title.strip():
+                    
+                    # 1. Pull what is in the DB currently to gauge change
+                    with get_db() as conn:
+                        current = conn.execute("SELECT track_title FROM now_playing LIMIT 1").fetchone()
+                        db_title = current['track_title'] if current else None
+
+                    # 2. Track update conditional evaluation
+                    if title != db_title:
+                        app_log(f"[Metadata Poller] New track hit: '{title}'. Looking up artwork...")
+                        img_url = fetch_track_artwork(title)
+                        
+                        with get_db() as conn:
+                            conn.execute("""
+                                UPDATE now_playing 
+                                SET track_title = ?, track_image = ?
+                            """, (title, img_url))
             else:
-                with _state_lock:
-                    _current_track_title = ""
-                    _current_track_image = ""
-                    _is_current_stream_icy = False
+                with get_db() as conn:
+                    conn.execute("UPDATE now_playing SET track_title = '', track_image = ''")
+                    
         except Exception as e:
             app_log(f"[Metadata Poller Exception] {e}")
                 
         time.sleep(10)
 
+
 @app.route('/radio/track_title')
 def radio_track_title():
-    with _state_lock:
-        title = _current_track_title
-        image = _current_track_image  # Include image in backend responses
-        is_icy = _is_current_stream_icy
+    with get_db() as conn:
+        row = conn.execute("SELECT track_title, track_image FROM now_playing LIMIT 1").fetchone()
+    
+    if row:
+        title = row['track_title']
+        image = row['track_image']
+        is_icy = True if title else False
+    else:
+        title, image, is_icy = "", "", False
+
     return jsonify({'track_title': title, 'track_image': image, 'is_icy': is_icy})
+
 
 def _kill_proc_tree(proc):
     """Terminate a subprocess using process groups, escalating to SIGKILL after 3 s."""
     if proc is None or proc.poll() is not None:
         return
     try:
-        # Send termination signal directly to the process group if available
         if hasattr(proc, 'pid') and proc.pid > 0:
             os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
         else:
@@ -262,7 +195,6 @@ def _kill_proc_tree(proc):
             else:
                 proc.kill()
     except OSError:
-        # Fallback if process group structure isn't mapped or already gone
         try:
             proc.terminate()
             proc.wait(timeout=1)
@@ -436,7 +368,6 @@ def _radio_stream_thread(url):
     ensure_fifo(SNAPCAST_FIFO)
     app_log(f"[Radio] Starting stream: {url}")
 
-    # preexec_fn=os.setsid allows complete process group tracking and insulation
     ffmpeg_proc = subprocess.Popen(
         [
             FFMPEG_BIN,
@@ -643,12 +574,10 @@ def streamlink_thread(url):
         session = Streamlink()
         session.set_option("stream-timeout", 30)
         
-        # Correct way to pass options to Streamlink's modern HLS plugin architecture
         options = Options()
         options.set("disable-ads", True)
         options.set("low-latency", True)
         
-        # Fetching streams natively from the session manages the lifecycle correctly
         streams = session.streams(url, options=options)
     except Exception as e:
         app_log(f"[streamlink_thread] Failed to resolve stream: {e}")
@@ -668,7 +597,6 @@ def streamlink_thread(url):
         clear_nowplaying_twitch()
         return
 
-    # Success! Assigning the global tracker so now_playing endpoint sees it
     with _state_lock:
         _stream_fd = fd
 
@@ -782,10 +710,7 @@ def _extract_twitch_login(url: str) -> str | None:
 
 
 def twitch_poller():
-    """
-    Check live status for all Twitch channels using the Helix Streams API.
-    Makes a single batched API call for all channels rather than one per channel.
-    """
+    """Check live status for all Twitch channels using the Helix Streams API."""
     token = _get_twitch_app_token()
     if not token:
         return
@@ -796,7 +721,6 @@ def twitch_poller():
     if not rows:
         return
 
-    # CRITICAL FIX: Ensure the keys mapped are explicitly lowercased 
     login_to_rowid = {}
     for row in rows:
         login = _extract_twitch_login(row["URL"])
@@ -821,13 +745,11 @@ def twitch_poller():
         )
         r.raise_for_status()
         
-        # Enforce lowercase mapping on API returns
         live_logins = {stream["user_login"].lower() for stream in r.json().get("data", [])}
     except Exception as e:
         app_log(f"[Twitch Poller] Helix API error: {e}")
         return
 
-    # Write results back smoothly — now safely insulated against case variance
     with get_db() as conn:
         for login, rowid in login_to_rowid.items():
             is_live = login in live_logins
@@ -849,40 +771,33 @@ def start_twitch_poller_daemon():
     t.start()
 
 def fetch_track_artwork(metadata_text):
-    """
-    Cleans metadata text, extracts Artist and Track strings,
-    and searches Deezer/iTunes for an album cover image url.
-    """
+    """Cleans metadata text and searches Deezer/iTunes for an album cover image url."""
     if not metadata_text or not metadata_text.strip():
         return ""
 
-    # Try to strip away common stream artifacts like "(Original Mix)" or "Live at..."
     query = re.sub(r'\(.*?\)|\[.*?\]', '', metadata_text).strip()
-
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; RadioPlayer/1.0)'}
 
-    # 1. Try Deezer Search API (Free, fast, no token)
+    # 1. Deezer API Lookup
     try:
         url = "https://api.deezer.com/search"
         response = requests.get(url, params={'q': query}, headers=headers, timeout=3)
         if response.status_code == 200:
             data = response.json()
             if data.get('data'):
-                # Grab the matching album art thumbnail (medium or big format)
                 album_art = data['data'][0].get('album', {}).get('cover_medium', '')
                 if album_art:
                     return album_art
     except Exception as e:
         app_log(f"[Artwork Lookup] Deezer failed: {e}")
 
-    # 2. Fallback: Apple iTunes API (Free, excellent catalog, no token)
+    # 2. iTunes API Backup
     try:
         url = "https://itunes.apple.com/search"
         response = requests.get(url, params={'term': query, 'media': 'music', 'limit': 1}, headers=headers, timeout=3)
         if response.status_code == 200:
             data = response.json()
             if data.get('resultCount', 0) > 0:
-                # 100x100 default art, but we can replace it with high-res 400x400 variant
                 art_url = data['results'][0].get('artworkUrl100', '')
                 if art_url:
                     return art_url.replace('100x100bb.jpg', '400x400bb.jpg')
@@ -890,13 +805,6 @@ def fetch_track_artwork(metadata_text):
         app_log(f"[Artwork Lookup] iTunes fallback failed: {e}")
 
     return ""
-
-##@app.route('/radio/track_title')
-#def radio_track_title():
-    #with _state_lock:
-        #title = _current_track_title
-        #is_icy = _is_current_stream_icy
-    #return jsonify({'track_title': title, 'is_icy': is_icy})
 
 
 @app.route('/')
@@ -912,12 +820,16 @@ def index():
             LIMIT 1
         """).fetchone()
 
+        # Check if an ICY track title exists inside the database active row
+        track_row = conn.execute("SELECT track_title FROM now_playing LIMIT 1").fetchone()
+        db_has_icy = True if (track_row and track_row['track_title']) else False
+
     now_playing = None
     if now_playing_row:
         now_playing = dict(now_playing_row)
         with _state_lock:
             now_playing['FinalURL'] = _current_radio_url or now_playing.get('StreamURL')
-            now_playing['is_icy'] = _is_current_stream_icy
+            now_playing['is_icy'] = db_has_icy
 
     return render_template("index.html", stations=stations, now_playing=now_playing)
 
@@ -959,23 +871,14 @@ def play_station(station_id):
         if is_working:
             conn.execute("DELETE FROM now_playing")
             conn.execute(
-                "INSERT INTO now_playing (station_id, started_at) VALUES (?, ?)",
+                "INSERT INTO now_playing (station_id, started_at, track_title, track_image) VALUES (?, ?, '', '')",
                 (station_id, today)
             )
 
     if is_working and final_url:
-        global _current_radio_url, _current_track_title, _is_current_stream_icy
-        
-        try:
-            r = requests.get(final_url, headers={'Icy-MetaData': '1', 'User-Agent': 'Mozilla/5.0'}, stream=True, timeout=2)
-            has_icy = 'icy-metaint' in r.headers
-        except Exception:
-            has_icy = False
-
+        global _current_radio_url
         with _state_lock:
             _current_radio_url = final_url
-            _is_current_stream_icy = has_icy
-            _current_track_title = ""
             
         threading.Thread(target=start_stream, args=(final_url,), daemon=True).start()
 
@@ -987,10 +890,8 @@ def stop_stream():
     with _state_lock:
         proc  = _radio_ffmpeg_proc
         pwcat = _radio_pwcat_proc
-        global _current_radio_url, _current_track_title, _is_current_stream_icy
+        global _current_radio_url
         _current_radio_url = None
-        _current_track_title = ""
-        _is_current_stream_icy = False
     _kill_proc_tree(proc)
     _kill_proc_tree(pwcat)
     _stop_recording()
@@ -1041,7 +942,6 @@ def _stop_recording():
 
 @app.route('/radio/popout/<int:station_id>')
 def radio_popout(station_id):
-    """Render a clean, isolated HTML5 media player wrapper for local browser playback."""
     with get_db() as conn:
         station = conn.execute("SELECT * FROM stations WHERE rowid=?", (station_id,)).fetchone()
 
@@ -1059,19 +959,13 @@ def radio_popout(station_id):
 
 @app.route('/radio/resolve_stream')
 def resolve_stream():
-    """
-    Downloads and parses plain-text playlist wrappers (.m3u, .pls) on the backend server
-    to extract and return the direct raw audio streaming endpoint to the frontend pop-out player.
-    """
     url = request.args.get('url', '')
     if not url:
         return jsonify({'url': ''})
 
-    # If it is already a direct HLS manifest stream, bypass backend inspection completely
     if '.m3u8' in url.lower():
         return jsonify({'url': url})
 
-    # Process Plain-text metadata files (.m3u, .pls, or radiofeeds hooks)
     if any(ext in url.lower() for ext in ['.m3u', '.pls', 'sharptemp.pls']):
         try:
             app_log(f"[Resolver] Inspecting playlist container: {url}")
@@ -1083,12 +977,10 @@ def resolve_stream():
                 if not line:
                     continue
 
-                # Case 1: M3U parsing - Skip comment lines, return the first direct URL found
                 if line.startswith('http://') or line.startswith('https://'):
                     app_log(f"[Resolver] Found M3U direct audio endpoint: {line}")
                     return jsonify({'url': line})
 
-                # Case 2: PLS parsing - Look for structural assignments (e.g., File1=http://...)
                 if '=' in line:
                     key, value = line.split('=', 1)
                     if key.strip().lower().startswith('file') and ('http://' in value or 'https://' in value):
@@ -1099,7 +991,6 @@ def resolve_stream():
         except Exception as e:
             app_log(f"[Resolver] Error parsing container text file {url}: {e}")
 
-    # Fallback: If it's already a raw Icecast stream mountpoint, return it directly
     return jsonify({'url': url})
 
 @app.route('/record/start', methods=['POST'])
@@ -1229,7 +1120,7 @@ def twitch_page():
     return render_template("twitch.html", streams=enriched)
 
 @app.route('/twitch/play/<int:rowid>', methods=['POST'])
-def play_stream(rowid):
+def play_twitch_stream(rowid):
     global now_playing_rowid, now_playing_streamer, _stream_fd, ffmpeg_process, twitch_pwcat_process
 
     with get_db() as conn:
@@ -1326,7 +1217,7 @@ def now_playing_status():
     return jsonify({'status': status, 'rowid': rowid, 'streamer': streamer, 'ad_break': ad_msg})
 
 @app.route('/twitch/status')
-def status():
+def twitch_status_msg():
     with _state_lock:
         ad_msg = ad_break_message
     return jsonify({'ad_break': ad_msg})
@@ -1420,28 +1311,36 @@ def mixcloud():
     return render_template("mixcloud_index.html")
 
 
-if __name__ == '__main__':
-    # Ensure cleanup and background tasks only initialize on the main child process,
-    # even when Flask's debug auto-reloader forces process forks.
-    if not os.environ.get("WERKZEUG_RUN_MAIN"):
-        app_log("[Startup] Master reloader process initializing...")
-    else:
-        app_log("[Startup] Active worker process running. Executing initial table cleanup.")
+# ─────────────────────────────────────────────────────────────────────────────
+# Gunicorn / Production Startup Routine Hook
+# ─────────────────────────────────────────────────────────────────────────────
+def master_production_initialize():
+    """Initializes system structures and daemons safely inside production environments."""
+    app_log("[Startup] Worker process preparing system layout and initial cleanup routines.")
+    
+    try:
         clear_nowplaying()
         clear_nowplaying_twitch()
+    except Exception as e:
+        app_log(f"[Startup Initialization Warning] Database setup error: {e}")
 
-        ensure_fifo(SNAPCAST_FIFO)
-        app_log(f"[Startup] FIFO ready: {SNAPCAST_FIFO}")
+    ensure_fifo(SNAPCAST_FIFO)
+    app_log(f"[Startup] FIFO validation sequence complete: {SNAPCAST_FIFO}")
 
-        start_twitch_poller_daemon()
-        start_station_checker_daemon()
-        threading.Thread(target=_radio_metadata_poller_loop, daemon=True).start()
+    # Fire production-isolated background worker loops
+    start_twitch_poller_daemon()
+    start_station_checker_daemon()
+    threading.Thread(target=_radio_metadata_poller_loop, daemon=True).start()
 
+# Automatically run the production initialization when imported by Gunicorn
+master_production_initialize()
+
+
+if __name__ == '__main__':
+    # Local fallback option when using direct execution style `python app.py`
     try:
         app.run(debug=True, host='0.0.0.0', port=8881)
     except KeyboardInterrupt:
         pass
     finally:
-        # Only clean up streams if this is the active main worker process
-        if os.environ.get("WERKZEUG_RUN_MAIN"):
-            _shutdown_all_streams()
+        _shutdown_all_streams()

@@ -29,7 +29,7 @@
     <div class="alert alert-success text-center p-4">
 
       <div class="mb-3">
-        <img id="nowPlayingLogo" src="{{ url_for('static', filename='logos/' + (now_playing.IMG if now_playing.IMG else 'placeholder.png')) }}" class="img-fluid" style="max-height:128px;border-radius: 8px;">
+        <img id="nowPlayingLogo" src="{{ url_for('static', filename='logos/' + (now_playing.IMG if now_playing.IMG else 'placeholder.png')) }}" class="img-fluid" style="max-height:250px;border-radius: 8px;">
       </div>
 
       <div class="mb-3">
@@ -43,14 +43,12 @@
         </p>
       </div>
 
-      {% if now_playing.is_icy %}
       <div id="liveTrackContainer" class="mb-3">
         <hr class="my-3">
         <p id="liveTrackTitle" class="mb-0 fw-bold text-secondary" style="font-size: 1.15rem;">
-          &nbsp;
+         . 
         </p>
       </div>
-      {% endif %}
 
       <div class="d-flex justify-content-center gap-2">
         <a href="{{ url_for('stop_stream') }}" class="btn btn-danger btn-lg">Stop</a>
