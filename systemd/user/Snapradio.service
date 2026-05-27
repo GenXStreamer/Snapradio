@@ -15,7 +15,7 @@ WorkingDirectory=/path/to/Snapradio
 # Application setup:
 # - Name: Any descriptive name (e.g. your app name)
 # - OAuth Redirect URLs: Use "http://localhost" (or any localhost URL if not strictly validated)
-# - Category: Application Integration
+# - Category: Website Integration
 # - Client Type: Confidential
 #
 # After registration:
@@ -48,7 +48,7 @@ KillSignal=SIGTERM
 TimeoutStopSec=10
 
 # Environment and path setup
-Environment="PATH=/home/dan/venv/bin:/usr/bin:/usr/local/bin"
+Environment="PATH=/home/%U/venv/bin:/usr/bin:/usr/local/bin"
 Environment="FLASK_ENV=production"
 Environment="PYTHONUNBUFFERED=1"
 
