@@ -247,7 +247,7 @@ The editor allows stations to be added, removed, or modified without directly ac
 
 Most UK radio stations are sourced from:
 
-:contentReference[oaicite:0]{index=0}
+http://radiofeeds.co.uk
 
 RadioFeeds provides an extensive and regularly maintained catalogue of Internet radio stream URLs.
 
@@ -285,7 +285,7 @@ To enable Twitch streaming functionality, you must register this application wit
 When registering your app, use the following settings:
 
 - **Name:** Any descriptive name (e.g. your app name)
-- **OAuth Redirect URLs:** `http://localhost` (or any localhost URL if required)
+- **OAuth Redirect URLs:** `https://localhost` (or any localhost URL if required)
 - **Category:** Application Integration
 - **Client Type:** Confidential
 
@@ -302,24 +302,23 @@ After the application is created:
 
 These credentials are required to authenticate your application with the Twitch API and enable streaming features.
 
-## Acknowledgements
+## Acknowledgements/
 
 ### RadioFeeds UK
 
 Special thanks to:
 
-:contentReference[oaicite:1]{index=1}
-
+http://http://radiofeeds.co.uk/
 for maintaining one of the most comprehensive and reliable sources of UK Internet radio stream information.
 
 ### Snapcast
 
 SnapRadio is designed to work alongside:
 
-:contentReference[oaicite:2]{index=2}
+https://github.com/snapcast/snapcast
 
 an excellent multi-room audio synchronization system that makes it possible to distribute radio and Twitch audio throughout a home or network with precise synchronization.
 
 ## License
 
-Add your preferred license here.
+TBA
