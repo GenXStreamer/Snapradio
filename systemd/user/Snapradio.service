@@ -6,6 +6,28 @@ After=network.target
 Type=notify
 WorkingDirectory=/path/to/Snapradio
 
+# To enable Twitch streaming functionality, you must register this application with Twitch.
+# 
+# 1. Go to: https://dev.twitch.tv/
+# 2. Sign in with your Twitch account
+# 3. Navigate to “Your Console” and select “Register Your Application”
+#
+# Application setup:
+# - Name: Any descriptive name (e.g. your app name)
+# - OAuth Redirect URLs: Use "http://localhost" (or any localhost URL if not strictly validated)
+# - Category: Application Integration
+# - Client Type: Confidential
+#
+# After registration:
+# - Open the application via “Manage”
+# - Copy the Client ID
+# - Generate a Client Secret via “New Secret” and store it securely
+#
+# These credentials are required for authenticating with the Twitch API.
+Environment="TWITCH_CLIENT_SECRET=Your Twitch Client Secret Here"
+Environment="TWITCH_CLIENT_ID=Your Client ID Here"
+
+
 ExecStart=/path/to/venv/bin/gunicorn \
     --workers 2 \
     --timeout 300 \
