@@ -1,44 +1,60 @@
-/**
- * radio_metadata.js
- * Asynchronously polls the Flask server for track metadata,
- * toggling container row elements depending on ICY validity.
- */
-(function () {
-    function pollRadioMetadata() {
-        const trackTitle = document.getElementById("liveTrackTitle");
-        const trackContainer = document.getElementById("liveTrackContainer");
-        
-        if (!trackTitle || !trackContainer) {
-            return; 
-        }
 
-        fetch('/radio/track_title')
-            .then(response => {
-                if (!response.ok) throw new Error("Metadata network error");
-                return response.json();
-            })
-            .then(data => {
-                if (data.is_icy && data.track_title && data.track_title.trim() !== "") {
-                    // Reveal the container and push text updates
-                    trackContainer.style.display = "block";
-                    if (trackTitle.textContent !== data.track_title) {
-                        trackTitle.textContent = data.track_title;
-                    }
-                } else {
-                    // Hide if it's a standard stream link
-                    trackContainer.style.display = "none";
-                    trackTitle.textContent = "";
+//function updateRadioTrackTitle() {
+ //   const trackElement = document.getElementById('liveTrackTitle');
+  //  const containerElement = document.getElementById('liveTrackContainer');
+   // if (!trackElement) return;
+
+    //fetch('/radio/track_title')
+     //   .then(response => response.json())
+      //  .then(data => {
+            // Check if we actually received a valid title string
+       //     if (data.is_icy && data.track_title && data.track_title.trim() !== "") {
+        //        if (containerElement) containerElement.style.display = ''; // Make sure it's visible
+         //       trackElement.textContent = "Now Playing: " + data.track_title;
+            // } else {
+                // Non-ICY or direct audio stream with no active track data
+                // Option A: Show a clean, generic placeholder instead of a "waiting" message
+               // trackElement.textContent = "🔊 Audio Stream Connected";
+
+                // Option B: If you prefer to completely hide the section when there is no metadata,
+                // uncomment the line below:
+                // if (containerElement) containerElement.style.display = 'none';
+            //}
+        //})
+        //.catch(err => console.error("Error fetching live track title:", err));
+//}
+
+// Poll backend every 10 seconds
+//setInterval(updateRadioTrackTitle, 10000);
+// Run immediately on page load
+//document.addEventListener("DOMContentLoaded", updateRadioTrackTitle);
+
+// Add or append this logic inside your static/js/radio_metadata.js file
+function updateRadioTrackTitle() {
+    const trackElement = document.getElementById('liveTrackTitle');
+    const logoElement = document.getElementById('nowPlayingLogo');
+    
+    if (!trackElement) return;
+
+    fetch('/radio/track_title')
+        .then(response => response.json())
+        .then(data => {
+            if (data.is_icy && data.track_title && data.track_title.trim() !== "") {
+                trackElement.textContent = "Now Playing: " + data.track_title;
+                
+                // NEW: If artwork was found, override the station logo dynamically!
+                if (data.track_image && data.track_image !== "") {
+                    logoElement.src = data.track_image;
                 }
-            })
-            .catch(error => {
-                console.error("Error updating stream track context:", error);
-            });
-    }
+            //} else {
+                //trackElement.textContent = "🔊 Audio Stream Connected";
+            }
+        })
+        .catch(err => console.error("Error updating player visuals:", err));
+}
 
-    document.addEventListener("DOMContentLoaded", function () {
-        if (document.getElementById("liveTrackTitle")) {
-            pollRadioMetadata();
-            setInterval(pollRadioMetadata, 5000); // Check runtime updates every 5 seconds
-        }
-    });
-})();
+// Poll backend every 10 seconds
+setInterval(updateRadioTrackTitle, 10000);
+// Run immediately on page load
+document.addEventListener("DOMContentLoaded", updateRadioTrackTitle);
+

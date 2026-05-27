@@ -58,6 +58,7 @@ _current_radio_url = None   # resolved stream URL currently playing (for recordi
 
 # Asynchronous Metadata caching variables (Radio Only)
 _current_track_title = ""
+_current_track_image = ""
 _is_current_stream_icy = False
 
 # Globals (Twitch)
@@ -99,6 +100,37 @@ def ensure_fifo(path):
         os.mkfifo(path)
 
 
+#def get_icy_metadata(url):
+    #"""Parse ICY metadata from the live audio stream container."""
+    #headers = {'Icy-MetaData': '1', 'User-Agent': 'Mozilla/5.0'}
+    #try:
+        #response = requests.get(url, headers=headers, stream=True, timeout=4)
+        #metaint = response.headers.get('icy-metaint')
+        #if not metaint:
+            #return None, False
+        #
+        #metaint = int(metaint)
+        #stream = response.raw
+        #
+        ## Read past the first chunk of audio bytes
+        #stream.read(metaint)
+        #length_byte = stream.read(1)
+        #if not length_byte:
+            #return None, True
+        #
+        #metadata_length = ord(length_byte) * 16
+        ##if metadata_length == 0:
+            #return None, True
+            #
+        #metadata_raw = stream.read(metadata_length).decode('utf-8', errors='replace')
+        #match = re.search(r"StreamTitle='(.*?)';", metadata_raw)
+        #if match:
+            #return match.group(1).strip(), True
+        #return None, True
+    #except Exception:
+        #pass
+    #return None, False
+
 def get_icy_metadata(url):
     """Parse ICY metadata from the live audio stream container."""
     headers = {'Icy-MetaData': '1', 'User-Agent': 'Mozilla/5.0'}
@@ -107,33 +139,68 @@ def get_icy_metadata(url):
         metaint = response.headers.get('icy-metaint')
         if not metaint:
             return None, False
-        
+
         metaint = int(metaint)
         stream = response.raw
-        
-        # Read past the first chunk of audio bytes
+
         stream.read(metaint)
         length_byte = stream.read(1)
         if not length_byte:
             return None, True
-        
+
         metadata_length = ord(length_byte) * 16
         if metadata_length == 0:
             return None, True
-            
+
         metadata_raw = stream.read(metadata_length).decode('utf-8', errors='replace')
         match = re.search(r"StreamTitle='(.*?)';", metadata_raw)
         if match:
             return match.group(1).strip(), True
         return None, True
-    except Exception:
-        pass
+    except Exception as e:
+        app_log(f"[Metadata HTTP Error] Failed fetching ICY stream bytes: {e}")
     return None, False
 
+#def _radio_metadata_poller_loop():
+#    """Background polling loop for Radio ICY metadata."""
+#    global _current_track_title, _is_current_stream_icy
+#    app_log("[Metadata Poller] Loop worker thread has officially started.")
+#
+#    while True:
+#        try:
+#            with _state_lock:
+#                url = _current_radio_url
+#
+#            if url:
+#                app_log(f"[Metadata Poller] Checking stream: {url}")
+#                title, is_icy = get_icy_metadata(url)
+#
+#                with _state_lock:
+#                    _is_current_stream_icy = is_icy
+#                    if is_icy:
+#                        if title and title.strip():
+#                            app_log(f"[Metadata Poller] Found ICY Title: {title}")
+#                            _current_track_title = title
+#                        else:
+#                            _current_track_title = ""
+#                    else:
+##                        app_log("[Metadata Poller] Stream connected but is not returning ICY headers.")
+#                        _current_track_title = ""
+#            else:
+#                # Commented out to prevent app.log bloat every 10 seconds when idle
+#                # app_log("[Metadata Poller] Idle — No radio station actively playing.")
+#                with _state_lock:
+#                    _current_track_title = ""
+#                    _is_current_stream_icy = False
+#        except Exception as e:
+#            app_log(f"[Metadata Poller Exception] Critical Failure in Loop: {e}")
+#
+#        time.sleep(10)
 
 def _radio_metadata_poller_loop():
-    """Background polling loop for Radio ICY metadata."""
-    global _current_track_title, _is_current_stream_icy
+    """Background polling loop for Radio ICY metadata with image lookup."""
+    global _current_track_title, _current_track_image, _is_current_stream_icy
+    
     while True:
         try:
             with _state_lock:
@@ -143,22 +210,38 @@ def _radio_metadata_poller_loop():
                 title, is_icy = get_icy_metadata(url)
                 with _state_lock:
                     _is_current_stream_icy = is_icy
-                    if is_icy:
-                        if title and title.strip():
+                    if is_icy and title and title.strip():
+                        # ONLY trigger API fetch if track title changed
+                        if title != _current_track_title:
+                            app_log(f"[Metadata Poller] New track hit: '{title}'. Looking up artwork...")
                             _current_track_title = title
-                        else:
-                            _current_track_title = ""
+                            
+                            # Fetch artwork outside the state lock to prevent thread stalls
+                            _state_lock.release()
+                            img_url = fetch_track_artwork(title)
+                            _state_lock.acquire()
+                            
+                            _current_track_image = img_url
                     else:
                         _current_track_title = ""
+                        _current_track_image = ""
             else:
                 with _state_lock:
                     _current_track_title = ""
+                    _current_track_image = ""
                     _is_current_stream_icy = False
         except Exception as e:
             app_log(f"[Metadata Poller Exception] {e}")
                 
         time.sleep(10)
 
+@app.route('/radio/track_title')
+def radio_track_title():
+    with _state_lock:
+        title = _current_track_title
+        image = _current_track_image  # Include image in backend responses
+        is_icy = _is_current_stream_icy
+    return jsonify({'track_title': title, 'track_image': image, 'is_icy': is_icy})
 
 def _kill_proc_tree(proc):
     """Terminate a subprocess using process groups, escalating to SIGKILL after 3 s."""
@@ -765,13 +848,55 @@ def start_twitch_poller_daemon():
     t = threading.Thread(target=_twitch_poller_loop, daemon=True)
     t.start()
 
+def fetch_track_artwork(metadata_text):
+    """
+    Cleans metadata text, extracts Artist and Track strings,
+    and searches Deezer/iTunes for an album cover image url.
+    """
+    if not metadata_text or not metadata_text.strip():
+        return ""
 
-@app.route('/radio/track_title')
-def radio_track_title():
-    with _state_lock:
-        title = _current_track_title
-        is_icy = _is_current_stream_icy
-    return jsonify({'track_title': title, 'is_icy': is_icy})
+    # Try to strip away common stream artifacts like "(Original Mix)" or "Live at..."
+    query = re.sub(r'\(.*?\)|\[.*?\]', '', metadata_text).strip()
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; RadioPlayer/1.0)'}
+
+    # 1. Try Deezer Search API (Free, fast, no token)
+    try:
+        url = "https://api.deezer.com/search"
+        response = requests.get(url, params={'q': query}, headers=headers, timeout=3)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('data'):
+                # Grab the matching album art thumbnail (medium or big format)
+                album_art = data['data'][0].get('album', {}).get('cover_medium', '')
+                if album_art:
+                    return album_art
+    except Exception as e:
+        app_log(f"[Artwork Lookup] Deezer failed: {e}")
+
+    # 2. Fallback: Apple iTunes API (Free, excellent catalog, no token)
+    try:
+        url = "https://itunes.apple.com/search"
+        response = requests.get(url, params={'term': query, 'media': 'music', 'limit': 1}, headers=headers, timeout=3)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('resultCount', 0) > 0:
+                # 100x100 default art, but we can replace it with high-res 400x400 variant
+                art_url = data['results'][0].get('artworkUrl100', '')
+                if art_url:
+                    return art_url.replace('100x100bb.jpg', '400x400bb.jpg')
+    except Exception as e:
+        app_log(f"[Artwork Lookup] iTunes fallback failed: {e}")
+
+    return ""
+
+##@app.route('/radio/track_title')
+#def radio_track_title():
+    #with _state_lock:
+        #title = _current_track_title
+        #is_icy = _is_current_stream_icy
+    #return jsonify({'track_title': title, 'is_icy': is_icy})
 
 
 @app.route('/')
