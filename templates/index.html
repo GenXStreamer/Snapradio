@@ -6,6 +6,10 @@
     <title>Dan's Internet Radio Player</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    
+    <!-- Google Material Symbols (Outlined Variant) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
@@ -14,6 +18,34 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
     <link rel="manifest" href="/static/site.webmanifest">
+    
+    <style>
+        /* Alignment helpers for layout symbols */
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem;
+        }
+        .btn-icon .material-symbols-outlined {
+            font-size: 1.25rem;
+        }
+        
+        /* High Contrast Main Player Area Icons (Snippet 1 styling) */
+        .btn-icon-lg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem;
+            width: 48px;
+            height: 48px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            transition: all 0.2s ease;
+        }
+        .btn-icon-lg .material-symbols-outlined {
+            font-size: 1.5rem;
+        }
+    </style>
 </head>
 
 <body class="container py-4">
@@ -46,15 +78,25 @@
       <div id="liveTrackContainer" class="mb-3">
         <hr class="my-3">
         <p id="liveTrackTitle" class="mb-0 fw-bold text-secondary" style="font-size: 1.15rem;">
-         . 
+          &nbsp;
         </p>
       </div>
 
-      <div class="d-flex justify-content-center gap-2">
-        <a href="{{ url_for('stop_stream') }}" class="btn btn-danger btn-lg">Stop</a>
-        <button id="recordBtn" class="btn btn-lg btn-outline-danger"
+      <!-- Snippet 1 Functional Control Group Layout -->
+      <div class="d-flex justify-content-center gap-3 align-items-center">
+        <!-- Solid Dark Neutral Stop Control -->
+        <a href="{{ url_for('stop_stream') }}" 
+           class="btn btn-dark btn-icon-lg rounded-circle" 
+           title="Stop Playback">
+          <span class="material-symbols-outlined">stop</span>
+        </a>
+        
+        <!-- Open Neutral Gray Outline Record Control (Changes state dynamically via JS) -->
+        <button id="recordBtn" 
+                class="btn btn-outline-secondary btn-icon-lg rounded-circle"
+                title="Start Recording"
                 onclick="toggleRecording('{{ now_playing.FinalURL }}', '{{ now_playing.Name }}')">
-          ⏺ Record
+          <span class="material-symbols-outlined" style="color: #dc3545;">fiber_manual_record</span>
         </button>
       </div>
       <div id="recordingStatus" class="mt-2 small text-muted" style="display:none;"></div>
@@ -67,7 +109,9 @@
 
     async function toggleRecording(url, label) {
       const btn = document.getElementById('recordBtn');
+      const icon = btn.querySelector('.material-symbols-outlined');
       const status = document.getElementById('recordingStatus');
+      
       if (!_recording) {
         const resp = await fetch('/record/start', {
           method: 'POST',
@@ -77,8 +121,11 @@
         const data = await resp.json();
         if (data.status === 'recording') {
           _recording = true;
-          btn.classList.replace('btn-outline-danger', 'btn-danger');
-          btn.textContent = '⏹ Stop Recording';
+          // Pop to vivid filled red when active
+          btn.classList.replace('btn-outline-secondary', 'btn-danger');
+          icon.style.color = '#ffffff'; 
+          icon.textContent = 'pause'; 
+          btn.setAttribute('title', 'Stop Recording');
           status.style.display = '';
           status.textContent = '● Recording to ' + data.path;
         }
@@ -86,8 +133,11 @@
         const resp = await fetch('/record/stop', {method: 'POST'});
         const data = await resp.json();
         _recording = false;
-        btn.classList.replace('btn-danger', 'btn-outline-danger');
-        btn.textContent = '⏺ Record';
+        // Revert back to safe idle neutral layout profile
+        btn.classList.replace('btn-danger', 'btn-outline-secondary');
+        icon.style.color = '#dc3545';
+        icon.textContent = 'fiber_manual_record';
+        btn.setAttribute('title', 'Start Recording');
         status.textContent = 'Saved to ' + data.path;
       }
     }
@@ -98,8 +148,14 @@
         _recording = true;
         const btn = document.getElementById('recordBtn');
         if (btn) {
-          btn.classList.replace('btn-outline-danger', 'btn-danger');
-          btn.textContent = '⏹ Stop Recording';
+          btn.classList.replace('btn-outline-secondary', 'btn-danger');
+          btn.setAttribute('title', 'Stop Recording');
+          const icon = btn.querySelector('.material-symbols-outlined');
+          if (icon) {
+            icon.style.color = '#ffffff';
+            icon.textContent = 'pause';
+          }
+          
           const status = document.getElementById('recordingStatus');
           status.style.display = '';
           status.textContent = '● Recording to ' + data.path;
@@ -108,7 +164,6 @@
     });
 
 function openPopout(stationId) {
-    // Defines an clean, tool-bar-free standalone canvas interface layout
     const width = 450;
     const height = 300;
     const left = (window.screen.width / 2) - (width / 2);
@@ -120,7 +175,6 @@ function openPopout(stationId) {
         `width=${width},height=${height},top=${top},left=${left},status=no,menubar=no,toolbar=no,location=no,resizable=yes`
     );
 }
-
     </script>
 
     <table id="stationsTable" class="table table-hover table-striped align-middle">
@@ -133,7 +187,7 @@ function openPopout(stationId) {
                 <th>Category</th>
                 <th>Format</th>
                 <th>Stereo/Mono</th>
-                <th>Action</th>
+                <th class="text-center" style="width: 100px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -160,14 +214,23 @@ function openPopout(stationId) {
                     {% if station[13] %} / {{ (station[13]|int / 1000)|round(1) }} kHz {% endif %}
                 </td>
                 <td>{{ station[7] }}</td>
-		<td>
-    <div class="d-grid gap-2 d-sm-flex justify-content-sm-start"> 
-        <a href="{{ url_for('play_station', station_id=station[0]) }}" class="btn btn-success">Play</a>
-        <button class="btn btn-secondary" onclick="openPopout({{ station[0] }}); event.stopPropagation();">
-            Pop-out Player (local)
-        </button>
-    </div>
-</td>
+                <td>
+                    <div class="d-flex justify-content-center gap-2"> 
+                        <!-- Play Stream Symbol Button -->
+                        <a href="{{ url_for('play_station', station_id=station[0]) }}" 
+                           class="btn btn-outline-success btn-icon rounded-circle" 
+                           title="Play Stream">
+                            <span class="material-symbols-outlined">play_arrow</span>
+                        </a>
+                        
+                        <!-- Standalone Window Popout Symbol Button -->
+                        <button class="btn btn-outline-secondary btn-icon rounded-circle" 
+                                title="Open Pop-out Window"
+                                onclick="openPopout({{ station[0] }}); event.stopPropagation();">
+                            <span class="material-symbols-outlined">open_in_new</span>
+                        </button>
+                    </div>
+                </td>
             </tr>
         {% endfor %}
         </tbody>
