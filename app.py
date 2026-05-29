@@ -1309,7 +1309,7 @@ def mixcloud():
                     "preferredcodec": "mp3",
                     "preferredquality": "0",
                 }],
-                "embedmetadata": False,
+                "embedmetadata": True,
                 "quiet": True,
             }
 
