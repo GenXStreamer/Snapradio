@@ -16,11 +16,11 @@ function updateRadioTrackTitle() {
                 if (data.track_image && data.track_image !== "") {
                     logoElement.src = data.track_image;
                 }
-            } else {
+            //} else {
                 // Keep the loading message until the background thread finds a title
-                if (trackElement.textContent.includes("Now Playing:")) {
-                     trackElement.textContent = "🔊 Audio Stream Connected";
-                }
+             //   if (trackElement.textContent.includes("Now Playing:")) {
+            //         trackElement.textContent = "Audio Stream Connected";
+              //  }
             }
         })
         .catch(err => console.error("Error updating player visuals:", err));
