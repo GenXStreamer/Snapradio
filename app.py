@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
-from flask import Flask, request, render_template, redirect, url_for, flash, jsonify, send_from_directory
+import os
 import subprocess
 import threading
-import os
 import shutil
 import signal
 import time
@@ -20,32 +19,43 @@ from contextlib import contextmanager
 from datetime import datetime
 from urllib.parse import urlparse
 
+# Load configuration values from .env file into os.environ
+from dotenv import load_dotenv
+load_dotenv()
 
+from flask import Flask, request, render_template, redirect, url_for, flash, jsonify, send_from_directory
 import yt_dlp
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, TIT2, TPE1, APIC
 from PIL import Image
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 
-DATABASE = 'stations.db'
+# Variables from .env
+app.secret_key = os.environ.get("SECRET_KEY")
+DATABASE = os.environ.get("DATABASE")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Hardcoded paths — override via environment variables if needed
-OUTPUT_DIR        = os.environ.get("OUTPUT_DIR",        "/home/dan/Music")
-STATIC_ADS_WAV    = os.environ.get("STATIC_ADS_WAV",    "/home/dan/RadioPlayer/static/ads.wav")
-STATIC_RESUME_WAV = os.environ.get("STATIC_RESUME_WAV", "/home/dan/RadioPlayer/static/resuming.wav")
-STATIC_ENDED_WAV  = os.environ.get("STATIC_ENDED_WAV",  "/home/dan/RadioPlayer/static/ended.wav")
-FIFO_PATH         = os.environ.get("TWITCH_FIFO",       "/tmp/TwitchFIFO")
-SNAPCAST_FIFO     = os.environ.get("SNAPCAST_FIFO",     "/tmp/snapcastDAB")
-FFMPEG_BIN        = os.environ.get("FFMPEG_BIN",        "/usr/bin/ffmpeg")
-RECORDING_DIR     = os.environ.get("RECORDING_DIR",     os.path.expanduser("~/Recordings"))
-RADIO_CHANNELS    = int(os.environ.get("RADIO_CHANNELS",  "2"))
-RADIO_SAMPLE_RATE = int(os.environ.get("RADIO_SAMPLE_RATE", "48000"))
-STATION_CHECK_INTERVAL_DAYS=3   # re-check every 3 days
-STATION_CHECK_WORKERS=20        # more concurrency
-ALLOWED_LOGO_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+OUTPUT_DIR                  = os.environ.get("OUTPUT_DIR")
+STATIC_ADS_WAV              = os.environ.get("STATIC_ADS_WAV")
+STATIC_RESUME_WAV           = os.environ.get("STATIC_RESUME_WAV")
+STATIC_ENDED_WAV            = os.environ.get("STATIC_ENDED_WAV")
+FIFO_PATH                   = os.environ.get("TWITCH_FIFO")
+SNAPCAST_FIFO               = os.environ.get("SNAPCAST_FIFO")
+FFMPEG_BIN                  = os.environ.get("FFMPEG_BIN")
+RECORDING_DIR               = os.environ.get("RECORDING_DIR")
+RADIO_CHANNELS              = int(os.environ.get("RADIO_CHANNELS"))
+RADIO_SAMPLE_RATE           = int(os.environ.get("RADIO_SAMPLE_RATE"))
+STATION_CHECK_INTERVAL_DAYS = int(os.environ.get("STATION_CHECK_INTERVAL_DAYS"))
+STATION_CHECK_WORKERS       = int(os.environ.get("STATION_CHECK_WORKERS"))
+PWCAT_BIN                   = os.environ.get("PWCAT_BIN")
+PIPEWIRE_TARGET             = os.environ.get("PIPEWIRE_TARGET")
+TWITCH_PIPEWIRE_TARGET      = os.environ.get("TWITCH_PIPEWIRE_TARGET")
+TWITCH_CLIENT_SECRET        = os.environ.get("TWITCH_CLIENT_SECRET")
+TWITCH_CLIENT_ID            = os.environ.get("TWITCH_CLIENT_ID")
+
+# defined variables
+ALLOWED_LOGO_EXTENSIONS     = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 # Thread safety for mutable globals
 _state_lock = threading.Lock()
@@ -69,10 +79,6 @@ now_playing_streamer = ""
 _record_proc       = None   # ffmpeg subprocess for recording
 _recording_path    = None   # current output file path
 
-PWCAT_BIN         = os.environ.get("PWCAT_BIN",         "/usr/bin/pw-cat")
-PIPEWIRE_TARGET   = os.environ.get("PIPEWIRE_TARGET",   "snapcastDAB")
-TWITCH_PIPEWIRE_TARGET = os.environ.get("TWITCH_PIPEWIRE_TARGET", "Twitch")
-
 
 @contextmanager
 def get_db():
@@ -95,8 +101,62 @@ def ensure_fifo(path):
         os.mkfifo(path)
 
 
+def get_bbc_metadata(url):
+    """Extract BBC station ID from the URL and pull live metadata from the BBC RMS API."""
+    match = re.search(r'/(bbc_[a-zA-Z0-9_]+)', url)
+    if not match:
+        return None
+
+    station_id = match.group(1)
+    track_api = f"https://rms.api.bbc.co.uk/v2/services/{station_id}/segments/latest"
+    show_api = f"https://rms.api.bbc.co.uk/v2/broadcasts/poll/{station_id}"
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; RadioPlayer/1.0)"}
+
+    current_show = ""
+    try:
+        # 1. Grab current show/DJ context
+        show_res = requests.get(show_api, headers=headers, timeout=3)
+        if show_res.status_code == 200:
+            show_data = show_res.json()
+            if "data" in show_data and len(show_data["data"]) > 0:
+                current_show = show_data["data"][0].get("titles", {}).get("primary", "")
+    except Exception as e:
+        app_log(f"[BBC Metadata API Error] Failed fetching show data for {station_id}: {e}")
+
+    # Build show label with a newline character instead of square brackets
+    show_prefix = f"{current_show}\n" if current_show else ""
+
+    try:
+        # 2. Grab current track item matching the real BBC payload structure
+        track_res = requests.get(track_api, headers=headers, timeout=3)
+        if track_res.status_code == 200:
+            track_data = track_res.json()
+            
+            if "data" in track_data and len(track_data["data"]) > 0:
+                for segment in track_data["data"]:
+                    if segment.get("segment_type") == "music":
+                        titles = segment.get("titles", {})
+                        artist = titles.get("primary", "Unknown Artist")
+                        song_title = titles.get("secondary", "Unknown Title")
+                        
+                        return f"{show_prefix}{artist} : {song_title}"
+        
+        # Fallback if the segment timeline currently contains no music tracking blocks
+        return f"{show_prefix}Talk Segment / DJ Set" if current_show else "Live Broadcast"
+        
+    except Exception as e:
+        app_log(f"[BBC Metadata API Error] Failed fetching track data for {station_id}: {e}")
+    
+    return f"{show_prefix}Live Broadcast" if current_show else None
+
+
 def get_icy_metadata(url):
     """Parse ICY metadata from the live audio stream container."""
+    if "bbc_" in url.lower():
+        bbc_title = get_bbc_metadata(url)
+        if bbc_title:
+            return bbc_title, True
+
     headers = {'Icy-MetaData': '1', 'User-Agent': 'Mozilla/5.0'}
     try:
         response = requests.get(url, headers=headers, stream=True, timeout=4)
@@ -137,14 +197,12 @@ def _radio_metadata_poller_loop():
                 title, is_icy = get_icy_metadata(url)
                 if is_icy and title and title.strip():
                     
-                    # 1. Pull what is in the DB currently to gauge change
                     with get_db() as conn:
                         current = conn.execute("SELECT track_title FROM now_playing LIMIT 1").fetchone()
                         db_title = current['track_title'] if current else None
 
-                    # 2. Track update conditional evaluation
                     if title != db_title:
-                        app_log(f"[Metadata Poller] New track hit: '{title}'. Looking up artwork...")
+                        app_log(f"[Metadata Poller] New track hit: '{title.replace(chr(10), ' ')}'. Looking up artwork...")
                         img_url = fetch_track_artwork(title)
                         
                         with get_db() as conn:
@@ -262,13 +320,6 @@ def test_stream(url, timeout=5):
         return response.status_code >= 200 and response.status_code < 400
     except requests.RequestException:
         return False
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Station connectivity checker
-# ─────────────────────────────────────────────────────────────────────────────
-
-STATION_CHECK_INTERVAL_DAYS = int(os.environ.get("STATION_CHECK_INTERVAL_DAYS", "7"))
-STATION_CHECK_WORKERS = int(os.environ.get("STATION_CHECK_WORKERS", "10"))
 
 
 def _check_one_station(rowid: int, name: str, url: str) -> tuple[int, bool]:
@@ -775,7 +826,25 @@ def fetch_track_artwork(metadata_text):
     if not metadata_text or not metadata_text.strip():
         return ""
 
-    query = re.sub(r'\(.*?\)|\[.*?\]', '', metadata_text).strip()
+    # Fix: If the metadata contains a newline character (from the BBC extractor),
+    # discard the show info on the first line and focus solely on the Track info on the second line.
+    if "\n" in metadata_text:
+        lines = metadata_text.split("\n")
+        if len(lines) > 1 and lines[1].strip():
+            query_source = lines[1]
+        else:
+            query_source = lines[0]
+    else:
+        query_source = metadata_text
+
+    app_log(f"[Artwork Poller] Searching for '{query_source}'")
+
+    # Strip bracket contents and clean up formatting characters
+    query = re.sub(r'\(.*?\)|\[.*?\]', '', query_source).strip()
+    
+    if not query or "DJ Set" in query or "Broadcast" in query:
+        return ""
+
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; RadioPlayer/1.0)'}
 
     # 1. Deezer API Lookup
@@ -787,6 +856,7 @@ def fetch_track_artwork(metadata_text):
             if data.get('data'):
                 album_art = data['data'][0].get('album', {}).get('cover_medium', '')
                 if album_art:
+                    app_log(f"[Artwork Poller] Found '{query_source}' in Deezer")
                     return album_art
     except Exception as e:
         app_log(f"[Artwork Lookup] Deezer failed: {e}")
@@ -800,12 +870,12 @@ def fetch_track_artwork(metadata_text):
             if data.get('resultCount', 0) > 0:
                 art_url = data['results'][0].get('artworkUrl100', '')
                 if art_url:
+                    app_log(f"[Artwork Poller] Found '{query_source}' in itunes")
                     return art_url.replace('100x100bb.jpg', '400x400bb.jpg')
     except Exception as e:
         app_log(f"[Artwork Lookup] iTunes fallback failed: {e}")
 
     return ""
-
 
 @app.route('/')
 def index():
@@ -820,7 +890,6 @@ def index():
             LIMIT 1
         """).fetchone()
 
-        # Check if an ICY track title exists inside the database active row
         track_row = conn.execute("SELECT track_title FROM now_playing LIMIT 1").fetchone()
         db_has_icy = True if (track_row and track_row['track_title']) else False
 
@@ -1337,7 +1406,6 @@ master_production_initialize()
 
 
 if __name__ == '__main__':
-    # Local fallback option when using direct execution style `python app.py`
     try:
         app.run(debug=True, host='0.0.0.0', port=8881)
     except KeyboardInterrupt:

@@ -1,6 +1,7 @@
 beautifulsoup4
 Flask
 mutagen
+dotenv
 Pillow
 Requests
 streamlink

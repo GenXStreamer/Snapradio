@@ -44,6 +44,49 @@ Install the required Python modules:
 ```bash
 pip install -r requirements.txt
 ```
+---
+
+# Installation
+
+## Set up Python virtual environment
+
+Create a Python virtual environment in your home directory:
+
+```bash
+python -m venv ~/venv
+```
+
+Activate the virtual environment:
+
+```bash
+source ~/venv/bin/activate
+```
+
+Install requirements:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+# Clone repo
+
+```bash
+sudo mkdir /opt/Snapradio
+sudo chown USER:USER /opt/Snapradio
+cd /opt/
+git clone https://github.com/GenXStreamer/Snapradio.git
+```
+If you want to run as a service, there is systemd example. See the Readme.md in user/systemd
+
+# Configuration
+
+```bash
+mv .env_example .env
+```
+
+Then edit .env to fit your environment
+Be sure to update the APP_SECRET and TWITCH_ API settings. See below for TWITCH info
 
 ---
 
