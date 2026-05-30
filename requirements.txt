@@ -6,3 +6,5 @@ Pillow
 Requests
 streamlink
 yt_dlp
+curl-cffi
+
