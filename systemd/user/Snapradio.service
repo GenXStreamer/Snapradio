@@ -1,38 +1,20 @@
 [Unit]
-Description=Radioplayer Flask App (Gunicorn)
-After=network.target
+Description=DAB Radio Studio (Snapradio)
+After=network.target pipewire.service pipewire-pulse.service
 
 [Service]
-Type=notify
-WorkingDirectory=/opt/Snapradio
-
-Environment="PATH=/home/%u/venv/bin:/usr/bin:/usr/local/bin"
-Environment="FLASK_ENV=production"
-Environment="PYTHONUNBUFFERED=1"
-
-ExecStart=/home/%u/venv/bin/gunicorn \
-    --workers 1 \
-    --threads 4 \
-    --timeout 300 \
-    --bind 0.0.0.0:8881 \
-    --pid /run/user/%U/radioplayer.pid \
-    --access-logfile - \
-    --error-logfile - \
-    app:app
-
-ExecReload=/bin/kill -HUP $MAINPID
+Type=simple
+WorkingDirectory=/opt/Snapradio-new
+Environment="PATH=/home/dan/venv/bin:/usr/bin:/usr/local/bin"
+ExecStart=/home/dan/venv/bin/python main.py
 ExecStop=/bin/kill -TERM $MAINPID
-PIDFile=/run/user/%U/radioplayer.pid
-
-Restart=on-failure
-RestartSec=5
-KillMode=mixed
+KillMode=control-group
 KillSignal=SIGTERM
 TimeoutStopSec=10
-
+Restart=on-failure
+RestartSec=5
 StandardOutput=journal
 StandardError=journal
 
 [Install]
 WantedBy=default.target
-

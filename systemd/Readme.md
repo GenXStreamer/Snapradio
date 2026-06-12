@@ -1,12 +1,3 @@
-# Installing Gunicorn
-
-As the user you are going to run the service as:
-
-```bash
-source ~/path/to/venv/bin/activate
-~/path/to/venv/bin/pip install gunicorn
-```
-
 # Installing the User Systemd Service
 
 As the user you are going to run the service as:
