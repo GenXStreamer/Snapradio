@@ -3,7 +3,6 @@ __pycache__
 *.db
 recordings/
 downloads/
-local_logos/
 radiobrowser_stations_latest.json.gz
 *.pyc
 .vscode/
