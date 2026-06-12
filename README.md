@@ -95,7 +95,7 @@ To use Twitch features, you must provide a Client ID and Secret in your `.env`.
    python get_twitch_tokens.py
    ```
    This script will automatically update your `.env` with the required `TWITCH_USER_TOKEN` and `TWITCH_REFRESH_TOKEN`.
-5. You also need to find your numeric Twitch User ID (e.g. using an online lookup tool) and add it to `TWITCH_USER_ID` in `.env` to see your followed channels.
+5. You also need to find your numeric Twitch User ID (e.g. using an online lookup tool) and add it to `TWITCH_USER_ID` in `.env` to see your followed channels. https://www.streamweasels.com/tools/convert-twitch-username-%20to-user-id/
 
 ## Snapserver Configuration
 Example `snapserver.conf` input:
