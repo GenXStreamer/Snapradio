@@ -1,0 +1,46 @@
+# ── DAB Radio Studio — Environment Configuration ──────────────────────────────
+# Copy this file to /opt/Snapradio/.env
+# Values here override the defaults built into main.py
+
+# ── Paths ─────────────────────────────────────────────────────────────────────
+RECORDING_DIR=/opt/Snapradio/recordings
+LOCAL_LOGOS_DIR=/opt/Snapradio/local_logos
+HISTORY_DB=/opt/Snapradio/history.db
+FAVOURITES_FILE=/opt/Snapradio/favourites.json
+
+# Station data — gzipped JSON dump from RadioBrowser backups
+STATIONS_JSON=/opt/Snapradio/radiobrowser_stations_latest.json.gz
+STATIONS_JSON_URL=http://backups.radio-browser.info/radiobrowser_stations_latest.json.gz
+.json.gz
+
+# ── Audio ─────────────────────────────────────────────────────────────────────
+# FIFO that Snapcast reads from
+SNAPCAST_FIFO=/tmp/snapcastDAB
+
+# PipeWire sink name — must match the sink name in your PipeWire config
+PIPEWIRE_TARGET=snapcastDAB
+
+# Audio format (leave as-is unless your Snapcast server differs)
+RADIO_CHANNELS=2
+RADIO_SAMPLE_RATE=48000
+
+# ── Binaries ──────────────────────────────────────────────────────────────────
+FFMPEG_BIN=ffmpeg
+PWCAT_BIN=pw-cat
+
+# ── Web server ────────────────────────────────────────────────────────────────
+APP_HOST=0.0.0.0
+APP_PORT=8882
+
+# ── Twitch ────────────────────────────────────────────────────────────────────
+TWITCH_CLIENT_SECRET=<Yours Here>
+TWITCH_CLIENT_ID=<Yours Here>
+# Your numeric Twitch user ID (find at https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/)
+TWITCH_USER_ID=<Yours Here>
+# Separate PipeWire sink for Twitch audio
+TWITCH_PW_TARGET=Twitch
+# FIFO for Twitch stream (separate from radio)
+TWITCH_FIFO=/tmp/Twitch
+
+# ── Downloader ────────────────────────────────────────────────────────────────
+DOWNLOADS_DIR=/opt/Snapradio/downloads
