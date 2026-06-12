@@ -40,6 +40,7 @@ FAVOURITES_FILE = os.environ.get("FAVOURITES_FILE",  os.path.join(_SCRIPT_DIR, "
 DEFAULT_ART     = "/logos/default_fallback.jpg"
 APP_HOST        = os.environ.get("APP_HOST", "0.0.0.0")
 APP_PORT        = int(os.environ.get("APP_PORT", "8882"))
+DEFAULT_COUNTRY = os.environ.get("DEFAULT_COUNTRY", "GB").upper()
 
 DOWNLOADS_DIR   = os.environ.get("DOWNLOADS_DIR",   os.path.join(_SCRIPT_DIR, "downloads"))
 TEMPLATES_DIR   = os.path.join(_SCRIPT_DIR, "templates")
@@ -932,10 +933,10 @@ def api_get_countries():
             for cc, stations in _stations_by_country.items()
         ]
     result.sort(key=lambda x: x["name"])
-    return {"countries": result}
+    return {"countries": result, "default": DEFAULT_COUNTRY}
 
 @app.get("/api/fetch-stations")
-def api_fetch_stations(countrycode: str = "GB"):
+def api_fetch_stations(countrycode: str = DEFAULT_COUNTRY):
     cc = countrycode.strip().upper()
     with _stations_lock:
         raw_stations = list(_stations_by_country.get(cc, []))

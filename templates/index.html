@@ -437,10 +437,11 @@
             }));
             msSetItems('ms-country', items);
 
-            // Default: select GB
+            // Default selection from backend config
+            const defaultCountry = data.default || 'GB';
             const ms = multiSelects['ms-country'];
-            if (items.some(i => i.value === 'GB')) {
-                ms.selected.add('GB');
+            if (items.some(i => i.value === defaultCountry)) {
+                ms.selected.add(defaultCountry);
                 updateTriggerLabel('ms-country');
                 renderItems('ms-country');
             }
