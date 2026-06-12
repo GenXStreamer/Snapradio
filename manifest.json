@@ -1,7 +1,7 @@
 {
     "name": "SnapRadio",
     "short_name": "DAB Radio",
-    "description": "Dans' Internet radio player with Snapcast integration",
+    "description": "Internet radio player with Snapcast integration",
     "start_url": "/",
     "display": "standalone",
     "orientation": "portrait",

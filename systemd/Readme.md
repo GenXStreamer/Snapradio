@@ -6,13 +6,13 @@ As the user you are going to run the service as:
 mkdir -p ~/.config/systemd/user
 ```
 
-Create the service file:
+Create the service file (or copy it from this directory):
 
 ```bash
-nano ~/.config/systemd/user/Snapradio.service
+cp /opt/Snapradio/systemd/user/Snapradio.service ~/.config/systemd/user/
 ```
 
-Add the content of Snapradio.service to it, replacing the paths as appropriate.
+The service uses the `%h` specifier to automatically find your home directory (assuming the virtual environment is at `~/venv`).
 
 Reload the user systemd daemon:
 
@@ -48,16 +48,16 @@ journalctl --user -u Snapradio.service -f
 
 ## Running When Not Logged In
 
-To allow the service to continue running after logout:
+To allow the service to continue running after logout (replace `YOUR_USERNAME` with your actual username):
 
 ```bash
-sudo loginctl enable-linger Snapradio-User
+sudo loginctl enable-linger YOUR_USERNAME
 ```
 
 Verify:
 
 ```bash
-loginctl show-user Snapradio-User | grep Linger
+loginctl show-user YOUR_USERNAME | grep Linger
 ```
 
 The SnapRadio service will now start automatically at boot and continue running even when no user session is active.

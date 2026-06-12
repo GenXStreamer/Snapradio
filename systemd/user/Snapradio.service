@@ -4,9 +4,9 @@ After=network.target pipewire.service pipewire-pulse.service
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/Snapradio-new
-Environment="PATH=/home/dan/venv/bin:/usr/bin:/usr/local/bin"
-ExecStart=/home/dan/venv/bin/python main.py
+WorkingDirectory=/opt/Snapradio
+Environment="PATH=%h/venv/bin:/usr/bin:/usr/local/bin"
+ExecStart=%h/venv/bin/python main.py
 ExecStop=/bin/kill -TERM $MAINPID
 KillMode=control-group
 KillSignal=SIGTERM
