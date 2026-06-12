@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csp-nonce" content="IkjZjCFIq9UK3ygsjEKTLw==" />
+    <title>Subtle Radio</title>
+    
+    <!-- Google Consent Mode v2 - Initialize before GTM -->
+    <!--
+    <script nonce="IkjZjCFIq9UK3ygsjEKTLw==">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      
+      // Set default consent state (deny all non-essential)
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'wait_for_update': 2000
+      });
+    </script>
+    -->
+    
+    <!-- Google Tag Manager -->
+    <script nonce="IkjZjCFIq9UK3ygsjEKTLw==">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5K2V59S3');</script>
+    <!-- End Google Tag Manager -->
+    
+    <!-- Google tag (gtag.js) - Temporary direct load for debugging -->
+    <!--
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CQ2FE4GEG" nonce="IkjZjCFIq9UK3ygsjEKTLw=="></script>
+    <script nonce="IkjZjCFIq9UK3ygsjEKTLw==">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9CQ2FE4GEG');
+    </script>
+    -->
+    
+    <!-- Meta Pixel Code -->
+    <script nonce="IkjZjCFIq9UK3ygsjEKTLw==">
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '400828691270709');
+    fbq('track', 'PageView');
+    </script>
+    <!-- End Meta Pixel Code -->
+    <script type="module" crossorigin src="/assets/index-K-OufbJ_.js" nonce="IkjZjCFIq9UK3ygsjEKTLw=="></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-DMbnx5U0.js">
+    <link rel="modulepreload" crossorigin href="/assets/analytics-Q450WVZd.js">
+    <link rel="modulepreload" crossorigin href="/assets/utils-WX9rKU3i.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-LbUuYnre.js">
+    <link rel="modulepreload" crossorigin href="/assets/supabase-ABxJcD4R.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-COryr9EJ.css">
+  </head>
+  <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5K2V59S3"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Meta Pixel noscript fallback -->
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=400828691270709&ev=PageView&noscript=1"
+    /></noscript>
+    
+    <div id="root"></div>
+  </body>
+</html>

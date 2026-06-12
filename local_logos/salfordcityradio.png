@@ -1,0 +1,962 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Salford City Radio</title>
+<meta name="description" content="94.4FM Salford City Radio">
+<meta name="keywords" content="">
+<meta name="robots" content="noodp, noydir">
+
+<!-- Facebook -->
+<meta property="og:url" content="https://www.salfordcityradio.com/">
+<meta property="og:title" content="Salford City Radio">
+<meta property="og:image:url" content="https://mmo.aiircdn.com/2393/69d25e5bf0b62.jpg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1414">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:description" content="">
+<meta property="og:site_name" content="Salford City Radio">
+<meta property="og:type" content="article">
+
+<!-- X.com -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Salford City Radio">
+<meta name="twitter:description" content="">
+<meta name="twitter:image" content="https://mmo.aiircdn.com/2393/69d25e5bf0b62.jpg">
+<meta name="twitter:site" content="@salfordcradio">
+
+
+
+
+<!-- Common CSS -->
+<link type="text/css" href="https://c.aiircdn.com/fe/css/dist/afe-f98a36ef05.min.css" rel="stylesheet" media="screen">
+
+<!-- Common JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://c.aiircdn.com/fe/js/dist/runtime.5b7a401a6565a36fd210.js"></script>
+<script src="https://c.aiircdn.com/fe/js/dist/vendor.f6700a934cd0ca45fcf8.js"></script>
+<script src="https://c.aiircdn.com/fe/js/dist/afe.10a5ff067c9b70ffe138.js"></script>
+
+<script>
+gm.properties = {"site_id":"2114","page_id":null,"page_path_no_tll":"\/","service_id":"6597"};
+</script>
+
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
+    <link rel="stylesheet" href="https://a.aiircdn.com/d/c/4257-oabpvcqfu1v8cd.css" />
+    <script src="https://a.aiircdn.com/d/j/4258-bqulf9viamjqdt.js"></script>
+
+        <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,400i,700&display=swap" rel="stylesheet">
+<head>
+  <meta charset="UTF-8">
+  <title>Protected Page</title>
+
+  <!-- Styles first to reduce perceived load time -->
+  <style>
+    /* Disable text selection on the page */
+    body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Disable pointer events on images */
+    img {
+      pointer-events: none;
+    }
+  </style>
+
+  <!-- OneSignal SDK Script -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+  <!-- OneSignal Initialization -->
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "792dd2fc-c16d-4ef3-9f7a-3d531b179dff",
+      });
+    });
+  </script>
+
+  <!-- Security and interaction blocking script -->
+  <script defer>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Disable right-click on the whole document
+      document.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+      });
+
+      // Disable copy, cut, and paste
+      ["copy", "cut", "paste"].forEach(function(evt) {
+        document.addEventListener(evt, function(e) {
+          e.preventDefault();
+        });
+      });
+    });
+  </script>
+</head>
+
+</head>
+<body data-controller="ads">
+
+
+
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" 
+        src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v13.0&autoLogAppEvents=1"
+        ></script>
+
+<div class="c-site-wrapper ">
+
+    <div class="c-page-head-wrapper">
+
+        <div class="c-leaderboard-wrapper js-takeover-wrap">
+            <div class="c-ad c-leaderboard js-spacing-on-load"><div class="gm-adpos" 
+     data-ads-target="pos" 
+     data-pos-id="13485" 
+     id="ad-pos-13485"
+ ></div></div>
+        </div>
+
+        <div class="o-wrapper">
+
+            <header class="c-page-head">
+                <div class="dv-grid is-vertical-middle">
+                    <div class="dv-grid__item xl-one-fifth one-quarter sm-one-half s-one-half">
+
+                        <img src="https://mmo.aiircdn.com/2393/690942dfb4e30.png" alt="Salford City Radio" class="c-logo" />
+                        <h1 class="u-access">Salford City Radio</h1>
+
+                    </div><!--
+              --><div class="dv-grid__item xl-four-fifths three-quarters sm-one-half s-one-half">
+                        <div class="c-output js-output">
+                            <div class="dv-grid  is-vertical-middle">
+                                <div class="dv-grid__item xl-five-eighths one-half s-m-one-whole">
+                                    
+                                    <div class="o-media c-output__item c-output__item--primary o-media--middle">
+
+                                        <div class="o-media__img">
+                                            <img src="https://mmo.aiircdn.com/2393/68eda0efc9309.jpg" alt="">
+                                        </div>
+                                        <div class="o-media__body">
+
+                                            <div class="dv-grid is-vertical-middle">
+                                                <div class="dv-grid__item xl-five-twelfths l-one-whole m-two-fifths s-one-whole">
+                                                    <h2 class="c-output__header">On Air Now</h2>
+                                                    <div>
+                                                        <a href="" class="c-output__title">Pluggin Baby Music Show</a>
+                                                        <p class="c-output__meta s-hide">10:00pm - Midnight</p>
+                                                    </div>
+                                                </div><!--
+                                        --><div class="dv-grid__item xl-seven-twelfths l-hide m-three-fifths s-one-whole">
+                                                    <ul class="o-list c-output-contact">
+                                                                                                                <li class="o-list__item c-output-contact__item">
+                                                            <svg class="c-output-contact__icon" viewBox="0 0 16 18" xmlns="http://www.w3.org/2000/svg"><path d="M15.14 13.17c0-.07 0-.14-.03-.21-.07-.21-.56-.43-.76-.53-.57-.33-1.16-.64-1.72-.97-.26-.16-.58-.46-.9-.46-.6 0-1.5 1.82-2.04 1.82-.27 0-.62-.25-.87-.4a10 10 0 01-4.1-4.1c-.14-.24-.4-.6-.4-.87 0-.54 1.82-1.43 1.82-2.04 0-.32-.3-.64-.46-.9-.33-.56-.64-1.14-.96-1.72-.1-.2-.32-.69-.54-.76C4.11 2 4.04 2 3.98 2c-.37 0-1.07.16-1.4.31-.5.21-.82.77-1.07 1.23C1.2 4.13 1 4.74 1 5.4c0 .93.38 1.77.7 2.63.21.61.49 1.2.83 1.75a16.96 16.96 0 004.82 4.83 9.4 9.4 0 001.76.83c.85.31 1.7.7 2.63.7.67 0 1.27-.2 1.87-.52.45-.25 1.01-.57 1.22-1.06.15-.34.31-1.04.31-1.4z" fill-rule="evenodd"/></svg>
+                                                            <span class="c-output-contact__text">0161 793 2939</span>
+                                                        </li>
+                                                                                                                                                                                                                            </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><!--
+                         --><div class="dv-grid__item xl-three-eighths one-half s-m-one-whole">
+
+                                    Song information is currently unavailable.
+                                </div>                            </div>
+                        </div>
+                        <button class="c-output-toggle js-output-toggle">On Air Now <i class="c-output-toggle__icon"></i></button>
+                    </div>
+                </div>
+
+            </header>
+        </div>
+    </div>
+
+    <div class="c-nav-primary-wrapper ">
+
+        <div class="o-wrapper--no-p">
+
+            <div class="c-nav-primary-layout">
+
+                <div class="c-nav-primary-layout__nav">
+                    <div class="js-nav-primary-wrapper">
+                        <nav class="c-nav-primary js-nav-primary">
+
+                            <h2 class="hide"><a href="/">Navigation</a></h2>
+                            <ul class="global-nav-top"><li class="nav--pagemanager on"><div><a href="/">
+                    Home
+                </a></div></li><li class="nav--news "><div><a href="/news/">
+                    News
+                </a></div><ul><li><a href="/news/weather/">
+                                Weather
+                            </a></li><li><a href="/news/traffic-and-travel/">
+                                Traffic and Travel
+                            </a></li><li><a href="/news/newsletter/">
+                                Newsletter
+                            </a></li><li><a href="/news/got-a-story/">
+                                Got a Story?
+                            </a></li></ul></li><li class="nav--on-air "><div><a href="/on-air/">
+                    On Air
+                </a></div><ul><li><a href="/on-air/">
+                                Schedule
+                            </a></li><li><a href="/on-air/progs/">
+                                Programmes
+                            </a></li><li><a href="/on-air/played/">
+                                Playlist Search
+                            </a></li><li><a href="/on-air/podcasts/">
+                                Podcasts
+                            </a></li><li><a href="/on-air/new-music/">
+                                New Music
+                            </a></li><li><a href="/on-air/listen-again/">
+                                Listen Again
+                            </a></li></ul></li><li class="nav--directory "><div><a href="/directory/">
+                    Directory
+                </a></div></li><li class="nav--local "><div><a href="#">
+                    Local
+                </a></div><ul><li><a href="/local/photos/">
+                                Photos
+                            </a></li></ul></li><li class="nav--events "><div><a href="/events/">
+                    Events
+                </a></div></li><li class="nav--advertise1 "><div><a href="/advertise1/">
+                    Advertise
+                </a></div><ul><li><a href="/advertise1/local-directory-advertise-for-free/">
+                                Local Directory - Advertise for FREE!
+                            </a></li><li><a href="/advertise1/display-adverts/">
+                                Display Adverts
+                            </a></li><li><a href="/advertise1/highlight-your-business-with-an-enhanced-listing/">
+                                Highlight your business with an Enhanced Listing
+                            </a></li><li><a href="/advertise1/get-your-event-noticed/">
+                                Get Your Event Noticed
+                            </a></li><li><a href="/advertise1/advertorials/">
+                                Advertorials
+                            </a></li></ul></li><li class="nav--info "><div><a href="#">
+                    Info
+                </a></div><ul><li><a href="/info/contact-us/">
+                                Contact Us
+                            </a></li><li><a href="/info/our-supporters/">
+                                Our Supporters
+                            </a></li><li><a href="/info/about-us/">
+                                About Us
+                            </a></li><li><a href="/info/volunteering/">
+                                Volunteering
+                            </a></li><li><a href="/info/how-to-find-us/">
+                                How to Find Us
+                            </a></li></ul></li></ul>
+                        </nav>
+                    </div>
+
+                    <div class="c-site-overlay  js-site-overlay"></div>
+
+                    <button class="c-nav-toggle  js-toggle-navigation">
+                        <div class="c-nav-icon">
+                            <i class="c-nav-toggle__line"></i><i class="c-nav-toggle__line"></i><i class="c-nav-toggle__line"></i>
+                        </div>
+                        <span class="u-access">Toggle</span>
+                        <strong class="c-nav-toggle__title">Menu</strong>
+                    </button>
+
+                </div>
+                <div class="c-nav-primary-layout__listen">
+
+                    <div class="c-listen-button-wrapper">
+                                                <a href="/player/"
+                            target="_blank"
+                            data-popup-size=""
+                            class="c-listen-button c-listen-button--live">
+
+                            <svg class="c-listen-button__icon c-listen-button__icon--live" viewBox="0 0 14 18" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.5556L0 17.111V0z" fill-rule="evenodd"/></svg>
+                            <span class="c-listen-button__text">Listen Live</span>
+                        </a>
+                        
+                        
+                                                                                        
+
+                            <a href="https://www.salfordcityradio.com/on-air/listen-again/" class="c-listen-button c-listen-button--secondary" >
+
+                                                                    <svg class="c-listen-button__icon" viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg"><path d="M14 0L0 8.5556l14 8.5555V11.611l9 5.5001V0l-9 5.5V0z" fill-rule="evenodd"/></svg>
+                                                                <span class="c-listen-button__text">Listen Again</span>
+
+                            </a>
+
+                        
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+            <div class="c-flipbook-wrapper">
+
+            <div class="c-ad c-billboard js-spacing-on-load">
+                <div class="gm-adpos" 
+     data-ads-target="pos" 
+     data-pos-id="13492" 
+     id="ad-pos-13492"
+ ></div>
+            </div>
+
+            <div class="o-wrapper">
+
+
+                
+                    <div class="c-card-layout c-card-layout--large">
+                        <div class="c-card-layout__item">
+
+                            <a href="/advertise1/" class="c-card__link">
+                                <div class="c-card c-card--large c-card--fixed-img">
+                                    <div class="c-card__masthead">
+                                        <img class="c-card__masthead-media" src="https://mmo.aiircdn.com/2393/68af810a30e5a.jpg">
+                                    </div>
+                                    <div class="c-card__inner">
+                                        <strong class="c-card__headline">Advertising</strong>
+                                                                            </div>
+                                </div>
+                            </a>
+
+                        </div><div class="c-card-layout__item">
+
+                            <a href="/player/" class="c-card__link">
+                                <div class="c-card c-card--large c-card--fixed-img">
+                                    <div class="c-card__masthead">
+                                        <img class="c-card__masthead-media" src="https://mmo.aiircdn.com/2393/69094fd260df0.jpg">
+                                    </div>
+                                    <div class="c-card__inner">
+                                        <strong class="c-card__headline">Listen Live</strong>
+                                                                            </div>
+                                </div>
+                            </a>
+
+                        </div><div class="c-card-layout__item">
+
+                            <a href="" class="c-card__link">
+                                <div class="c-card c-card--large c-card--fixed-img">
+                                    <div class="c-card__masthead">
+                                        <img class="c-card__masthead-media" src="https://mmo.aiircdn.com/2393/68af810a89d7c.jpg">
+                                    </div>
+                                    <div class="c-card__inner">
+                                        <strong class="c-card__headline">Support our Station</strong>
+                                                                            </div>
+                                </div>
+                            </a>
+
+                        </div><div class="c-card-layout__item">
+
+                            <a href="/directory/" class="c-card__link">
+                                <div class="c-card c-card--large c-card--fixed-img">
+                                    <div class="c-card__masthead">
+                                        <img class="c-card__masthead-media" src="https://mmo.aiircdn.com/2393/690950bbae3ab.jpeg">
+                                    </div>
+                                    <div class="c-card__inner">
+                                        <strong class="c-card__headline">List your Business</strong>
+                                                                            </div>
+                                </div>
+                            </a>
+
+                        </div><div class="c-card-layout__item">
+
+                            <a href="/events/" class="c-card__link">
+                                <div class="c-card c-card--large c-card--fixed-img">
+                                    <div class="c-card__masthead">
+                                        <img class="c-card__masthead-media" src="https://mmo.aiircdn.com/2393/69095082a6e80.jpg">
+                                    </div>
+                                    <div class="c-card__inner">
+                                        <strong class="c-card__headline">See Local Events</strong>
+                                                                            </div>
+                                </div>
+                            </a>
+
+                        </div><div class="c-card-layout__item">
+
+                            <a href="/info/volunteering/" class="c-card__link">
+                                <div class="c-card c-card--large c-card--fixed-img">
+                                    <div class="c-card__masthead">
+                                        <img class="c-card__masthead-media" src="https://mmo.aiircdn.com/2393/68af810a2e022.jpg">
+                                    </div>
+                                    <div class="c-card__inner">
+                                        <strong class="c-card__headline">Get Involved</strong>
+                                                                            </div>
+                                </div>
+                            </a>
+
+                        </div>                    </div>
+
+
+
+                
+
+
+            </div>
+        </div>
+    
+    <main class="c-page-main">
+        <div class="o-wrapper">
+
+            <div class="dv-grid">
+                <div class="dv-grid__item xl-two-thirds one-whole">
+
+                        <div class="o-content-block  tb-news">
+    
+	    <h2 class="o-headline"><a href="/news/local-news/" class="o-headline__main">Local News</a></h2>
+        
+    <div class="o-content-block__inner">
+
+        
+        <ul class="gm-sec"  
+             data-grid-threshold="400"
+            
+                        data-mode="0" >
+
+                        
+            <li class="c-pod">
+                                <a href="/news/local-news/paul-quinn-jailed-after-violent-2003-rape-as-police-appeal-for-other-victims-to-come-forward/" class="c-pod__link" tabindex="-1">
+                    <img src="https://mmo.aiircdn.com/2393/6a22ff7da98a3.jpg" alt="" class="c-pod__img " />
+                </a>
+                                <div class="c-pod__content">
+                    <a href="/news/local-news/paul-quinn-jailed-after-violent-2003-rape-as-police-appeal-for-other-victims-to-come-forward/" class="c-pod__link">
+                        <strong class="c-pod__title">Paul Quinn jailed after violent 2003 rape as police appeal for other victims to come forward</strong>
+                    </a>
+                    <p class="c-pod__description">A man convicted of a violent rape in Little Hulton more than two decades ago has been sentenced to an extended 24 year prison term.</p>                </div>
+            </li>
+                        
+            <li class="c-pod">
+                                <a href="/news/local-news/new-speed-camera-vans-to-target-greater-manchester-speeding-hotspots/" class="c-pod__link" tabindex="-1">
+                    <img src="https://mmo.aiircdn.com/572/6a17139428625.jpg" alt="" class="c-pod__img " />
+                </a>
+                                <div class="c-pod__content">
+                    <a href="/news/local-news/new-speed-camera-vans-to-target-greater-manchester-speeding-hotspots/" class="c-pod__link">
+                        <strong class="c-pod__title">New speed camera vans to target Greater Manchester speeding hotspots</strong>
+                    </a>
+                    <p class="c-pod__description">Greater Manchester Police has increased its speed enforcement capability with the introduction of two new vehicles aimed at tackling dangerous driving across the region.</p>                </div>
+            </li>
+                        
+            <li class="c-pod">
+                                <a href="/news/local-news/man-arrested-in-salford-over-synagogue-terror-attack-investigation/" class="c-pod__link" tabindex="-1">
+                    <img src="https://mmo.aiircdn.com/572/68de62afcdc54.jpg" alt="" class="c-pod__img " />
+                </a>
+                                <div class="c-pod__content">
+                    <a href="/news/local-news/man-arrested-in-salford-over-synagogue-terror-attack-investigation/" class="c-pod__link">
+                        <strong class="c-pod__title">Man arrested in Salford over synagogue terror attack investigation</strong>
+                    </a>
+                    <p class="c-pod__description">Counter Terrorism Policing North West officers have arrested a man in Salford as part of an ongoing investigation into the attack at Heaton Park Hebrew Congregation Synagogue last year.</p>                </div>
+            </li>
+                        
+            <li class="c-pod">
+                                <a href="/news/local-news/the-5m-row-hanging-over-andy-burnhams-bid-for-parliament/" class="c-pod__link" tabindex="-1">
+                    <img src="https://mmo.aiircdn.com/2393/6a0b415b71ead.jpg" alt="" class="c-pod__img " />
+                </a>
+                                <div class="c-pod__content">
+                    <a href="/news/local-news/the-5m-row-hanging-over-andy-burnhams-bid-for-parliament/" class="c-pod__link">
+                        <strong class="c-pod__title">The £5m row hanging over Andy Burnham’s bid for Parliament</strong>
+                    </a>
+                    <p class="c-pod__description">A row has erupted over Andy Burnham’s bid to return to Parliament and the cost of a potential by-election for his job as Greater Manchester mayor.</p>                </div>
+            </li>
+                        
+            <li class="c-pod">
+                                <a href="/news/local-news/fire-crews-respond-to-incident-at-forest-bank-prison/" class="c-pod__link" tabindex="-1">
+                    <img src="https://mmo.aiircdn.com/2393/6a0a2e08d7709.jpg" alt="" class="c-pod__img " />
+                </a>
+                                <div class="c-pod__content">
+                    <a href="/news/local-news/fire-crews-respond-to-incident-at-forest-bank-prison/" class="c-pod__link">
+                        <strong class="c-pod__title">Fire crews respond to incident at Forest Bank Prison</strong>
+                    </a>
+                    <p class="c-pod__description">Firefighters were called to Forest Bank Prison on Sunday evening after reports of an attempted fire inside a prison cell.</p>                </div>
+            </li>
+                        
+            <li class="c-pod">
+                                <a href="/news/local-sports/kallum-cesay-fires-salford-city-into-league-two-play-off-final-after-extra-time-thriller/" class="c-pod__link" tabindex="-1">
+                    <img src="https://mmo.aiircdn.com/2393/6a085674b9627.jpg" alt="" class="c-pod__img " />
+                </a>
+                                <div class="c-pod__content">
+                    <a href="/news/local-sports/kallum-cesay-fires-salford-city-into-league-two-play-off-final-after-extra-time-thriller/" class="c-pod__link">
+                        <strong class="c-pod__title">Kallum Cesay fires Salford City into League Two play off final after extra time thriller</strong>
+                    </a>
+                    <p class="c-pod__description">Kallum Cesay scored an extra time winner as Salford City beat Grimsby Town 4 3 on aggregate to reach the League Two play off final.</p>                </div>
+            </li>
+                    </ul>
+
+    </div>
+</div>
+<div class="o-content-block">
+        	<style>
+    .o-content-block.tb-news .c-pod__content{
+            padding: 16px;
+            background: #f1f1f1;
+    }
+    .o-content-block.tb-news .c-pod__content .c-pod__title{
+        font-size: 16px;
+        font-weight: bold;
+    }
+    .o-content-block.tb-news .c-pod__content .c-pod__title a{color: #B30B5D;}
+    .o-content-block.tb-news a img,.o-content-block.tb-recently-played a img{margin-bottom: 0;}
+    .o-content-block.tb-news .c-pod__content .c-pod__title a:hover,.o-content-block.tb-news a:hover{text-decoration: none;outline: 0;}
+     .o-content-block.tb-recently-played{
+
+        padding: 20px;
+    }
+    .o-content-block.tb-recently-played .c-pod__content{
+        background: #fff;
+        padding: 20px;
+    }
+    .o-content-block.tb-recently-played h2.o-headline{color: #fff;}
+    .o-content-block.tb-recently-played h2.o-headline:after{background: #fff;}
+    .o-content-block.tb-recently-played .o-content-block.tb-news .c-pod__content{
+        padding: 16px;
+        background: #ffffff;
+    }
+    .c-pod__content a:hover{text-decoration: none;outline: 0;}
+    .o-content-block.tb-recently-played .c-pod__content .c-btn{
+        padding: 8px 24px 12px;
+        font-size: 14px;
+    }
+    .o-content-block.tb-recently-played .c-pod__content .c-pod__title{
+        font-size: 20px;
+        line-height: 22px;
+    }
+    .o-content-block.tb-recently-played .c-pod__content .c-pod__emphasis{
+    }
+    .o-content-block.tb-recently-played .c-pod__content .c-pod__description{color: #B30B5D;}
+    .no-touch .c-pod:hover, .no-touch .c-pod:focus {
+        text-decoration: none;
+    }
+    .dv-grid.s-dv-grid--small .dv-grid__item.one-half .c-story{
+        background: #f1f1f1;
+    }
+    .no-touch .c-story:hover .c-story__title, .no-touch .c-story:focus .c-story__title {
+        text-decoration: none;
+    }
+    .dv-grid.s-dv-grid--small .dv-grid__item.one-half .c-story .c-story__title{
+        font-size: 14px;
+        padding: 8px 10px 0px 0;
+    }
+    .gm-tabs li>a{
+      padding: 6px 18px;
+      font-size: 14px;
+    }
+    .gm-tabs li.on>a{
+      background-color: #B30B5D;
+      color: #fff;
+      border-radius: 36px;
+    }
+ 
+.c-nav-primary-wrapper {
+    background: #EF2C8D;
+}
+.global-nav-top>li a{
+    background-color: #EF2C8D;
+}    
+.c-listen-live{
+    background: #EF2C8D;
+    font-size: 16px;
+    padding: 9px 20px;
+}
+.global-nav-top>li>ul a{
+    background: #B30B5D;    
+} 
+.no-touch .global-nav-top>li:hover>div>a, .no-touch .global-nav-top>li:focus>div>a{
+  background-color: #B30B5D;  
+}    
+.c-pod--card{
+background-color: #B30B5D;
+}   
+.no-touch .c-pod--card:hover, .no-touch .c-pod--card:focus{
+background-color: #EF2C8D;
+}    
+.o-content-block.tb-recently-played {
+background: #B30B5D;
+}   
+.o-content-block.tb-recently-played .c-pod__content .c-btn {
+}    
+a{
+color: #B30B5D
+} 
+.c-page-head .dv-grid{
+display:flex;
+display:-ms-flexbox;    
+} 
+    img {
+    pointer-events: none;
+}
+        </style>
+    </div><div class="o-content-block">
+        	<!-- BREAKING NEWS BAR -->
+<div id="breakingNews" class="breaking-news-bar">
+  <span class="bn-label">LIVE NEWS</span>
+
+  <a class="bn-link"
+     href="https://www.salfordcityradio.com/news/local-news/reform-candidate-elected-in-salford-as-party-wins-first-council-seat-in-city"
+     target="_self">
+     Reform UK win first seat on Salford City Council in by-election - read more
+  </a>
+</div>
+
+<style>
+  .breaking-news-bar{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    background: #c40000;
+    color: #ffffff;
+
+    padding: 12px 18px;
+    min-height: 52px;
+
+    font-family: Arial, Helvetica, sans-serif;
+    box-shadow: 0 -4px 14px rgba(0,0,0,0.25);
+  }
+
+  .bn-label{
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    font-size: 15px;
+    text-transform: uppercase;
+
+    background: rgba(0,0,0,0.3);
+    padding: 6px 12px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+
+  .bn-link{
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    transition: color 0.2s ease;
+  }
+
+  .bn-link:hover{
+    color: #ffd200;
+  }
+
+  @media (max-width: 520px){
+    .breaking-news-bar{
+      padding: 10px 14px;
+      min-height: 48px;
+    }
+    .bn-link{
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  /* ===============================
+     BREAKING NEWS MASTER SWITCH
+     true  = ON
+     false = OFF
+     =============================== */
+  const BREAKING_NEWS_ENABLED = false;
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const bar = document.getElementById("breakingNews");
+    if (!bar) return;
+
+    // Hard disable when switched off
+    if (!BREAKING_NEWS_ENABLED) {
+      bar.style.display = "none";
+      return;
+    }
+
+    // Get article path from the link itself
+    const link = bar.querySelector("a");
+    if (!link) return;
+
+    const linkPath = new URL(link.href).pathname;
+    const currentPath = window.location.pathname;
+
+    // Hide bar if user is already on the article page
+    if (currentPath === linkPath) {
+      bar.style.display = "none";
+    }
+
+  });
+</script>
+    </div>
+
+                </div><!--
+             --><div class="dv-grid__item xl-one-third one-whole c-sidebar">
+                                        <div class="o-content-block">
+                        <form class="c-search-box " action="/searchresults/" method="get">
+                            <label class="hide" for="search">Search</label>
+                            <input class="c-search-box__input js-search__input" type="text" name="q" id="search">
+                            <button class="c-search__submit c-btn c-btn--small" type="submit">Search</button>
+                        </form>
+                    </div>
+                    
+                    <div class="c-ad c-mpu js-spacing-on-load">
+                        <div class="gm-adpos" 
+     data-ads-target="pos" 
+     data-pos-id="13486" 
+     id="ad-pos-13486"
+ ></div>
+                    </div>
+
+                    <div class="o-content-block tb-weather tb-weather--five-days">
+    
+       <h2 class="o-headline"><a href="/news/weather/" class="o-headline__main">Weather</a></h2>
+    
+   
+    <div class="o-content-block__inner">
+        
+        <div class="tb-weather__wrapper">
+
+            <ul class="gm-sec" 
+                                data-mode="2"
+                
+                data-per-row="5">
+                <li class="c-pod tb-weather__item">
+                    <img src="https://i.aiircdn.com/weather/colour/12.png" alt="" class="c-pod__img tb-weather__img">
+
+                    <div class="c-pod__content">
+                        <strong class="c-pod__title tb-weather__day">Fri</strong>
+                                                <p class="c-pod__description tb-weather__temp">17&deg;C</p>
+                    </div>
+                </li><li class="c-pod tb-weather__item">
+                    <img src="https://i.aiircdn.com/weather/colour/10.png" alt="" class="c-pod__img tb-weather__img">
+
+                    <div class="c-pod__content">
+                        <strong class="c-pod__title tb-weather__day">Sat</strong>
+                                                <p class="c-pod__description tb-weather__temp">18&deg;C</p>
+                    </div>
+                </li><li class="c-pod tb-weather__item">
+                    <img src="https://i.aiircdn.com/weather/colour/12.png" alt="" class="c-pod__img tb-weather__img">
+
+                    <div class="c-pod__content">
+                        <strong class="c-pod__title tb-weather__day">Sun</strong>
+                                                <p class="c-pod__description tb-weather__temp">19&deg;C</p>
+                    </div>
+                </li><li class="c-pod tb-weather__item">
+                    <img src="https://i.aiircdn.com/weather/colour/10.png" alt="" class="c-pod__img tb-weather__img">
+
+                    <div class="c-pod__content">
+                        <strong class="c-pod__title tb-weather__day">Mon</strong>
+                                                <p class="c-pod__description tb-weather__temp">15&deg;C</p>
+                    </div>
+                </li><li class="c-pod tb-weather__item">
+                    <img src="https://i.aiircdn.com/weather/colour/10.png" alt="" class="c-pod__img tb-weather__img">
+
+                    <div class="c-pod__content">
+                        <strong class="c-pod__title tb-weather__day">Tue</strong>
+                                                <p class="c-pod__description tb-weather__temp">15&deg;C</p>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+      
+</div><div class="o-content-block   tb-facebook-page">
+    <div style="overflow:hidden;" class="tb-facebook-page__container">
+	<div class="fb-page" data-href="https://www.facebook.com/salfordcradio" data-width="500" data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"  data-tabs="timeline" data-show-posts="true"></div>
+    </div>
+</div><div class="o-content-block tb-custom-html">
+    
+        <h2 class="o-headline"><span class="o-headline__main">Newsletter</span></h2>
+        
+    <div class="o-content-block__inner">
+		<!-- Begin Brevo Form -->
+<!-- START - We recommend to place the below code in head tag of your website html  -->
+<style>
+  @font-face {
+    font-display: block;
+    font-family: Roboto;
+    src: url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/7529907e9eaf8ebb5220c5f9850e3811.woff2) format("woff2"), url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/25c678feafdc175a70922a116c9be3e7.woff) format("woff")
+  }
+
+  @font-face {
+    font-display: fallback;
+    font-family: Roboto;
+    font-weight: 600;
+    src: url(https://assets.brevo.com/font/Roboto/Latin/medium/normal/6e9caeeafb1f3491be3e32744bc30440.woff2) format("woff2"), url(https://assets.brevo.com/font/Roboto/Latin/medium/normal/71501f0d8d5aa95960f6475d5487d4c2.woff) format("woff")
+  }
+
+  @font-face {
+    font-display: fallback;
+    font-family: Roboto;
+    font-weight: 700;
+    src: url(https://assets.brevo.com/font/Roboto/Latin/bold/normal/3ef7cf158f310cf752d5ad08cd0e7e60.woff2) format("woff2"), url(https://assets.brevo.com/font/Roboto/Latin/bold/normal/ece3a1d82f18b60bcce0211725c476aa.woff) format("woff")
+  }
+
+  #sib-container input:-ms-input-placeholder {
+    text-align: left;
+    font-family: Helvetica, sans-serif;
+    color: #c0ccda;
+  }
+
+  #sib-container input::placeholder {
+    text-align: left;
+    font-family: Helvetica, sans-serif;
+    color: #c0ccda;
+  }
+
+  #sib-container a {
+    text-decoration: underline;
+    color: #2BB2FC;
+  }
+</style>
+<link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
+<!--  END - We recommend to place the above code in head tag of your website html -->
+
+<!-- START - We recommend to place the below code where you want the form in your website html  -->
+<div class="sib-form" style="text-align: center;
+         background-color: transparent;                                           ">
+  <div id="sib-form-container" class="sib-form-container">
+    <div id="sib-container" class="sib-container--large sib-container--vertical" style="text-align:center; background-color:#ffffff; max-width:540px; border-width:0px; border-color:#fdfdfd; border-style:solid;">
+      <form id="sib-form" method="POST" action="https://f24b3eaf.sibforms.com/serve/MUIFACGIkCTkQ9dHHQ3lOi6o4Ulv9Q24OCfMdKjHQPa4fk_cpOklPCAXTw98EiT_DHd4ORR8Jgrl4bxwnoQteUyq42INp-WByfPi8huIT215asm9iz8V0hML6Z8puFq2w37xAVD8oQ8f-I6WberC9vKMFgelFhrYoaUUpeWJDjcu1O3ncy56T0MeJyThasYEeyvh7p4cMrp0uMOP">
+        <div style="padding: 8px 0;">
+          <div class="sib-form-block" style="font-size:16px; text-align:left; font-family:Helvetica, sans-serif; color:#3C4858; background-color:transparent; text-align:left">
+            <div class="sib-text-form-block">
+              <p>Subscribe to our newsletter and stay updated.</p>
+            </div>
+          </div>
+        </div>
+        <div style="padding: 8px 0;">
+          <div class="sib-input sib-form-block">
+            <div class="form__entry entry_block">
+              <div class="form__label-row ">
+                <label class="entry__label" style="font-weight: 700; text-align:left; font-size:16px; text-align:left; font-weight:700; font-family:Helvetica, sans-serif; color:#3c4858;" for="FIRSTNAME" data-required="*">Enter your FIRSTNAME</label>
+
+                <div class="entry__field">
+                  <input class="input " maxlength="200" type="text" id="FIRSTNAME" name="FIRSTNAME" autocomplete="off" placeholder="FIRSTNAME" data-required="true" required />
+                </div>
+              </div>
+
+              <label class="entry__error entry__error--primary" style="font-size:16px; text-align:left; font-family:Helvetica, sans-serif; color:#661d1d; background-color:#ffeded; border-radius:3px; border-color:#ff4949;">
+              </label>
+            </div>
+          </div>
+        </div>
+        <div style="padding: 8px 0;">
+          <div class="sib-input sib-form-block">
+            <div class="form__entry entry_block">
+              <div class="form__label-row ">
+                <label class="entry__label" style="font-weight: 700; text-align:left; font-size:16px; text-align:left; font-weight:700; font-family:Helvetica, sans-serif; color:#3c4858;" for="LASTNAME" data-required="*">Enter your LASTNAME</label>
+
+                <div class="entry__field">
+                  <input class="input " maxlength="200" type="text" id="LASTNAME" name="LASTNAME" autocomplete="off" placeholder="LASTNAME" data-required="true" required />
+                </div>
+              </div>
+
+              <label class="entry__error entry__error--primary" style="font-size:16px; text-align:left; font-family:Helvetica, sans-serif; color:#661d1d; background-color:#ffeded; border-radius:3px; border-color:#ff4949;">
+              </label>
+            </div>
+          </div>
+        </div>
+        <div style="padding: 8px 0;">
+          <div class="sib-input sib-form-block">
+            <div class="form__entry entry_block">
+              <div class="form__label-row ">
+                <label class="entry__label" style="font-weight: 700; text-align:left; font-size:16px; text-align:left; font-weight:700; font-family:Helvetica, sans-serif; color:#3c4858;" for="EMAIL" data-required="*">Enter your EMAIL ADDRESS</label>
+
+                <div class="entry__field">
+                  <input class="input " type="text" id="EMAIL" name="EMAIL" autocomplete="off" placeholder="EMAIL" data-required="true" required />
+                </div>
+              </div>
+
+              <label class="entry__error entry__error--primary" style="font-size:16px; text-align:left; font-family:Helvetica, sans-serif; color:#661d1d; background-color:#ffeded; border-radius:3px; border-color:#ff4949;">
+              </label>
+
+            </div>
+          </div>
+        </div>
+        <div style="padding: 8px 0;">
+          <div class="sib-form-block" style="text-align: left">
+            <button class="sib-form-block__button sib-form-block__button-with-loader" style="font-size:16px; text-align:left; font-weight:700; font-family:Helvetica, sans-serif; color:#FFFFFF; background-color:#bc4e95; border-radius:3px; border-width:0px;" form="sib-form" type="submit">
+              <svg class="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512" style="">
+                <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z" />
+              </svg>
+              SUBSCRIBE
+            </button>
+          </div>
+        </div>
+        <input type="text" name="email_address_check" value="" class="input--hidden">
+        <input type="hidden" name="locale" value="en">
+        <input type="hidden" name="html_type" value="simple">
+      </form>
+    </div>
+  </div>
+</div>
+<!-- END - We recommend to place the above code where you want the form in your website html  -->
+<!-- End Brevo Form -->
+    </div>
+</div><div class="o-content-block " >
+    <a class="twitter-timeline" data-height="500" data-theme="light" href="https://twitter.com/SalfordCRadio">Tweets by SalfordCRadio</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</div>
+
+                    <div class="c-ad c-mpu js-spacing-on-load">
+                        <div class="gm-adpos" 
+     data-ads-target="pos" 
+     data-pos-id="13487" 
+     id="ad-pos-13487"
+ ></div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="c-bottom-ads"><div class="c-ad c-ad--rectangle"><div class="gm-adpos" 
+     data-ads-target="pos" 
+     data-pos-id="13488" 
+     id="ad-pos-13488"
+ ></div></div><div class="c-ad c-ad--rectangle"><div class="gm-adpos" 
+     data-ads-target="pos" 
+     data-pos-id="13489" 
+     id="ad-pos-13489"
+ ></div></div><div class="c-ad c-ad--rectangle"><div class="gm-adpos" 
+     data-ads-target="pos" 
+     data-pos-id="13490" 
+     id="ad-pos-13490"
+ ></div></div><div class="c-ad c-ad--rectangle"><div class="gm-adpos" 
+     data-ads-target="pos" 
+     data-pos-id="13491" 
+     id="ad-pos-13491"
+ ></div></div></div>
+
+
+        </div>
+
+        <div class="c-leaderboard-wrapper">
+            <div class="c-ad c-leaderboard c-leaderboard--bottom js-spacing-on-load"><div class="gm-adpos" 
+     data-ads-target="pos" 
+     data-pos-id="13493" 
+     id="ad-pos-13493"
+ ></div></div>
+        </div>
+    </main>
+
+    <div class="c-page-footer">
+        <div class="o-wrapper">
+                        <ul class="o-list-inline c-footer-links"><li class="o-list-inline__item c-footer-links__item"><a href="/public-file/" class="c-page-footer__link" >Public File</a></li><li class="o-list-inline__item c-footer-links__item"><a href="/terms-and-conditions/" class="c-page-footer__link" >Terms and Conditions</a></li><li class="o-list-inline__item c-footer-links__item"><a href="/privacy-policy/" class="c-page-footer__link" >Privacy Policy</a></li></ul>
+            
+                            <p>Salford City Radio is a not-for-profit radio station serving Salford on 94.4FM, your Smart Speakers and Online.</p>
+            
+                        <p class="c-page-footer__copyright">
+            &copy; Copyright 2026 Salford City Radio Ltd. Powered by <a href="https://aiir.com" target="_blank" title="Aiir radio website CMS">Aiir</a>.
+            </p>
+
+        </div>
+    </div>
+
+
+</div>
+
+<a href="/_hp/" rel="nofollow" style="display: none" aria-hidden="true">On Air</a>
+</body>
+
+</html>

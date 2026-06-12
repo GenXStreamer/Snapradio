@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="description" content="YellowTealPurple: Welcome To CookieLand" />
+  <meta charset="utf-8">
+  <title>YellowTealPurple: Welcome To CookieLand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  
+<div class="container">
+  hi - we've been having some really bad bot scraper problems lately, so we've had to increase security measures quite drastically. <br>
+  to continue, simply click the button. unfortunately this requires cookies and javascript. <br>
+  <br>
+  <strong> if this doesn't work, please inform a site admin! </strong>
+</div>
+
+<button onclick="setCookie('ytp_cookieland', 'true')">Continue</button>
+
+<script>
+
+console.log(document.referrer);
+
+function setCookie(cname, cvalue) {
+        var d = new Date(2147483647 * 1000).toUTCString();
+        document.cookie = cname + "=" + cvalue + "; expires=" + d+";path=/;SameSite=None;Secure";
+		if (document.referrer != "") {
+			location.href = document.referrer;
+		} else if (location.href.match("cookieland.html")) {
+			console.log('wtf are you doing here')
+			location.href = "https://yellowtealpurple.net"
+		} else {
+			location.reload()
+		}
+
+    }
+
+function showCookie(){
+    document.write(document.cookie);
+}
+
+</script>
+
+</body>
+</html>

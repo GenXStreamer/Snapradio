@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bostin Radio Merchandise, Gift Ideas & Subscription Packages Online | My Business</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="generator" content="Square Online">
+    <link rel="shortcut icon" type="image/x-icon" href="/square.ico">
+    <link rel="preload" href="https://cdn3.editmysite.com/app/website/css/site.80dde82e64cd7e8a0309.css" as="style">
+
+    <style>
+        .loading-view {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .loading-container {
+            width: 62px;
+            height: 54px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 12px;
+        }
+
+        @media (min-width: 840px) {
+            .loading-container {
+                width: 72px;
+                height: 54px;
+                grid-gap: 12px;
+            }
+        }
+
+        .dot-container {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(#d1432a20, #d1432a);
+            /* Base64 encoded simple circle SVG /resources/assets/js/prime/src/site/components/ui/circle.svg */
+            mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9Ii0xIC0xIDIgMiI+Cgk8Y2lyY2xlIHI9IjEiLz4KPC9zdmc+Cg==');
+            -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9Ii0xIC0xIDIgMiI+Cgk8Y2lyY2xlIHI9IjEiLz4KPC9zdmc+Cg==');
+            mask-repeat: no-repeat;
+            -webkit-mask-repeat: no-repeat;
+            mask-size: 100% auto;
+            -webkit-mask-size: 100% auto;
+            mask-position: bottom;
+            -webkit-mask-position: bottom;
+            animation: loading-view-movement;
+            animation-delay: 0s;
+            animation-duration: 3750ms;
+            animation-iteration-count: infinite;
+            animation-timing-function: cubic-bezier(0.8, 0, 0.8, 1);
+        }
+
+        .dot-container:nth-of-type(2) {
+            animation-delay: 130ms;
+        }
+
+        .dot-container:nth-of-type(3) {
+            animation-delay: 260ms;
+        }
+
+        @keyframes loading-view-movement {
+            /* up and down for 3s, stop for 750ms */
+            0%, 27%, 54% {
+                mask-position: bottom;
+                -webkit-mask-position: bottom;
+            }
+
+            14%, 41%, 68% {
+                mask-position: top;
+                -webkit-mask-position: top;
+            }
+
+            27%, 54%, 81%, 100% {
+                mask-position: bottom;
+                -webkit-mask-position: bottom;
+            }
+        }
+    </style>
+
+            <link rel="manifest" href="/manifest.webmanifest">
+            <meta name="apple-mobile-web-app-capable" content="yes">
+            <meta name="apple-mobile-web-app-status-bar-style" content="default">
+            <meta name='apple-mobile-web-app-title' content='My Business'>
+            <meta name='theme-color' content='#d1432a'>
+            <meta name='msapplication-TileColor' content='#d1432a'>
+            <link rel='apple-touch-icon' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/icon_180x180_ios_OTcxMj.png?width=180'>
+            <meta name='msapplication-TileImage' content='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/icon_180x180_ios_OTcxMj.png?width=144'>
+            <link rel='apple-touch-icon' sizes='120x120' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/icon_180x180_ios_OTcxMj.png?width=120'>
+            <link rel='apple-touch-icon' sizes='152x152' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/icon_180x180_ios_OTcxMj.png?width=152'>
+            <link rel='apple-touch-icon' sizes='167x167' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/icon_180x180_ios_OTcxMj.png?width=167'>
+            <link rel='apple-touch-icon' sizes='180x180' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/icon_180x180_ios_OTcxMj.png?width=180'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=750&height=1334&fit=crop' media='(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=1242&height=2208&fit=crop' media='(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=1125&height=2436&fit=crop' media='(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=828&height=1792&fit=crop' media='(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=1242&height=2688&fit=crop' media='(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=1170&height=2532&fit=crop' media='(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=1284&height=2778&fit=crop' media='(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=1536&height=2048&fit=crop' media='(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=1620&height=2160&fit=crop' media='(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=1668&height=2224&fit=crop' media='(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=1668&height=2388&fit=crop' media='(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)'>
+            <link rel='apple-touch-startup-image' href='/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/splash_2048x4435_OTQ5Nj.jpg?width=2048&height=2732&fit=crop' media='(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)'>
+    
+                        <script src="https://consent.cookiebot.com/uc.js" data-cbid="77a73a28-177d-4cee-96cb-bff1d0fcaafa" data-framework="TCFv2.2" data-blockingmode="auto">
+</script>
+            
+    
+        <script defer src="https://cdn3.editmysite.com/app/checkout/assets/checkout/system.c3b89b0b94f4ef0671b1.js" data-cookieconsent="ignore"></script>
+    
+    
+        <script type="systemjs-importmap" src="https://cdn3.editmysite.com/app/checkout/assets/checkout/imports.en.99b70f3ead32aa9d.js" data-cookieconsent="ignore"></script>
+    
+    
+            <script type="systemjs-importmap" src="https://cdn3.editmysite.com/app/checkout/assets/checkout/locale-imports-map.758a17e377540ce7.json" data-cookieconsent="ignore"></script>
+    
+    
+    <script defer type="text/javascript" src="https://cdn3.editmysite.com/app/website/js/runtime.6398227a7423ba239443.js" data-cookieconsent="ignore"></script>
+    <script defer type="text/javascript" src="https://cdn3.editmysite.com/app/website/js/vue-modules.4a41b3ba298bf4563d97.js" data-cookieconsent="ignore"></script>
+    <script defer type="text/javascript" src="https://cdn3.editmysite.com/app/website/js/languages/en.2ae83aa2430fd1c03762.js" data-cookieconsent="ignore"></script>
+    <script defer type="text/javascript" src="https://cdn3.editmysite.com/app/website/js/site.7fceba42507c9fdfda05.js" data-cookieconsent="ignore"></script>
+
+        <meta name="description" content="Bostin Radio&#039;s e-Shop offering you innovative &amp; unique goods &amp; subscription services including website design &amp; hosting packages">
+    
+    <meta property="og:title" content="Bostin Radio Merchandise, Gift Ideas &amp; Subscription Packages Online | My Business" />
+                <meta property="og:site_name" content="My Business" />
+                <meta property="og:description" content="Bostin Radio&#039;s e-Shop offering you innovative &amp; unique goods &amp; subscription services including website design &amp; hosting packages" />
+                <meta property="og:image" content="https://bostinradioshopping.square.site/uploads/b/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a/IMG_20210809_155937612.jpg" />
+                <meta property="og:url" content="https://bostinradioshopping.square.site" />
+        <meta property="og:type" content="website" />
+    
+    <script data-cookieconsent="ignore">
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+    </script>
+
+            
+    
+    <!--square-online-feature-flags-->
+<script type="application/javascript" data-cookieconsent="ignore" data-role="square-online-featureflags">
+    window.__DYNAMIC_BOOTSTRAP__ ??= {};
+
+    Object.assign(window.__DYNAMIC_BOOTSTRAP__, {
+        featureFlags: {"ecom.website.deprecated-layouts":false,"marketing-enable-drive-repeat-purchase-campaign":true,"ecom.website.facebook-food":true,"ecom.website.theme-export":false,"ecom.website.chamber-via-fastly":true,"ecom.square-online-published-catalog-cache-version":"2026-03-25","ecom.checkout.open_tabs":true,"ecom.website.photo-reviews":true,"ecom.checkout.cmi-sentry-integration":true,"ecom.checkout.cmi.bootstrap-tracking-snowplow":true,"ecom.checkout.cmi.bootstrap-tracking-ga":true,"ecom.website.order-confirmation-page.website-redirect":true,"ecom.checkout.cmi.locale-view-splitting":true,"ecom.checkout.open_tabs_gc_coupon":true,"ecom.cmi-cart":true,"ecom.checkout.cmi.theme-fonts":false,"ecom-fulfillment-api-v-2":false,"ecom.omnichannel-discounts-frontend":true,"ecom.omnichannel-discounts-category-api":false,"ecom-improved-tipping-experience":true,"ecom.splash.loyalty":false,"ecom.website.published-site.datadog-rum":true,"ecom.website.editor.datadog-rum":true,"ecom-website-published-site-datadog-rum-bot-filter":true,"ecom-use-tracking-inventory":false,"ecom.image-controls.width-fix":true,"ecom.gradient-backgrounds":true,"ecom.website.form-fraud-blocking":true,"ecom.website.form-fraud-auto-ban":true,"ecom.website.code-editor":false,"ecom.shopping.pdp-layouts-m1":true,"ecom.chamber.subscriptions":true,"ecom.tuba.subscriptions-paid-shipping-rates":true,"ecom-cko-enhanced-logging":true,"ecom-cko-unified-logging":true,"ecom.shopping.so-coupons-sunset-integrations":true,"ecom.order-online-text-layouts":true,"ecom.appointment-improvements":true,"ecom.appointment-improvements-m2":true,"ecom.tuba.committed-inventory-m1":true,"ecom.splash-improvements":true,"ecom-themes-onboarding":true,"ecom.shopping.featured-categories-paid-layouts":true,"ecom.website.ai-text.short-form":false,"ecom.website.ai-text.long-form":false,"ecom.website.metered-request.override":false,"ecom.website.async-create-theme":false,"ecom.can_use_cart_sharing":true,"ecom.website.ai.editor-prototype":false,"ecom.website.ai.page-seo":false,"ecom.appointment-direct-booking":true,"ecom-service-cutover-fe-request-augmentations":true,"ecom.catalog.so-item-library-deprecation-3":true,"ecom.kiosk-photo-card":true,"ecom.website.system-page.cart":false,"ecom-enable-kiosk-large-catalog-layout":false,"ecom-hide-instagram":true,"ecom-hide-instagram-on-published-sites":false,"ecom-enable-kiosk-item-preloading":true,"ecom-brand-api-sync":true,"ecom.service-cutover.enable-tuba-traffic":true,"ecom-show-order-online":true,"websdk-use-new-afterpay-buttons":false,"ecom-checkout-should-check-is-decouple-checkout":true,"ecom-prime-use-store-info-v29":true,"ecom-checkout-force-pci-compliance":false,"ecom-website-hide-food-beverage-themes":false,"ecom-website-fix-dine-in-location-selection":true,"ecom-combo-slot-include-hidden-items":false},
+    });
+</script>
+<!--end-square-online-feature-flags-->
+
+    <script type="application/javascript" data-cookieconsent="ignore">
+        window.__BOOTSTRAP_STATE__ = {"siteData":{"site":{"id":"eda59ba0-dbe6-11ea-83c4-fb64ffe6436a","properties":{"classicSiteID":"933181286249415286","catalogSiteId":"933181286249415286","selectedVertical":"other","verticalV4":"home-goods-shop","language":"en","squareMerchantId":"ML2W7QXD5YEZ8","siteCatalogVersion":"f4226ef4-5acd-4963-889c-8c373d322da6","appSiteCartNativePayControlGroup":false,"appSiteCartNativePayTestGroup":false,"isKioskSite":false,"squareSyncUserId":"4c9ce438-89d4-48cb-95d5-e13599db7c40","isServiceCutoverEnabled":true,"skippedItemSync":false,"migratedSquareOnlineSiteToMenus":false,"hidden":false,"blockFtux":{"product-detail":["ftux-alert"]},"onboarded":{"guidance":{"version":"1","complete":true,"welcomeComplete":true,"templateSwitcher":false,"instagramMiniSiteTipDismissed":false,"ostEditSitePreviewTipDismissed":false,"guidanceMobileTrafficDismissedCount":1},"onboardingComplete":true,"onboardingProgress":{"step":0,"type":null},"isSiteDesignOnboarded":true,"isAdcAnnouncementDismissed":true,"isVideoBannerAnnouncementDismissed":true,"isScrollingTextAnnouncementDismissed":true,"isCustomizationDiscoverabilityDismissed":true},"publishedAt":1738190406,"completedFtux":{"INSTAGRAM_FEATURE_EXPLAINED":true},"site_versions":{"editor":{"v0":"eda670d0-dbe6-11ea-9af7-799e1db4a984","v1":"4796bbb0-051e-11ec-9b52-4bcd999a7407","v2":"b59ca100-350f-11ec-904b-4f40280a4287","v4":"e2a94590-6fb7-11ec-a045-7ba542f7d4ae","v5":"ba230b20-ad26-11ec-bb0c-8955f49e0a56","v6":"805db600-c1ac-11ed-a071-0397a724313b","v7":"f56c6f00-2c04-11ee-8fe5-ad54191bac70","v8":"4775adc0-3500-11ef-a52f-29d6f2aaa976"},"published":{"v0":"e2ca79e0-c9f8-11eb-baea-bb085cff550d","v1":"00071c20-0d23-11ec-8272-c1858272eb18","v2":"48409480-512e-11ec-a27c-035525c877a8","v3":"fd6be4c0-57a3-11ec-a6e6-81789262a045","v4":"92414140-7ef3-11ec-90ce-032712bc34a8","v5":"f5a73350-0202-11ed-8f34-359278e5268b","v6":"65c83f40-f984-11ed-8798-83f61345278e","v7":"ab3bb170-2c7a-11ee-a73e-4fac804c262e","v8":"e1d5e260-63ec-11ee-9b7c-d7f978ba94f1"}},"websiteNotices":{"siteSettingsTrial":true},"cookieManagement":{"type":"cookiebot","config":{"id":"e1a8a07f-4070-4350-b157-7cfcc5563978","domainName":"bostinradioshopping.square.site"}},"siteIconSettings":{"type":"custom","disabled":false,"image_url":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/BOSTIN SHOPPING NEW YEAR SALES.jpg","updatedAt":1678721601,"splash_images":{"config":{"size":"2048","radius":0,"fontPath":"\/weebly\/data\/tmp\/67185f5f3cb36d585fee.ttf","iconType":"free","imageUrl":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/BOSTIN SHOPPING NEW YEAR SALES.jpg","language":"en","siteTitle":"My Business","customColor":"#d1432a","primaryColor":"#d1432a","contrastColor":"#ffffff"},"2048x4435":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/splash_2048x4435_OTQ5Nj.jpg"},"ios_icon_images":{"config":{"size":"180","radius":0,"fontPath":"\/weebly\/data\/tmp\/9c014c98d22503e6ec07.ttf","iconType":"free","imageUrl":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/BOSTIN SHOPPING NEW YEAR SALES.jpg","language":"en","siteTitle":"My Business","customColor":"#d1432a","primaryColor":"#d1432a","contrastColor":"#ffffff"},"180x180":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/icon_180x180_ios_OTcxMj.png"},"android_icon_images":{"config":{"size":"512","radius":256,"fontPath":"\/weebly\/data\/tmp\/8b460a3d0ae377c193b5.ttf","iconType":"free","imageUrl":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/BOSTIN SHOPPING NEW YEAR SALES.jpg","language":"en","siteTitle":"My Business","customColor":"#d1432a","primaryColor":"#d1432a","contrastColor":"#ffffff"},"512x512":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/icon_512x512_android_MzgwMj.png"}},"selectedDeviceView":"desktop","selectedVerticalLayout":"","order_fulfillment_guides":"shipping","domain":{"custom_domain":"","subdomain":"bostinradioshopping.square.site","site_id":933181286249415286}}},"pagesMeta":[{"id":"fcc30120-de91-11ef-8083-898248512ef8","name":"Home","route":"home","title":"Home","featureType":null,"description":"","hidden":false}],"customPagesMeta":[],"artifactsMeta":[],"snapshot":{"id":"fcc28400-de91-11ef-bfd9-b5b0a06c9d88","site_id":"eda59ba0-dbe6-11ea-83c4-fb64ffe6436a","properties":{"seo":{"page":{"fcc30120-de91-11ef-8083-898248512ef8":{"title":"Bostin Radio Merchandise, Gift Ideas & Subscription Packages Online","description":"Bostin Radio's e-Shop offering you innovative & unique goods & subscription services including website design & hosting packages"}}},"logo":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/BOSTIN RADIO NEW March 2021_1620602905.jpg","color":{"primaryColor":"#d1432a","colorProfiles":[{"id":"primary-dark-bold","link":"--primary-color","background":"--color-secondary-bold-red-mtsrjJ","buttonOutline":"--primary-color","buttonFilledBg":"--primary-color","colorProfileId":"primary-dark-bold","buttonFilledText":"--primary-contrast-color"},{"id":"primary-bold","link":"--primary-color","background":"--color-secondary-bold-red-xWNhjS","buttonOutline":"--primary-color","buttonFilledBg":"--primary-color","colorProfileId":"primary-bold","buttonFilledText":"--primary-contrast-color"}],"secondaryColors":[{"id":"--color-secondary-bold-red-xWNhjS","value":"#2b2b2b"},{"id":"--color-secondary-bold-red-mtsrjJ","value":"#111111"}],"siteColorProfile":"primary-bold"},"fonts":{"fontSize":{"scale":1.2,"baseSize":16}},"title":"My Business","shapes":{"cardBorderRadius":"8px","imageBorderRadius":"16px","buttonBorderRadius":"32px","defaultBorderRadius":"8px"},"social":[{"icon":"email","user":"bostinradio2020@gmail.com","selected":true},{"icon":"facebook","user":"BostinRadio","selected":true},{"icon":"instagram","user":"bostinradioworldwide\/","selected":true},{"icon":"linkedin","user":"","selected":false},{"icon":"pinterest","user":"","selected":false},{"icon":"snapchat","user":"","selected":false},{"icon":"twitter","user":"BostinRadio","selected":true},{"icon":"vimeo","user":"","selected":false},{"icon":"yelp","user":"","selected":false},{"icon":"youtube","user":"","selected":false}],"fontset":{"name":"rubik","version":"0.1.0"},"spacing":{},"homePage":"fcc30120-de91-11ef-8083-898248512ef8","homepage":{"type":"page","typeID":"fcc30120-de91-11ef-8083-898248512ef8"},"logoType":"logo","routeMap":{"":"fcc30120-de91-11ef-8083-898248512ef8","home":"fcc30120-de91-11ef-8083-898248512ef8"},"styleset":{"name":"square","version":"0.1.0"},"framework":{"name":"birdseye","version":"0.1.0"},"onboarded":false,"openGraph":{"page":{"fcc30120-de91-11ef-8083-898248512ef8":{"image":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/IMG_20210809_155937612.jpg","title":"Bostin Radio Merchandise, Gift Ideas & Subscription Packages Online","description":"Bostin Radio's e-Shop offering you innovative & unique goods & subscription services including website design & hosting packages"}}},"blocksMeta":{"04dbbf61-dbe7-11ea-8eaa-8118198b087e":"pRABSW","2cdfa771-0520-11ec-bf5f-051189f3d4cb":"amYVCq","edc7e100-dbe6-11ea-b0e2-f73abcef40ef":"fzmAqQ","edccf450-dbe6-11ea-98df-1bf83fbe4d0d":"sklIXP","edcd0be0-dbe6-11ea-95e4-6fcc47891e2d":"ILFZiM","edcd1f70-dbe6-11ea-870f-e94a6660dd66":"SLldUT","edcd29a0-dbe6-11ea-98a9-3350b2ef3daa":"JKGtTb","edcd37f0-dbe6-11ea-9b64-190a6db648c6":"ZTsrRj","f11508b1-dbe6-11ea-8eaa-8118198b087e":"DsVbAg","fa047aa1-dbe6-11ea-8eaa-8118198b087e":"QRIEnX"},"footerLogo":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/DEDICATED2U_1620603675.jpg","navigation":[{"link":{"page":{"pageID":"fcc30120-de91-11ef-8083-898248512ef8"}},"type":"page"},{"link":{"shopAll":true},"type":"shopAll"}],"textStyles":{"body":{"url":null,"fontId":"open-sans","weight":"400","fontName":"Open Sans","provider":"google","fontFormat":null},"label":{"url":null,"fontId":"open-sans","weight":"400","fontName":"Open Sans","provider":"google","fontFormat":null},"title":{"url":null,"fontId":"bungee","weight":"400","fontName":"Bungee","provider":"google","fontFormat":null},"headline":{"url":null,"fontId":"bungee","weight":"400","fontName":"Bungee","provider":"google","fontFormat":null}},"buttonstyle":"pill","customFonts":[],"featuresets":["retail","instagramFeed"],"themePreset":{"id":"bold-red","savedAt":1678721543210},"contentAreas":{"cart":{"id":"edcd27e0-dbe6-11ea-ba56-8fa01a8df3f7","hidden":false,"content":{"id":"edcd29a0-dbe6-11ea-98a9-3350b2ef3daa","type":"block","layout":"cart-1","purpose":"cart@^1.1.0","elements":[{"id":"edcd2cf0-dbe6-11ea-b6a7-7badacee09b7","purpose":"title","properties":{}},{"id":"edcd2ed0-dbe6-11ea-86dd-1b7a9fae4776","purpose":"button","properties":{}},{"id":"edcd30b0-dbe6-11ea-8854-1f2fe488e49f","purpose":"text","properties":{}},{"id":"edcd32b0-dbe6-11ea-bdf6-2197a0f56413","purpose":"image","properties":{}},{"id":"edcd3470-dbe6-11ea-bc53-275c0c577136","purpose":"close","properties":{}}],"properties":{"shortID":"JKGtTb"}}},"footer":{"id":"edccefe0-dbe6-11ea-a650-590429cf3978","hidden":false,"content":{"id":"edccf450-dbe6-11ea-98df-1bf83fbe4d0d","type":"block","layout":"footer-6","purpose":"footer@^1.1.0","elements":[{"id":"edccf9a0-dbe6-11ea-b3ff-5d1432629767","purpose":"logo","properties":{"name":"DEDICATED2U.jpg","original":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/DEDICATED2U_1620603675.jpg","cropOptions":null,"logoDimensions":{"width":4935,"height":4945}}},{"id":"edccfcc0-dbe6-11ea-a7d3-afc5aea157d4","purpose":"text","properties":{"fontSize":"medium"}},{"id":"edccffb0-dbe6-11ea-980a-c7dd8338ef6e","purpose":"social","properties":{}},{"id":"edcd02a0-dbe6-11ea-a7d6-2b46b17ca3db","purpose":"newsletter","properties":{"type":"subscription","fields":[{"id":"5a95f9a0-a2a0-11ef-b300-fb89b20e9473","type":"action-input","label":"","required":true,"properties":{},"instructions":""}],"schema":{"id":"5a9620b0-a2a0-11ef-b300-fb89b20e9473","hash":"c3347fc1516f529747718ebc634dcc8a"}}}],"properties":{"shortID":"sklIXP","background":{"type":"default"},"colorProfile":"","newsletterTitle":{"hidden":false,"content":{"quill":{"ops":[{"insert":"Sponsor or Subscribe with us \n"}]}}}}},"properties":{"styles":{"minHeight":"100px"}}},"header":{"id":"edcd08a0-dbe6-11ea-b578-890790d8cc62","hidden":false,"content":{"id":"edcd0be0-dbe6-11ea-95e4-6fcc47891e2d","type":"block","layout":"header-8","purpose":"header@^1.1.0","elements":[{"id":"ef92d580-dbe6-11ea-8eaa-8118198b087e","purpose":"logo","properties":{"name":"BOSTIN RADIO NEW March...021.jpg","scale":100,"original":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/BOSTIN RADIO NEW March 2021_1620602905.jpg","cropOptions":null,"logoDimensions":{"width":2483,"height":2480}}},{"id":"ef92d581-dbe6-11ea-8eaa-8118198b087e","purpose":"social","properties":{}},{"id":"ef92d582-dbe6-11ea-8eaa-8118198b087e","purpose":"navigation","properties":{"config":{},"hidden":false,"uppercase":true}},{"id":"ef92d583-dbe6-11ea-8eaa-8118198b087e","purpose":"hamburger","properties":{}},{"id":"ef92d584-dbe6-11ea-8eaa-8118198b087e","purpose":"cart","properties":{}}],"properties":{"shortID":"ILFZiM","iconColor":"--color-white","textAlign":"","background":{"type":"image","image":{"width":4967,"height":4961,"isDark":true,"source":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/NEW%20BOSTIN%20RADIO%20DESIGNS.%20for%20MERCH%20JPG.jpg","original":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/NEW%20BOSTIN%20RADIO%20DESIGNS.%20for%20MERCH%20JPG.jpg","sourceSet":{},"attribution":{}},"transparent":{"isDark":false},"transparentOverBanner":false},"actionButton":{"link":{"tab":false,"link":{"shopAll":true},"type":"shopAll"},"hidden":false,"presetStyle":"primary"},"colorProfile":"","headerScroll":"scrollup","disableSearch":false}},"properties":{"styles":{"minHeight":"80px"}}},"navMobile":{"id":"edcd1db0-dbe6-11ea-a933-4790d5e0dc20","hidden":false,"content":{"id":"edcd1f70-dbe6-11ea-870f-e94a6660dd66","type":"block","layout":"navigation-mobile","purpose":"nav-mobile@^1.1.0","elements":[{"id":"edcd2250-dbe6-11ea-9013-d337a1ed058f","purpose":"navigation","properties":{}},{"id":"edcd2440-dbe6-11ea-bcb6-8b37ed0fa6bb","purpose":"close","properties":{}},{"id":"edcd2620-dbe6-11ea-826f-331ed807b1ae","purpose":"social","properties":{}}],"properties":{"shortID":"SLldUT"}}},"freeFooter":{"id":"edcd3620-dbe6-11ea-9435-69428bda8b86","hidden":false,"content":{"id":"edcd37f0-dbe6-11ea-9b64-190a6db648c6","type":"block","layout":"free-footer-1","purpose":"free-footer@^1.0.0","elements":[],"properties":{"shortID":"ZTsrRj","background":{}}}}},"homePageType":"page","pageOverrides":{"product":{},"shopAll":{},"category":{},"leaveReview":{},"orderOnline":{},"instagramFeed":{},"searchResults":{}},"pageTemplates":{"product":"fcc42670-de91-11ef-ab99-a71abb5af5b0","shopAll":"fcc3a370-de91-11ef-923e-e7ea3fee3865","category":"fcc3a370-de91-11ef-923e-e7ea3fee3865","leaveReview":"fcc455e0-de91-11ef-af4a-675d873c91e8","orderOnline":"fcc3cf30-de91-11ef-9007-fd27b5ab5156","instagramFeed":"fcc3fbe0-de91-11ef-be76-e9b1dfb432c3","searchResults":"fcc3a370-de91-11ef-923e-e7ea3fee3865"}},"version":8},"user":{"id":133351330,"properties":{"isSquareSyncUser":true,"country":"GB"}},"billingFeatures":{"billingFeatures":{"embed_restricted_widgets":false,"com_gifting":false,"com_authorizenet_payment":false,"com_digital_products":true,"com_coupons":true,"com_product_reviews":false,"com_product_limit":-1,"popup_announcement":true,"popup_coupons":false,"popup_lead_capture":true,"community_support":true,"free_ssl_security":true,"custom_domain_connection":false,"advanced_site_stats":false,"password_protection":false,"video_backgrounds":false,"hd_video_and_audio":false,"membership_registration":false,"membership_settings":false,"online_store":true,"accept_paypal_payments":false,"product_badges":true,"product_modifiers":true,"in_store_pickup":true,"shipping_calculator":true,"chat_and_email_support":true,"phone_support":true,"priority_support":false,"advanced_ecommerce_stats":false,"seo":true,"unlimited_storage":false,"members":0,"abandoned_cart_emails":false,"integrated_shipping_labels":true,"tax_calculator":true,"no_weebly_ads":false,"site_search":false,"product_search":true,"square_gift_cards":true,"inventory_management":true,"integrated_facebook_ads":false,"real_time_shipping_calculator":false,"age_confirmation":true,"square_processing_rate_id":"ECOM_SOS_FREE","square_processing_rate_display":{"USD":[{"percent":"3.3","flat":30,"type":"all"}],"AUD":[{"percent":"2.2","flat":0,"type":"all"}],"CAD":[{"percent":"2.8","flat":30,"type":"all"}],"EUR":[{"percent":"1.4","flat":25,"type":"intra-eu"},{"percent":"2.9","flat":25,"type":"non-eu"}],"GBP":[{"percent":"1.4","flat":25,"type":"intra-eu"},{"percent":"2.5","flat":25,"type":"non-eu"}],"JPY":[{"percent":"3.6","flat":0,"type":"non-jcb"},{"percent":"3.6","flat":0,"type":"jcb"}]},"favicon_customization":true,"site_code_customization":false,"instagram_feed_tagging":true,"quick_shop":true,"scheduleEnabled":false,"smartGroupsEnabled":false,"socialAdsEnabled":true,"lifetimeEmails":2,"emailsPerMonth":2,"recipientsPerEmail":500,"recipientsPerMonth":1000,"automations":0,"automatedRecipientsPerMonth":0,"enabledLeadFormTypes":["popup"],"allowsPurchasingCredits":false,"insights_overview":false,"insights_sales":false,"insights_products":false,"custom_fonts":false,"com_shipping_settings":true,"com_manage_gift_cards":true,"com_create_shipping_label_discount":true,"customer_accounts":true,"com_stripe_payment":false,"com_product_sync":true,"com_product_variant_limit":-1,"com_shipping_labels_tier":"weebly_cpp_tier","com_transaction_fee":"0.00","form_file_upload":false,"product_scheduled_actions":false,"custom_site_icon":true,"video_uploading":0,"buyer_customer_accounts":false,"personalized_order_screen":false,"personalized_recommendations":false,"easy_reordering":true,"self_serve_ordering":false,"ecom_preorders":false,"order_text_alerts":false,"time_based_categories":true,"advanced_order_limits":false,"modifier_images":false,"free_fulfillment_meter":false,"spd_fees_amount":0,"twenty_four_seven_support":false,"advanced_design_controls":false,"order_item_quantity_limit":false,"stock_media":false,"so_buyer_subscriptions":false,"item_badge_customization":false,"shop_all_item_layouts":false,"icon_sets":false,"banner_slides":false,"priority_phone_support":false,"pdp_layouts":false,"full_height_banners":false,"scrolling_text":false,"featured_item_layouts":false,"mega_menu":false,"appts_customization":false,"premium_text_image_layout":false,"featured_category_layouts":false,"ai_generated_content":false,"image_shapes":false,"group_ordering":false,"inventory_bundles":false,"com_square_transaction_best_discount":false},"isTrial":false},"siteFeatures":{"embed_restricted_widgets":false,"com_gifting":false,"com_authorizenet_payment":false,"com_digital_products":true,"com_coupons":true,"com_product_reviews":false,"com_product_limit":-1,"popup_announcement":true,"popup_coupons":false,"popup_lead_capture":true,"community_support":true,"free_ssl_security":true,"custom_domain_connection":false,"advanced_site_stats":false,"password_protection":false,"video_backgrounds":false,"hd_video_and_audio":false,"membership_registration":false,"membership_settings":false,"online_store":true,"accept_paypal_payments":false,"product_badges":true,"product_modifiers":true,"in_store_pickup":true,"shipping_calculator":true,"chat_and_email_support":true,"phone_support":true,"priority_support":false,"advanced_ecommerce_stats":false,"seo":true,"unlimited_storage":false,"members":0,"abandoned_cart_emails":false,"integrated_shipping_labels":true,"tax_calculator":true,"no_weebly_ads":false,"site_search":false,"product_search":true,"square_gift_cards":true,"inventory_management":true,"integrated_facebook_ads":false,"real_time_shipping_calculator":false,"age_confirmation":true,"square_processing_rate_id":"ECOM_SOS_FREE","square_processing_rate_display":{"USD":[{"percent":"3.3","flat":30,"type":"all"}],"AUD":[{"percent":"2.2","flat":0,"type":"all"}],"CAD":[{"percent":"2.8","flat":30,"type":"all"}],"EUR":[{"percent":"1.4","flat":25,"type":"intra-eu"},{"percent":"2.9","flat":25,"type":"non-eu"}],"GBP":[{"percent":"1.4","flat":25,"type":"intra-eu"},{"percent":"2.5","flat":25,"type":"non-eu"}],"JPY":[{"percent":"3.6","flat":0,"type":"non-jcb"},{"percent":"3.6","flat":0,"type":"jcb"}]},"favicon_customization":true,"site_code_customization":false,"instagram_feed_tagging":true,"quick_shop":true,"scheduleEnabled":false,"smartGroupsEnabled":false,"socialAdsEnabled":true,"lifetimeEmails":2,"emailsPerMonth":2,"recipientsPerEmail":500,"recipientsPerMonth":1000,"automations":0,"automatedRecipientsPerMonth":0,"enabledLeadFormTypes":["popup"],"allowsPurchasingCredits":false,"insights_overview":false,"insights_sales":false,"insights_products":false,"custom_fonts":false,"com_shipping_settings":true,"com_manage_gift_cards":true,"com_create_shipping_label_discount":true,"customer_accounts":true,"com_stripe_payment":false,"com_product_sync":true,"com_product_variant_limit":-1,"com_shipping_labels_tier":"weebly_cpp_tier","com_transaction_fee":"0.00","form_file_upload":false,"product_scheduled_actions":false,"custom_site_icon":true,"video_uploading":0,"buyer_customer_accounts":false,"personalized_order_screen":false,"personalized_recommendations":false,"easy_reordering":true,"self_serve_ordering":false,"ecom_preorders":false,"order_text_alerts":false,"time_based_categories":true,"advanced_order_limits":false,"modifier_images":false,"free_fulfillment_meter":false,"spd_fees_amount":0,"twenty_four_seven_support":false,"advanced_design_controls":false,"order_item_quantity_limit":false,"stock_media":false,"so_buyer_subscriptions":false,"item_badge_customization":false,"shop_all_item_layouts":false,"icon_sets":false,"banner_slides":false,"priority_phone_support":false,"pdp_layouts":false,"full_height_banners":false,"scrolling_text":false,"featured_item_layouts":false,"mega_menu":false,"appts_customization":false,"premium_text_image_layout":false,"featured_category_layouts":false,"ai_generated_content":false,"image_shapes":false,"group_ordering":false,"inventory_bundles":false,"com_square_transaction_best_discount":false},"featureset":{"pages":["category","shopAll","instagramFeed"],"quickShop":true,"search":true,"blocks":["featured-products"]},"page":{"id":"fcc30120-de91-11ef-8083-898248512ef8","site_snapshot_id":"fcc28400-de91-11ef-bfd9-b5b0a06c9d88","properties":{"name":"Home","route":"home","title":"Home","hidden":false,"description":"","contentAreas":{"banner":{"id":"edc7df10-dbe6-11ea-9151-6d05e26911ff","hidden":false,"content":{"id":"edc7e100-dbe6-11ea-b0e2-f73abcef40ef","type":"block","layout":"banner-4","purpose":"banner@^1.2.2","elements":[{"id":"ef92d585-dbe6-11ea-8eaa-8118198b087e","purpose":"title-1","properties":{"align":false,"title":{"quill":{"ops":[{"insert":"Buy, Subscribe or Sponsor\n"}]}},"fontSize":"small","fontFamily":"--primary-font"}},{"id":"ef92d586-dbe6-11ea-8eaa-8118198b087e","purpose":"image-1","properties":{}},{"id":"ef92d587-dbe6-11ea-8eaa-8118198b087e","purpose":"button-1","properties":{"link":{"tab":false,"link":{"page":{"pageID":"fcc30120-de91-11ef-8083-898248512ef8","sectionID":"f0e28701-dbe6-11ea-8eaa-8118198b087e"},"product":"1","shopAll":true},"type":"shopAll"},"label":"Shop now","hidden":false,"presetStyle":"primary"}}],"properties":{"text":{"hidden":false,"content":{"quill":{"ops":[{"insert":"unique, innovative and cool"},{"insert":"\n","attributes":{"block":true}}]}},"fontSize":"medium"},"label":{"hidden":false,"content":{"quill":{"ops":[{"insert":"support a station that supports indie music &  the people of Ukraine"},{"insert":"\n","attributes":{"block":true}}]}},"fontSize":"step-0"},"height":"medium","shortID":"fzmAqQ","background":{"type":"default","image":{"width":4967,"height":4961,"isDark":true,"source":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/BOSTIN RADIO LOGO. FINAL 06 04 2021_1620603811.jpg","original":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/BOSTIN RADIO LOGO. FINAL 06 04 2021_1620603811.jpg","sourceSet":{},"attribution":{},"displayTransparent":false}},"bannerImage":{"alt":"Bostin Branded Merchandise, including Mugs and T Shirts","link":{"tab":false,"link":{"product":"4","category":"3","external":"https:\/\/amazon.co.uk\/music\/player\/albums\/B0BKWMYPL9?marketplaceId=A1F83G8C2ARO7P&musicTerritory=GB&ref=dm_sh_uJylDtjAyJ0cQoobhhc7L2aa0"},"type":"category"},"type":"cover","image":{"id":"81dc72f0-a2a0-11ef-93b9-e56d6b832ccf","name":"IMG_20210809_155937612.jpg","size":{},"width":2592,"height":1456,"isDark":true,"source":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2024-11-14_15-56-02_1731599792.jpg","altText":"","original":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/IMG_20210809_155937612.jpg","sourceSet":{"400w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2024-11-14_15-56-02_1731599792.jpg?width=400","800w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2024-11-14_15-56-02_1731599792.jpg?width=800","1200w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2024-11-14_15-56-02_1731599792.jpg?width=1200","1600w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2024-11-14_15-56-02_1731599792.jpg?width=1600","2000w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2024-11-14_15-56-02_1731599792.jpg?width=2000","2400w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2024-11-14_15-56-02_1731599792.jpg?width=2400"},"focalPoint":{"x":0.5,"y":0.5},"attribution":{},"cropOptions":{"zoom":1,"center":{"x":0.6255,"y":0.7077},"realZoom":2.21,"rotation":-0.3665},"positionPoint":{"x":0.5,"y":0.5},"displayTransparent":false},"shape":"square","aspectRatio":"1_1","captionText":"Bostin Merchandise & More 2024","imageMobile":{"id":"81dc72f0-a2a0-11ef-93b9-e56d6b832ccf","name":"IMG_20210809_155937612.jpg","size":{},"width":2592,"height":1456,"isDark":true,"source":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/IMG_20210809_155937612.jpg","altText":"","original":"\/uploads\/b\/eda59ba0-dbe6-11ea-83c4-fb64ffe6436a\/IMG_20210809_155937612.jpg","sourceSet":{},"focalPoint":{"x":0.5,"y":0.5},"attribution":{},"cropOptions":null,"positionPoint":{"x":0.5,"y":0.5},"displayTransparent":false},"captionEnabled":true,"captionPosition":"bottom"},"colorProfile":"primary-dark-bold","secondaryButton":{"hidden":true},"verticalsHidden":true}}},"userContent":{"id":"edc7d9e0-dbe6-11ea-8880-a551d0f27c4d","hidden":false,"content":{"id":"edc7dd00-dbe6-11ea-af64-333a59b242ec","type":"container","cells":[{"id":"04dbbf60-dbe7-11ea-8eaa-8118198b087e","type":"cell","content":{"id":"04dbbf61-dbe7-11ea-8eaa-8118198b087e","type":"block","layout":"instagram-grid","purpose":"instagram@^1.0.0","elements":[{"id":"04e81b70-dbe7-11ea-ae5c-6ff57765472f","purpose":"title","properties":{"fontSize":"medium"}},{"id":"04e81b71-dbe7-11ea-ae5c-6ff57765472f","purpose":"subtitle","properties":{}}],"properties":{"shortID":"pRABSW","background":{"type":"default","image":{"width":2000,"height":2000,"isDark":false,"source":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/BREAKING GOOD SHOW 2021 websize for station_1616137306.jpg","original":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/BREAKING GOOD SHOW 2021 websize for station_1616137306.jpg","sourceSet":{},"attribution":{},"overlayOpacity":0.05}},"columnCount":4,"colorProfile":"primary-dark-bold","seeMoreButton":{"link":{"tab":false,"link":{"instagramFeed":true},"type":"instagramFeed"},"label":"See full feed","hidden":false,"presetSize":"large"},"verticalsHidden":true,"profileConnection":{"id":"95a8ea04-cffb-4959-8f48-37ec5917d408","type":"instagrambasicdisplay","username":"bostinradioworldwide","connected":true,"displayUsername":"@bostinradioworldwide","checkedConnectionTime":1641565435723}}}},{"id":"fa047aa0-dbe6-11ea-8eaa-8118198b087e","type":"cell","content":{"id":"fa047aa1-dbe6-11ea-8eaa-8118198b087e","type":"block","layout":"contact-us-2","purpose":"contact-us@^1.0.0","elements":[{"id":"fa10fdc0-dbe6-11ea-ae5c-6ff57765472f","purpose":"title","properties":{"title":{"quill":{"ops":[{"insert":"Any questions for us?"}]}},"fontSize":"medium"}},{"id":"fa10fdc1-dbe6-11ea-ae5c-6ff57765472f","purpose":"text","properties":{"content":{"quill":{"ops":[{"insert":"Reach out to us and let us know."}]}},"fontSize":"medium"}},{"id":"fa10fdc2-dbe6-11ea-ae5c-6ff57765472f","purpose":"contact-form","properties":{"name":"Contact us","type":"contact-form","fields":[{"id":"fa10fdc3-dbe6-11ea-ae5c-6ff57765472f","type":"input","label":"Bostin Membership or Bostin Sponsor?","altLabel":"Full name","required":true,"properties":{"field":"name"},"placeholder":"Bostin Membership or Bostin Sponsor?"},{"id":"fa10fdc4-dbe6-11ea-ae5c-6ff57765472f","type":"input","label":"Email","altLabel":"Email","required":true,"properties":{"type":"email","field":"email"},"placeholder":"Email"},{"id":"fa10fdc5-dbe6-11ea-ae5c-6ff57765472f","type":"textarea","label":"Message\/ Query","altLabel":"Message","required":true,"properties":{"field":"message"},"placeholder":"Message\/ Query"}],"schema":{"id":"fa1124d0-dbe6-11ea-ae5c-6ff57765472f","hash":"726246b2f0b51f17e2d5ca5a352eb1ed"},"enableOptIn":true,"confirmation":"Thank You for your Submission, we will get back to you as soon as we can."}}],"properties":{"shortID":"QRIEnX","background":{"type":"default"},"colorProfile":"primary-dark-bold"}}},{"id":"f11508b0-dbe6-11ea-8eaa-8118198b087e","type":"cell","content":{"id":"f11508b1-dbe6-11ea-8eaa-8118198b087e","type":"block","layout":"newsletter-1","purpose":"newsletter@^1.2.1","elements":[{"id":"f1353ae3-dbe6-11ea-ae5c-6ff57765472f","purpose":"newsletter","properties":{"type":"subscription","button":{"label":"Sign Up"},"fields":[{"id":"f1353ae4-dbe6-11ea-ae5c-6ff57765472f","type":"action-input","label":"","required":true,"properties":{},"placeholder":"","instructions":""}],"schema":{"id":"f1353ae5-dbe6-11ea-ae5c-6ff57765472f","hash":"d37b7ae521d4a42ac6b9060446128895"}}},{"id":"f1353ae0-dbe6-11ea-ae5c-6ff57765472f","purpose":"title","properties":{"title":{"quill":{"ops":[{"insert":"Stay in the Loop! Monthly"},{"insert":"\n","attributes":{"block":true}}]}},"hidden":false,"fontSize":"small"}},{"id":"f1353ae1-dbe6-11ea-ae5c-6ff57765472f","purpose":"text","properties":{"hidden":false,"content":{"quill":{"ops":[{"insert":"Get the latest when you sign up for our monthly newsletter.\n"}]}},"fontSize":"medium"}},{"id":"f1353ae2-dbe6-11ea-ae5c-6ff57765472f","purpose":"image","properties":{}}],"properties":{"shortID":"DsVbAg","background":{"type":"image","image":{"width":4967,"height":4961,"isDark":true,"source":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/BOSTIN RADIO LOGO. FINAL 06 04 2021_1620603811.jpg","original":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/BOSTIN RADIO LOGO. FINAL 06 04 2021_1620603811.jpg","sourceSet":{},"attribution":{},"overlayOpacity":0.34}},"colorProfile":"custom-profile","verticalsHidden":true}}},{"id":"2cdfa770-0520-11ec-bf5f-051189f3d4cb","type":"cell","content":{"id":"2cdfa771-0520-11ec-bf5f-051189f3d4cb","type":"block","layout":"featured-categories-grid-overlay","purpose":"featured-categories@^1.0.0","properties":{"shortID":"amYVCq","textAlign":"","background":{"type":"image","image":{"width":2000,"height":2000,"isDark":false,"source":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2021-08-25_00-09-15_1629846572.jpg","original":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/BREAKING GOOD SHOW 2021 websize for station_1616137306.jpg","imageType":"background","sourceSet":{"400w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2021-08-25_00-09-15_1629846572.jpg?width=400","800w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2021-08-25_00-09-15_1629846572.jpg?width=800","1200w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2021-08-25_00-09-15_1629846572.jpg?width=1200","1600w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2021-08-25_00-09-15_1629846572.jpg?width=1600","2000w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2021-08-25_00-09-15_1629846572.jpg?width=2000","2400w":"\/uploads\/b\/bd06623bbccb257f5e8915f49b6c87127919d0cafafcadb76f6f4e57737b7348\/2021-08-25_00-09-15_1629846572.jpg?width=2400"},"focalPoint":{"x":0.5,"y":0.5},"attribution":{},"cropOptions":{"zoom":1,"center":{"x":0.5,"y":0.5},"realZoom":1,"rotation":0},"positionPoint":{"x":0.5,"y":0.5},"overlayOpacity":0.12}},"hoverEffect":"text","lastRefetch":1629846322832,"colorProfile":"primary-light-bold","sectionTitle":{"color":"var(--gray-light-one)","title":{"quill":{"ops":[{"insert":"Featured categories"},{"insert":"\n","attributes":{"block":true}}]}},"hidden":false,"fontFamily":"--primary-font"},"categoryLinks":{},"overlayTitles":{"color":"--color-white","fontSize":"step-3","fontFamily":"--secondary-font"},"sectionSubtitle":{"color":"var(--primary-bright-light)","hidden":false,"content":{"quill":{"ops":[{"insert":"Our latest collections are full of items you will love"},{"insert":"\n","attributes":{"block":true}}]}},"fontSize":"step-1","textStyle":"title","fontFamily":"--primary-font"},"selectedCategories":[2,3]}}}]}}}}}},"storeInfo":{"merchant_id":"ML2W7QXD5YEZ8","buyer_customer_accounts_enabled":false,"currency":"GBP","locale":"en_GB","language":"en","syncing_disabled":true,"return_policy":"<p><strong>As indicated in our Shipping Policy, we inspect all goods before dispatch and we do our best to supply quality innovative and unique products and services. <u>e-Tickets or physical tickets are dispatched by email or by post (<\/u><em><u>* See T&amp;C's regarding tickets in 4th paragraph below<\/u><\/em><u>).<\/u><\/strong><\/p><p><br><\/p><p>All Goods are of the best Quality possible and where fabrics are concerned, Please ensure you read all enclosed washing, storage or maintenance instructions. Where Goods are damaged on receipt or are of the wrong size, as long as not used we will accept returns within 5 working days of receipt. Failure to read instruction or utilize product appropriately will render any returns or refunds void.<\/p><p><br><\/p><p>Where goods are not delivered, damaged or not fit for purpose as described, on return of the goods in appropriate packaging, we will inspect them and if damaged or wrong size etc., then we will give a full refund or replacement. But where there is obvious sign of use or wear an tear, we will offer a partial or full refund in the form of a Voucher to the amount as appropriate.<\/p><p><br><\/p><p>Again with Tech or Gifts (excluding Clothing and Baseball Caps or scarfs) if the same is not as ordered, e.g. mis-spelling on bespoke branding or it doesn't work, we will offer Discount Voucher, Good Will Voucher or a full refund up to 30 days from time of purchase. Beyond 30 days, no refunds will be considered or given (Tech Items and Gift Ideas only, Bespoke Clothing is as 1st paragraph).<\/p><p><br><\/p><p><strong>None of the Above applies to Service and Subscription Services such as Membership Club, Ticketing and Podcast Services* (* Tickets are non transferable, but full refunds minus booking fees will be refunded in the event of the cancellation of a ticketed event)<\/strong><\/p><p><br><\/p><p><strong>Donations, Subscription &amp; Membership Fees are non negotiable and by their nature as they are all rolling contracts and cancellation at the end of any month or quarter allowed, no returns or refunds are applicable. Your Rights as a consumer are not affected where delivery of certain services have not been met or the APP we sell\/ distribute elsewhere via Google Play and iOS APP Store are all governed by separate terms and conditions governed by the platforms that customers download them from.<\/strong><\/p>","shipping_policy":"<p><strong>The Majority of Goods ordered are shipped by Royal Mail Post, Bulk Orders by Courier or Special Delivery and where stipulated and usually take between 3-7 working days within the UK, Europe, 7 days, Rest of the World must allow up to 14 days (but we usually aim for 10, most prices include postage &amp; packaging, unless otherwise stated). Prices too can change from time to time within at any time and this may include special offers, sometimes monthly, but mostly quarterly.<\/strong><\/p><p><br><\/p><p><em>All queries and updates on orders must be made by email outlined on our websites &amp;\/or via enquiry boxes and we endeavor to respond to general enquiries within 24 hrs.<\/em><\/p><p><br><\/p><p><strong>Every Order is confirmed with a receipt and shipped online. We will ship the majority of the time by 1st or 2nd class post or deliver where needed and viable we will do 'Local Delivery' within 8 miles of Birmingham UK or 8 Miles of Kington, otherwise 99.9% of Digital Services are delivered online and physical products by 2nd Class Post, 1st Class if orders in excess of \u00a350 or Courier (Value Dependent). e-Tickets by email or SMS.<\/strong><\/p><p><br><\/p><p><em>All Goods are of the best Quality possible and where fabrics are concerned we inspect rigorously before Shipping to Customers\/Clients, <\/em><\/p><p><br><\/p><p><strong>None of the Above applies to Service and Subscription Services such as Membership Club and Podcast Services*<\/strong><\/p><p><br><\/p><p><strong>Every Order in such cases are confirmed with a receipt and shipped online. Where Physical added benefits are involved, we will ship by post or deliver where within 8 miles of Birmingham UK or 8 Miles of Kington, where possible, otherwise 99.9% of Digital Services are delivered online and physical products by Post or Courier.<\/strong><\/p><p><br><\/p><p><strong>Donations, Subscription &amp; Membership Fees are non negotiable and by their nature as they are all rolling contracts and cancellation at the end of any month or quarter allowed, no returns or refunds are applicable. Your Rights as a consumer are not affected where delivery of certain services have not been met or the APP we sell\/ distribute elsewhere via Google Play and iOS APP Store are all governed by separate terms and conditions governed by the platforms that customers download them from.<\/strong><\/p><p><br><\/p><p><strong>All Logos, Branded Designs and Services<\/strong> are the bona fide Intellectual property of <strong>Funky Apple Design &amp; Biz Hub t\/as <a href=\"https:\/\/bostinradio.com\/\" rel=\"noopener noreferrer\" target=\"_blank\">Bostin Radio Worldwide<\/a> &amp; BostinRadioShopping online<\/strong>. For more info on us and the Radio Station, our <strong><a href=\"https:\/\/bostinradio.com\/privacypolicy.html\" rel=\"noopener noreferrer\" target=\"_blank\">Privacy Policies<\/a><\/strong> and more go to our Live online 24\/7 <a href=\"https:\/\/bostinradio.com\/privacypolicy.html\" rel=\"noopener noreferrer\" target=\"_blank\">WEBSITE*<\/a><\/p>","max_donation_amount":4000,"store_mode":"cart","payment_method_support":{"visa":true,"mastercard":true,"amex":true,"discover":false,"jcb":false,"interac":false,"paypal":false,"apple_pay":true,"google_pay":true,"cash_app":false,"square_pay":true},"show_pdp_buy_now_button":true,"allowed_to_sell":true,"accepting_orders":true,"has_payment_processor":true,"is_group_ordering_enabled":false,"product_reviews_enabled":false,"show_on_sale_section":true,"show_low_stock_section":false,"show_out_of_stock_section":true,"shipping_location_ids":["LCDC2DBG2WKFZ"],"fulfillment_support":{"delivery":false,"pickup":false,"shipping":true,"dine_in":false,"manual":false,"digital":true},"seller_preferred_fulfillment":"delivery","locations_counts":{"pickup":0,"delivery":0,"dine_in":0,"pickup_or_delivery":0,"brick_and_mortar_fulfillment":0,"shipping":1,"total":1},"has_subscribable_items":false,"has_shippable_product":true,"has_time_based_categories":false,"product_setting_low_stock_threshold":5,"category_hierarchy_root_ids":{"site_category_id":null,"id":null}},"commerceLinks":{"products":{},"categories":{"3":{"site_category_id":"3","name":"Subscriptions, Sponsorship & Services","updated_date":"2025-08-18T14:48:12+00:00","permalink":"","site_link":"\/shop\/subscriptions-sponsorship-services\/3"},"2":{"site_category_id":"2","name":"MERCHANDISE","updated_date":"2025-08-18T14:48:12+00:00","permalink":"bostinmerchandise","site_link":"\/shop\/bostinmerchandise\/2"}},"meta":{"pagination":{"products":[],"categories":{"per_page":2500,"current_page":1,"total_pages":1}}}},"autoNavLinks":[{"link":{"page":{"pageID":"fcc30120-de91-11ef-8083-898248512ef8"}},"type":"page"},{"link":{"shopAll":true},"type":"shopAll"}],"blogPostLinks":{},"featureFlags":{"ecom.website.deprecated-layouts":false,"marketing-enable-drive-repeat-purchase-campaign":true,"ecom.website.facebook-food":true,"ecom.website.theme-export":false,"ecom.website.chamber-via-fastly":true,"ecom.square-online-published-catalog-cache-version":"2026-03-25","ecom.checkout.open_tabs":true,"ecom.website.photo-reviews":true,"ecom.checkout.cmi-sentry-integration":true,"ecom.checkout.cmi.bootstrap-tracking-snowplow":true,"ecom.checkout.cmi.bootstrap-tracking-ga":true,"ecom.website.order-confirmation-page.website-redirect":true,"ecom.checkout.cmi.locale-view-splitting":true,"ecom.checkout.open_tabs_gc_coupon":true,"ecom.cmi-cart":true,"ecom.checkout.cmi.theme-fonts":false,"ecom-fulfillment-api-v-2":false,"ecom.omnichannel-discounts-frontend":true,"ecom.omnichannel-discounts-category-api":false,"ecom-improved-tipping-experience":true,"ecom.splash.loyalty":false,"ecom.website.published-site.datadog-rum":true,"ecom.website.editor.datadog-rum":true,"ecom-website-published-site-datadog-rum-bot-filter":true,"ecom-use-tracking-inventory":false,"ecom.image-controls.width-fix":true,"ecom.gradient-backgrounds":true,"ecom.website.form-fraud-blocking":true,"ecom.website.form-fraud-auto-ban":true,"ecom.website.code-editor":false,"ecom.shopping.pdp-layouts-m1":true,"ecom.chamber.subscriptions":true,"ecom.tuba.subscriptions-paid-shipping-rates":true,"ecom-cko-enhanced-logging":true,"ecom-cko-unified-logging":true,"ecom.shopping.so-coupons-sunset-integrations":true,"ecom.order-online-text-layouts":true,"ecom.appointment-improvements":true,"ecom.appointment-improvements-m2":true,"ecom.tuba.committed-inventory-m1":true,"ecom.splash-improvements":true,"ecom-themes-onboarding":true,"ecom.shopping.featured-categories-paid-layouts":true,"ecom.website.ai-text.short-form":false,"ecom.website.ai-text.long-form":false,"ecom.website.metered-request.override":false,"ecom.website.async-create-theme":false,"ecom.can_use_cart_sharing":true,"ecom.website.ai.editor-prototype":false,"ecom.website.ai.page-seo":false,"ecom.appointment-direct-booking":true,"ecom-service-cutover-fe-request-augmentations":true,"ecom.catalog.so-item-library-deprecation-3":true,"ecom.kiosk-photo-card":true,"ecom.website.system-page.cart":false,"ecom-enable-kiosk-large-catalog-layout":false,"ecom-hide-instagram":true,"ecom-hide-instagram-on-published-sites":false,"ecom-enable-kiosk-item-preloading":true,"ecom-brand-api-sync":true,"ecom.service-cutover.enable-tuba-traffic":true,"ecom-show-order-online":true,"websdk-use-new-afterpay-buttons":false,"ecom-checkout-should-check-is-decouple-checkout":true,"ecom-prime-use-store-info-v29":true,"ecom-checkout-force-pci-compliance":false,"ecom-website-hide-food-beverage-themes":false,"ecom-website-fix-dine-in-location-selection":true,"ecom-combo-slot-include-hidden-items":false},"lightning":{},"datadog":{"publishedSite":{"service":"spi-ecom-square-online-buyer-journey","applicationId":"0a9b10e6-9671-4e1d-bd0b-2f283f0d29ee","clientToken":"pubc6e7a7143c494f34f1366112ef7c1e2c","env":"production","rum":{"sampleRate":50,"sessionReplaySampleRate":20,"traceSampleRate":10}}}};
+    </script>
+
+        
+    <script type="application/javascript" data-cookieconsent="ignore">
+        window.stopSiteLoadingAnimation = () => {
+            const loadingElement = document.querySelector('.loading-view');
+            loadingElement?.remove();
+        };
+    </script>
+
+    
+    <script type="application/javascript" data-cookieconsent="ignore">
+    /**
+     * PCI Compliance Flag
+     *
+     * This flag indicates if scripts have been filtered for PCI compliance (OpenTabs SSO Checkout route).
+     * This value is set only for buyer dashboard/site view to prevent infinite loading loops.
+     *
+     * Do NOT include this file in editor-frame.blade.php as it affects seller dashboard.
+     */
+    window.IS_PCI_SCRIPTS_FILTERED = false;
+</script>
+    <script type="application/javascript" data-cookieconsent="ignore">
+    // used for editor-frame and pub site bootstrap
+    window.APP_ENV = 'production';
+    window.APP_ORIGIN = 'https://square.online';
+    window.APP_URL = 'https://www.weebly.com';
+    window.ASSET_BASE = '/app/website';
+    window.ASSETS_PUBLIC_PATH = 'https://cdn3.editmysite.com/app/website/';
+    window.CMS_API_PATH ='/app/website/cms';
+    window.DEPRECATED_IMAGE_HOST = 'https://images.editor.website';
+    window.FRAME_ORIGIN = 'https://sandbox.square.online';
+    window.GENERATE_GOOGLE_MAP_BASE = 'https://www.editmysite.com';
+    window.IMAGE_HOST = 'https://bd06623bbccb257f5e89.cdn6.editmysite.com';
+    window.IS_DRAFT = false;
+    window.IS_MAGIC_MIRROR = false;
+    window.IS_THEME_PREVIEW = false;
+    window.IS_ENHANCED_PREVIEW = false;
+    window.DRAFT_ORIGIN = 'https://drafts.editmysite.com';
+    window.PUBLISHED_CMS_API_PREFIX = '/app/cms';
+    window.SENTRY_DSN = 'https://13e49d785d8d4f828038b6136f3b48ba@sentry.io/1263158';
+    window.RELEASE = 'prime-3488887';
+    window.URL_BASE = '';
+    window.XSRF_COOKIE_NAME = 'publishedsite-xsrf';
+    window.FASTLY_URL_BASE = 'https://cdn5.editmysite.com';
+    window.SQUARE_WEB_PAYMENTS_SDK = 'https://web.squarecdn.com/v1/square.js'
+    window.PUBLIC_SQUARE_URL_BASE = 'squareup.com';
+    window.PUBLIC_SQUARE_APPTS_URL_BASE = 'app.squareup.com';
+    window.ENABLE_FRONTEND_LOCAL_DEV_CACHE = '';
+    window.GOOGLE_TAG_DEVELOPER_ID = 'developer_id.dOTM2Yj';
+    window.IS_SQUARE_GO = false;
+
+            window.IS_PUBLISHED_MAGIC_MIRROR = false;
+    
+    // state
+    window.SUBDOMAIN_BASE = 'square.site';
+
+</script>
+
+    <!--square-online-snowplow-->
+
+<script data-cookieconsent="statistics" type="text/plain">
+    (function (p, l, o, w, i, n, g) {
+    var id = i + '-script';
+    if (!l.getElementById(i)) {
+        n = l.createElement(o);
+        g = l.getElementsByTagName(o)[0];
+        n.id = id;
+        n.async = 1;
+        n.src = w;
+        g.parentNode.insertBefore(n, g);
+    }
+})(window, document, "script", "https://cdn3.editmysite.com/app/website/static/js/wsnbn/snowday262.js", "snowday");
+</script>
+
+
+<script data-cookieconsent="ignore" data-role="square-online-snowplow">
+
+(function (p, l, o, w, i, n, g) {
+    if (!p[i]) {
+        p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+        p.GlobalSnowplowNamespace.push(i);
+        p[i] = function () {
+            (p[i].q = p[i].q || []).push(arguments);
+        };
+        p[i].q = p[i].q || [];
+    }
+})(window, document, '', '', "snowday");
+
+var r = [99, 104, 101, 99, 107, 111, 117, 116, 46, 40, 119, 101, 101, 98, 108, 121, 124, 101, 100, 105, 116, 109, 121, 115, 105, 116, 101, 41, 46, 99, 111, 109];
+var snPlObR = function(arr) {
+    var s = '';
+    for (var i = 0 ; i < arr.length ; i++){
+        s = s + String.fromCharCode(arr[i]);
+    }
+    return s;
+};
+var s = snPlObR(r);
+
+var regEx = new RegExp(s);
+
+window._W = {
+    Analytics: {
+        trackers: {
+            wSP: snowday,
+        },
+        user_id: '133351330',
+        site_id: '933181286249415286',
+    },
+};
+
+(function(app_id, ec_hostname, discover_root_domain) {
+    var track = window._W.Analytics.trackers.wSP;
+    if (!track) return;
+    track('newTracker', app_id, ec_hostname, {
+        appId: app_id,
+        post: true,
+        platform: 'web',
+        discoverRootDomain: discover_root_domain,
+        cookieDomain: document.location.hostname,
+        cookieName: '_snow_',
+        contexts: {
+            webPage: true,
+            performanceTiming: true,
+            gaCookies: true
+        },
+        crossDomainLinker: function (linkElement) {
+            return regEx.test(linkElement.href);
+        },
+        respectDoNotTrack: document.cookie.indexOf('gdpr-kb') === -1
+    });
+    track('trackPageView', _W.Analytics.user_id+':'+_W.Analytics.site_id);
+    track('crossDomainLinker', function (linkElement) {
+        return regEx.test(linkElement.href);
+    });
+})(
+    '_wn',
+    'ec.editmysite.com',
+    false
+);
+</script>
+<!--end-square-online-snowplow-->
+
+
+            
+        
+        <script>
+            (function(b,d,h,e,f,a,c){a=d.getElementsByTagName("script");c=!1;
+            var k=e.substring(e.lastIndexOf("/")+1);
+            b[f]=function(a){b[f]=a};
+            a=d.createElement(h),c=d.getElementsByTagName(h)[0],a.async=!0,a.src=e,c.parentNode.insertBefore(a,
+                    c)})(window,document,'script', '//cdn3.editmysite.com/app/marketing/js/dist/messenger.js','messenger');
+            messenger({ preview: 0, asset_domain: 'cdn3.editmysite.com/app/marketing', data_domain: 'www.weebly.com/app/marketing', align: 'right', style: 'long_blue', size: 'large', page_id: '110075407379630' });
+        </script>
+        <script>
+            (function(b,d,h,e,f,a,c){a=d.getElementsByTagName("script");c=!1;
+            var k=e.substring(e.lastIndexOf("/")+1);b.formIds=b.formIds?b.formIds:[];
+            for(var g=0;g<a.length;g++)-1<a[g].src.indexOf(k)&&(c=!0);b[f]&&(b.formIds=b.formIds.concat(b[f].form_ids));
+            b.formObject=f;b[f]=function(a){if(a.form_ids){
+                var c=b.formIds.concat(a.form_ids),d=[],e;for(e in c)c.hasOwnProperty(e)&&-1==d.indexOf(c[e])&&d.push(c[e]);
+                a.form_ids=d}b[f]=a};c||(a=d.createElement(h),c=d.getElementsByTagName(h)[0],a.async=!0,a.src=e,c.parentNode.insertBefore(a,
+                    c))})(window,document,'script', '//cdn3.editmysite.com/app/marketing/js/dist/lead-form.js','leadForm');
+            leadForm({ form_ids: ["ee64cf8a-691c-43d4-92b6-525b193b1193","db4d7a93-ded9-450f-a08a-efcd3def9032"], preview: 0, asset_domain: 'cdn3.editmysite.com/app/marketing', data_domain: 'www.weebly.com/app/marketing' });
+        </script>
+    
+    <link rel="stylesheet" href="https://cdn3.editmysite.com/app/website/css/site.80dde82e64cd7e8a0309.css">
+</head>
+<body>
+    <div class="loading-view">
+        <div
+            class="loading-container"
+        >
+            <div
+                class="dot-container"
+            ></div>
+            <div
+                class="dot-container"
+            ></div>
+            <div
+                class="dot-container"
+            ></div>
+        </div>
+    </div>
+    <div id="app"></div>
+
+                
+        <link rel="stylesheet" type="text/css" href="https://cdn3.editmysite.com/app/checkout/assets/checkout/css/wcko.d01e607a0316a2da0559.css" />
+    </body>
+</html>

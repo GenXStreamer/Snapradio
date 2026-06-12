@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="msapplication-starturl" content="/">
+<title>Mazoozie | We do radio with a BEAT</title>
+<meta id="themeColor" name="theme-color" content="#8b0ccc">
+<link href="https://fonts.googleapis.com/css?family=Roboto:500,900,400" rel="stylesheet" type="text/css">
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="/css/_d0.bc49190b.css">
+</head>
+<body>
+<noscript>
+  <strong>We're sorry but the app requires JavaScript to be enabled. Please enable it to continue.</strong>
+</noscript>
+<div id="root"></div>
+<script type="module" src="/js/1a9e673cef0a443fbac5a59bbbb71d11.js"></script>
+</body>
+</html>
