@@ -7,7 +7,7 @@ Built with **FastAPI** and **Tailwind CSS**, it provides a responsive mobile-fri
 ## Features
 
 - **Global Radio Discovery:** Browses tens of thousands of stations worldwide via the [Radio-Browser.info](https://www.radio-browser.info/) API.
-- **Configurable Defaults:** Set your preferred default country in `.env` using the 2-code country alpha code (e.g., `DEFAULT_COUNTRY=GB`). [Country Codes ] (https://www.iban.com/country-codes).
+- **Configurable Defaults:** Set your preferred default country in `.env` using the 2-code country alpha code (e.g., `DEFAULT_COUNTRY=GB`). [Country Codes](https://www.iban.com/country-codes) .
 - **Twitch Integration:** Play Twitch audio streams directly to a dedicated Snapcast source.
 - **Media Downloader:** A versatile background downloader for Mixcloud, YouTube, and other platforms with automatic MP3 conversion, ID3 tagging, and artwork embedding.
 - **Snapcast Ready:** Orchestrates audio routing to local FIFOs for multi-room synchronization.
