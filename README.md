@@ -15,10 +15,8 @@ Built with **FastAPI** and **Tailwind CSS**, it provides a responsive mobile-fri
 
 ## Architecture
 
-SnapRadio has been refactored for performance and simplicity:
-- **FastAPI Backend:** Replacing the old Flask implementation for better concurrency and speed.
-- **Global Data Source:** No longer maintains a local `stations.db`. It pulls live data from the Radio-Browser community project.
-- **Simplified Routing:** Removed legacy Ads/Announcement FIFO mixing in favor of direct, high-quality streams.
+- **FastAPI Backend:** For concurrency and speed.
+- **Global Data Source:** Pulls live data from the Radio-Browser community project.
 
 ## Audio Routing
 
@@ -76,11 +74,12 @@ The main entry point is `main.py`.
 python main.py
 ```
 By default, the UI is available at `http://localhost:8882`.
+Configurable in .env
 
 ---
 
 ## Media Downloader
-The built-in Downloader (formerly Mixcloud Downloader) supports a wide range of URLs. 
+The built-in Downloader supports a wide range of URLs thanks to yt-dlp. 
 - Processes jobs in a background queue.
 - Shows real-time status: **Queued** → **Downloading** → **Encoding** → **Done**.
 - Status persists across page refreshes and navigation.
@@ -90,7 +89,6 @@ The built-in Downloader (formerly Mixcloud Downloader) supports a wide range of 
 To use Twitch features, you must provide a Client ID and Secret in your `.env`. 
 1. Register an app at [Twitch Dev Console](https://dev.twitch.tv/).
 2. Set the Redirect URL to `http://localhost`.
-3. Generate a User Token using the provided `get_twitch_token.py` (if available) or similar OAuth flow.
 
 ## Snapserver Configuration
 Example `snapserver.conf` input:
