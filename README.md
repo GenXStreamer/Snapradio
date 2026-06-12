@@ -88,7 +88,14 @@ The built-in Downloader supports a wide range of URLs thanks to yt-dlp.
 ## Twitch Setup
 To use Twitch features, you must provide a Client ID and Secret in your `.env`. 
 1. Register an app at [Twitch Dev Console](https://dev.twitch.tv/).
-2. Set the Redirect URL to `http://localhost`.
+2. **Important:** Set the **OAuth Redirect URL** in the Twitch console to `http://localhost:8889/callback`.
+3. Fill in `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET` in your `.env` file.
+4. Run the token helper script to authorize your account and generate tokens:
+   ```bash
+   python get_twitch_tokens.py
+   ```
+   This script will automatically update your `.env` with the required `TWITCH_USER_TOKEN` and `TWITCH_REFRESH_TOKEN`.
+5. You also need to find your numeric Twitch User ID (e.g. using an online lookup tool) and add it to `TWITCH_USER_ID` in `.env` to see your followed channels.
 
 ## Snapserver Configuration
 Example `snapserver.conf` input:

@@ -79,19 +79,23 @@ To enable Twitch streaming functionality, you must register this application wit
 When registering your app, use the following settings:
 
 - **Name:** Any descriptive name (e.g. your app name)
-- **OAuth Redirect URLs:** `https://localhost` (or any localhost URL if required)
+- **OAuth Redirect URLs:** `http://localhost:8889/callback`
 - **Category:** Website Integration
 - **Client Type:** Confidential
 
-### 3. Retrieve credentials
+### 3. Retrieve credentials & Generate Tokens
 
 After the application is created:
 
 - Open the app via **Manage**
 - Copy the **Client ID**
 - Click **New Secret** to generate a **Client Secret**
-- Store both values securely
+- Store both values in your `/opt/Snapradio/.env` file.
+- Run the token generator script from the project root:
+  ```bash
+  python get_twitch_tokens.py
+  ```
 
 ### 4. Required for API access
 
-These credentials are required to authenticate your application with the Twitch API and enable streaming features.
+These credentials and tokens are required to authenticate your application with the Twitch API and enable streaming features. You also need to add your numeric `TWITCH_USER_ID` to `.env`.
