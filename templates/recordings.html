@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recordings — DAB Radio Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #121214; }
+        ::-webkit-scrollbar-thumb { background: #29292e; border-radius: 4px; }
+        .playing-row { background: #0d1f0e !important; border-color: #16a34a !important; }
+    </style>
+</head>
+<body class="bg-[#121214] text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-[#1a1a1e] border-b border-[#26262b] px-6 py-4 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-gray-400 hover:text-green-400 transition-colors text-sm font-medium">← Back</a>
+            <h1 class="text-lg font-bold">📼 Recordings</h1>
+        </div>
+        <a href="/history" class="text-sm text-gray-400 hover:text-green-400 transition-colors">🎵 Track History</a>
+    </header>
+
+    <!-- Now playing bar -->
+    <div id="now-playing-bar" class="hidden bg-green-950/40 border-b border-green-900/50 px-6 py-3 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="text-green-400 text-lg animate-pulse flex-shrink-0">▶</span>
+            <div class="min-w-0">
+                <p class="text-xs text-green-500 font-bold uppercase tracking-wider">Now Playing</p>
+                <p id="np-filename" class="text-sm text-gray-100 font-medium truncate"></p>
+            </div>
+        </div>
+        <button onclick="stopPlayback()"
+                class="flex-shrink-0 px-4 py-2 bg-red-950/50 border border-red-900/50 text-red-400 rounded-xl text-sm font-bold hover:bg-red-900/40 transition-colors">
+            ⏹ Stop
+        </button>
+    </div>
+
+    <!-- Search -->
+    <div class="bg-[#1a1a1e] border-b border-[#26262b] px-6 py-3 flex items-center gap-3">
+        <input id="filter-rec" type="search" placeholder="Search recordings…" oninput="renderList()"
+               class="bg-[#26262b] text-sm text-gray-100 px-3 py-2 rounded-xl border border-[#32323a] outline-none focus:border-green-500 w-64">
+        <span id="rec-count" class="text-sm text-gray-500"></span>
+    </div>
+
+    <!-- List -->
+    <div class="flex-1 overflow-auto px-6 py-4">
+        <div id="rec-list" class="flex flex-col gap-2"></div>
+        <div id="empty-msg" class="hidden text-gray-500 text-sm py-8 text-center">No recordings found.</div>
+        <div id="loading-msg" class="text-gray-500 text-sm py-8 text-center">Loading…</div>
+    </div>
+
+    <script>
+    let allRecordings = [];
+    let currentFile   = null;
+
+    async function loadRecordings() {
+        const res  = await fetch('/api/recordings');
+        const data = await res.json();
+        allRecordings = data.recordings || [];
+        document.getElementById('loading-msg').classList.add('hidden');
+        renderList();
+    }
+
+    function renderList() {
+        const q    = document.getElementById('filter-rec').value.trim().toLowerCase();
+        const list = q ? allRecordings.filter(r => r.filename.toLowerCase().includes(q)) : allRecordings;
+
+        document.getElementById('rec-count').textContent = `${list.length} recording${list.length !== 1 ? 's' : ''}`;
+        document.getElementById('empty-msg').classList.toggle('hidden', list.length > 0);
+
+        document.getElementById('rec-list').innerHTML = list.map(r => {
+            const isPlaying = r.filename === currentFile;
+            const { date, time, station } = parseFilename(r.filename);
+            const sizeMB = (r.size_bytes / 1048576).toFixed(1);
+
+            return `<div id="row-${CSS.escape(r.filename)}"
+                         class="bg-[#1a1a1e] border ${isPlaying ? 'border-green-800 bg-green-950/20' : 'border-[#26262b]'} rounded-2xl p-4 flex items-center gap-4 hover:border-[#3a3a42] transition-colors">
+                <div class="min-w-0 flex-1">
+                    <p class="font-bold text-gray-100 text-sm truncate">${esc(station)}</p>
+                    <p class="text-xs text-gray-400 mt-0.5 font-mono">${esc(date)} ${esc(time)} · ${sizeMB} MB</p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    ${isPlaying
+                        ? `<button onclick="stopPlayback()" class="p-2.5 bg-red-950/40 border border-red-900/50 text-red-400 rounded-xl hover:bg-red-900/40 transition-colors">⏹</button>`
+                        : `<button onclick="playRecording('${esc(r.filename)}')" class="p-2.5 bg-green-950/30 border border-green-900/40 text-green-400 rounded-xl hover:bg-green-900/40 transition-colors">▶</button>`
+                    }
+                    <button onclick="deleteRecording('${esc(r.filename)}')"
+                            class="p-2.5 bg-[#26262b] border border-[#32323a] text-gray-500 hover:text-red-400 hover:border-red-900/40 rounded-xl transition-colors">
+                        🗑
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function parseFilename(fn) {
+        // Expected: 2026-06-06_14-32_Station-Name.mp3
+        const m = fn.match(/^(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2})_(.+)\.mp3$/i);
+        if (m) {
+            return {
+                date:    m[1],
+                time:    m[2].replace('-', ':'),
+                station: m[3].replace(/-/g, ' ')
+            };
+        }
+        // Fallback for old-format filenames
+        return { date: '', time: '', station: fn.replace(/\.mp3$/i, '') };
+    }
+
+    async function playRecording(filename) {
+        await fetch(`/api/recordings/play/${encodeURIComponent(filename)}`, { method: 'POST' });
+        currentFile = filename;
+        document.getElementById('np-filename').textContent = parseFilename(filename).station;
+        document.getElementById('now-playing-bar').classList.remove('hidden');
+        renderList();
+    }
+
+    async function stopPlayback() {
+        await fetch('/api/recordings/stop', { method: 'POST' });
+        currentFile = null;
+        document.getElementById('now-playing-bar').classList.add('hidden');
+        renderList();
+    }
+
+    async function deleteRecording(filename) {
+        if (!confirm(`Delete "${filename}"?`)) return;
+        if (currentFile === filename) await stopPlayback();
+        await fetch(`/api/recordings/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+        allRecordings = allRecordings.filter(r => r.filename !== filename);
+        renderList();
+    }
+
+    function esc(s) {
+        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    loadRecordings();
+    </script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloader — DAB Radio Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #121214; }
+        ::-webkit-scrollbar-thumb { background: #29292e; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-[#121214] text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-[#1a1a1e] border-b border-[#26262b] px-6 py-4 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-gray-400 hover:text-orange-400 transition-colors text-sm font-medium">← Back</a>
+            <h1 class="text-lg font-bold flex items-center gap-2">
+                <span class="text-orange-400">⬇</span> Media Downloader
+            </h1>
+        </div>
+        <!-- Now playing bar -->
+        <div id="np-bar" class="hidden items-center gap-2 bg-orange-950/40 border border-orange-900/50 px-3 py-1.5 rounded-xl">
+            <span class="text-orange-400 text-sm animate-pulse">▶</span>
+            <span id="np-name" class="text-orange-300 text-xs font-bold truncate max-w-[200px]"></span>
+            <button onclick="stopPlayback()"
+                    class="ml-1 text-red-400 hover:text-red-300 text-xs font-bold">⏹</button>
+        </div>
+    </header>
+
+    <!-- Download form -->
+    <div class="bg-[#1a1a1e] border-b border-[#26262b] px-6 py-4">
+        <p class="text-xs text-gray-500 mb-3">Paste a URL (Mixcloud, YouTube, etc.) to download as MP3 with tags embedded.</p>
+        <div class="flex gap-3 items-end flex-wrap">
+            <div class="flex flex-col gap-1 flex-1 min-w-[260px]">
+                <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Media URL</label>
+                <input id="url-input" type="url"
+                       placeholder="https://..."
+                       class="bg-[#26262b] text-sm text-gray-100 px-3 py-2.5 rounded-xl border border-[#32323a] outline-none focus:border-orange-500 w-full">
+            </div>
+            <button onclick="startDownload()"
+                    class="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white text-sm font-bold rounded-xl transition-colors">
+                ⬇ Download
+            </button>
+        </div>
+        <!-- Active job progress -->
+        <div id="job-status" class="hidden mt-3 flex items-center gap-3 text-sm text-gray-400">
+            <svg id="job-spinner" class="animate-spin w-4 h-4 text-orange-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            <span id="job-text">Queued…</span>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="bg-[#1a1a1e] border-b border-[#26262b] px-6 py-3 flex items-center gap-3">
+        <input id="filter-input" type="search" placeholder="Search downloads…" oninput="renderList()"
+               class="bg-[#26262b] text-sm text-gray-100 px-3 py-2 rounded-xl border border-[#32323a] outline-none focus:border-orange-500 w-64">
+        <span id="dl-count" class="text-sm text-gray-500 ml-auto"></span>
+    </div>
+
+    <!-- Downloads list -->
+    <div class="flex-1 overflow-auto p-4">
+        <div id="dl-list" class="flex flex-col gap-2"></div>
+        <div id="empty-msg"   class="hidden text-gray-500 text-sm p-8 text-center">No downloads yet.</div>
+        <div id="loading-msg" class="text-gray-500 text-sm p-8 text-center">Loading…</div>
+    </div>
+
+    <script>
+    let allDownloads  = [];
+    let nowPlayingFn  = null;
+    let _pollTimer    = null;
+    let _activeJobId  = null;
+
+    // ── Download ──────────────────────────────────────────────────────────────
+    async function startDownload() {
+        const url = document.getElementById('url-input').value.trim();
+        if (!url) { alert('Please enter a URL.'); return; }
+
+        document.getElementById('job-status').classList.remove('hidden');
+        document.getElementById('job-text').textContent = 'Queued…';
+
+        const res  = await fetch('/api/downloads/download', {
+            method:  'POST',
+            headers: {'Content-Type': 'application/json'},
+            body:    JSON.stringify({url}),
+        });
+        const data = await res.json();
+        _activeJobId = data.job_id;
+        document.getElementById('url-input').value = '';
+        pollJob(_activeJobId);
+    }
+
+    async function checkActiveJobs() {
+        try {
+            const res  = await fetch('/api/downloads/jobs');
+            const jobs = await res.json();
+            // Find the most recent job that isn't 'done' or 'error'
+            const activeJobId = Object.keys(jobs).reverse().find(id => {
+                const s = jobs[id].status;
+                return s !== 'done' && s !== 'error';
+            });
+            if (activeJobId) {
+                _activeJobId = activeJobId;
+                document.getElementById('job-status').classList.remove('hidden');
+                pollJob(_activeJobId);
+            }
+        } catch (e) {
+            console.error('Failed to check active jobs:', e);
+        }
+    }
+
+    function pollJob(job_id) {
+        clearInterval(_pollTimer);
+        _pollTimer = setInterval(async () => {
+            const res = await fetch(`/api/downloads/status/${job_id}`);
+            if (!res.ok) { clearInterval(_pollTimer); return; }
+            const job = await res.json();
+
+            const textEl = document.getElementById('job-text');
+            const spinEl = document.getElementById('job-spinner');
+
+            if (job.status === 'queued') {
+                textEl.textContent = 'Queued…';
+            } else if (job.status === 'downloading') {
+                textEl.textContent = `Downloading${job.title ? ': ' + job.title : '…'}`;
+            } else if (job.status === 'encoding') {
+                textEl.textContent = `Encoding/Processing${job.title ? ': ' + job.title : '…'}`;
+            } else if (job.status === 'done') {
+                clearInterval(_pollTimer);
+                textEl.textContent = `✓ Done: ${job.artist || ''} — ${job.title || 'Complete'}`;
+                spinEl.classList.remove('animate-spin');
+                spinEl.innerHTML = '<path fill="#4ade80" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+                setTimeout(() => {
+                    document.getElementById('job-status').classList.add('hidden');
+                    spinEl.classList.add('animate-spin');
+                    spinEl.innerHTML = '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>';
+                }, 4000);
+                loadDownloads();
+            } else if (job.status === 'error') {
+                clearInterval(_pollTimer);
+                textEl.textContent = `✗ Error: ${job.error}`;
+                spinEl.classList.remove('animate-spin');
+            }
+        }, 2000);
+    }
+
+    // ── Downloads list ────────────────────────────────────────────────────────
+    async function loadDownloads() {
+        const res  = await fetch('/api/downloads');
+        const data = await res.json();
+        allDownloads = data.downloads || [];
+        document.getElementById('loading-msg').classList.add('hidden');
+        renderList();
+    }
+
+    function renderList() {
+        const q    = document.getElementById('filter-input').value.trim().toLowerCase();
+        const list = q ? allDownloads.filter(d => d.filename.toLowerCase().includes(q)) : allDownloads;
+        const dl   = document.getElementById('dl-list');
+        const empty = document.getElementById('empty-msg');
+
+        document.getElementById('dl-count').textContent =
+            `${list.length} file${list.length !== 1 ? 's' : ''}`;
+
+        if (!list.length) { dl.innerHTML = ''; empty.classList.remove('hidden'); return; }
+        empty.classList.add('hidden');
+
+        dl.innerHTML = list.map(f => {
+            const isPlaying = f.filename === nowPlayingFn;
+            const sizeMB    = (f.size_bytes / 1048576).toFixed(1);
+            const parts     = f.filename.replace(/\.mp3$/i, '').split(' - ');
+            const artist    = parts.length > 1 ? parts[0] : '';
+            const title     = parts.length > 1 ? parts.slice(1).join(' - ') : parts[0];
+
+            return `<div class="bg-[#1a1a1e] border ${isPlaying ? 'border-orange-700' : 'border-[#26262b]'} rounded-2xl p-4 flex items-center gap-4 hover:border-[#3a3a42] transition-colors">
+                <div class="min-w-0 flex-1">
+                    <p class="font-bold text-sm text-gray-100 truncate">${esc(title)}</p>
+                    ${artist ? `<p class="text-xs text-orange-400 truncate mt-0.5">${esc(artist)}</p>` : ''}
+                    <p class="text-xs text-gray-600 mt-0.5 font-mono">${sizeMB} MB</p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    ${isPlaying
+                        ? `<button onclick="stopPlayback()" class="p-2.5 bg-red-950/40 border border-red-900/50 text-red-400 rounded-xl hover:bg-red-900/40 transition-colors">⏹</button>`
+                        : `<button onclick="playFile('${esc(f.filename)}')" class="p-2.5 bg-orange-950/30 border border-orange-900/40 text-orange-400 rounded-xl hover:bg-orange-900/40 transition-colors">▶</button>`
+                    }
+                    <button onclick="deleteFile('${esc(f.filename)}')"
+                            class="p-2.5 bg-[#26262b] border border-[#32323a] text-gray-500 hover:text-red-400 hover:border-red-900/40 rounded-xl transition-colors">🗑</button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    async function playFile(filename) {
+        await fetch(`/api/downloads/play/${encodeURIComponent(filename)}`, {method: 'POST'});
+        nowPlayingFn = filename;
+        const parts  = filename.replace(/\.mp3$/i, '').split(' - ');
+        document.getElementById('np-name').textContent = parts.slice(1).join(' - ') || parts[0];
+        document.getElementById('np-bar').classList.remove('hidden');
+        document.getElementById('np-bar').classList.add('flex');
+        renderList();
+    }
+
+    async function stopPlayback() {
+        await fetch('/api/downloads/stop', {method: 'POST'});
+        nowPlayingFn = null;
+        document.getElementById('np-bar').classList.add('hidden');
+        renderList();
+    }
+
+    async function deleteFile(filename) {
+        if (!confirm(`Delete "${filename}"?`)) return;
+        if (nowPlayingFn === filename) await stopPlayback();
+        await fetch(`/api/downloads/${encodeURIComponent(filename)}`, {method: 'DELETE'});
+        allDownloads = allDownloads.filter(d => d.filename !== filename);
+        renderList();
+    }
+
+    function esc(s) {
+        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Allow pressing Enter in the URL box
+    document.getElementById('url-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') startDownload();
+    });
+
+    loadDownloads();
+    checkActiveJobs();
+    </script>
+</body>
+</html>

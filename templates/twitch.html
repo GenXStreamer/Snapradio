@@ -1,223 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Twitch Streams</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
-    <link rel="manifest" href="/static/site.webmanifest">
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch — DAB Radio Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        .list-group-item.stream-row:hover {
-            background-color: #f8f9fa !important;
-            cursor: pointer;
-        }
-
-        .live-row {
-            background-color: #f0f5f2;
-        }
+        body { font-family: 'Roboto', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #121214; }
+        ::-webkit-scrollbar-thumb { background: #29292e; border-radius: 4px; }
+        .live-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.4 } }
     </style>
 </head>
-<body class="container py-4">
-	<div class="tab-container">
-		<div class="tab"> <a href="/">Radio Streams</a></div>
-		<div class="tab active"> <a href="/twitch">Twitch Streams</a></div>
-		<div class="tab"> <a href="/mixcloud">Mixcloud Downloader</a></div>
-	</div>
-	<br>
-    
-    <div id="now_playing_twitch" class="alert alert-primary justify-content-between align-items-center d-none">
-        <div>
-            🎙️ <strong id="np_name">Now Playing</strong> <small id="np_status" class="text-muted"></small>
+<body class="bg-[#121214] text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-[#1a1a1e] border-b border-[#26262b] px-6 py-4 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-gray-400 hover:text-purple-400 transition-colors text-sm font-medium">← Back</a>
+            <h1 class="text-lg font-bold flex items-center gap-2">
+                <svg class="w-5 h-5 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.64 5.93h1.43v4.28h-1.43m3.93-4.28H17v4.28h-1.43M7 2L3.43 5.57v12.86h4.28V22l3.58-3.57h2.85L20.57 12V2m-1.43 9.29l-2.85 2.85h-2.86l-2.5 2.5v-2.5H7.71V3.43h11.43z"/>
+                </svg>
+                Twitch
+            </h1>
         </div>
-        <div class="d-flex gap-2 align-items-center">
-            <small id="recordingStatus" class="text-muted" style="display:none;"></small>
-            <button id="recordBtn" class="btn btn-sm btn-outline-danger" onclick="toggleRecording()">⏺ Record</button>
-            <button class="btn btn-sm btn-outline-danger" onclick="stopStream()">Stop</button>
+        <div class="flex items-center gap-3">
+            <!-- Now playing indicator -->
+            <div id="np-bar" class="hidden items-center gap-2 bg-purple-950/40 border border-purple-900/50 px-3 py-1.5 rounded-xl">
+                <span class="w-2 h-2 bg-purple-400 rounded-full live-pulse"></span>
+                <span id="np-name" class="text-purple-300 text-xs font-bold"></span>
+                <button onclick="stopStream()"
+                        class="ml-1 text-red-400 hover:text-red-300 text-xs font-bold transition-colors">⏹ Stop</button>
+            </div>
+            <button onclick="loadChannels()"
+                    class="text-xs px-3 py-1.5 rounded-lg bg-[#26262b] border border-[#32323a] text-gray-400 hover:text-white hover:border-purple-500 transition-colors">
+                ↻ Refresh
+            </button>
         </div>
+    </header>
+
+    <!-- Search + filter -->
+    <div class="bg-[#1a1a1e] border-b border-[#26262b] px-6 py-3 flex flex-wrap items-center gap-3">
+        <input id="filter-input" type="search" placeholder="Search channels…" oninput="renderChannels()"
+               class="bg-[#26262b] text-sm text-gray-100 px-3 py-2 rounded-xl border border-[#32323a] outline-none focus:border-purple-500 w-56">
+        <label class="flex items-center gap-2 text-sm text-gray-400 cursor-pointer select-none">
+            <input type="checkbox" id="live-only" onchange="renderChannels()"
+                   class="w-4 h-4 accent-purple-500 rounded">
+            Live only
+        </label>
+        <span id="channel-count" class="text-sm text-gray-500 ml-auto"></span>
     </div>
 
-    <div id="stream_starting" class="alert alert-info" style="display: none;">
-        🎧 Stream starting... Please wait.
+    <!-- Grid -->
+    <div class="flex-1 overflow-auto p-4">
+        <div id="channel-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        <div id="empty-msg"  class="hidden text-gray-500 text-sm p-8 text-center">No channels found.</div>
+        <div id="loading-msg" class="text-gray-500 text-sm p-8 text-center flex items-center justify-center gap-3">
+            <svg class="animate-spin w-4 h-4 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            Loading followed channels…
+        </div>
+        <div id="error-msg" class="hidden text-red-400 text-sm p-8 text-center"></div>
     </div>
 
-    <div id="adbreak" class="alert alert-warning" style="display:none;"></div>
+    <script>
+    let allChannels    = [];
+    let nowPlayingLogin = null;
 
-{% set live_streams = streams | selectattr("live", "equalto", 1) | list %}
-{% set offline_streams = streams | selectattr("live", "equalto", 0) | list %}
+    async function loadChannels() {
+        document.getElementById('loading-msg').classList.remove('hidden');
+        document.getElementById('error-msg').classList.add('hidden');
+        document.getElementById('channel-grid').innerHTML = '';
+        document.getElementById('empty-msg').classList.add('hidden');
+        document.getElementById('channel-count').textContent = '';
 
-{% if live_streams %}
-<h4>Live Streams</h4>
-<div class="list-group mb-4">
-{% for stream in live_streams %}
-<div class="list-group-item stream-row live-row" onclick="playStream({{ stream.rowid }}, '{{ stream.streamer }}', '{{ stream.url }}')">
-    <span style="color:green; font-weight: bold;">🟢</span>
-    <strong>{{ stream.streamer }}</strong><br>
-    <small class="text-muted">{{ stream.url }}</small>
-</div>
-{% endfor %}
-</div>
-{% endif %}
-
-{% if offline_streams %}
-<h4>Offline Streams</h4>
-<div class="list-group">
-{% for stream in offline_streams %}
-<div class="list-group-item stream-row" onclick="playStream({{ stream.rowid }}, '{{ stream.streamer }}', '{{ stream.url }}')">
-    <span style="color:red; font-weight: bold;">🔴</span>
-    <strong>{{ stream.streamer }}</strong><br>
-    <small class="text-muted">{{ stream.url }}</small>
-</div>
-{% endfor %}
-</div>
-{% endif %}
-
-<script>
-window._recording = false;
-window._currentUrl = null;
-window._currentStreamer = null;
-
-// Directly fires backend ingestion without external javascript file hooks
-async function playStream(rowid, streamer, url) {
-    window._currentUrl = url;
-    window._currentStreamer = streamer;
-    
-    const startingAlert = document.getElementById('stream_starting');
-    if (startingAlert) startingAlert.style.display = 'block';
-
-    try {
-        const resp = await fetch(`/twitch/play/${rowid}`, { method: 'POST' });
-        const data = await resp.json();
-        if (data.status === 'playing') {
-            updateNowPlayingUI(streamer);
+        try {
+            const res  = await fetch('/api/twitch/channels');
+            const data = await res.json();
+            if (data.error && !data.channels.length) {
+                document.getElementById('error-msg').textContent = data.error;
+                document.getElementById('error-msg').classList.remove('hidden');
+                document.getElementById('loading-msg').classList.add('hidden');
+                return;
+            }
+            allChannels = data.channels || [];
+            document.getElementById('loading-msg').classList.add('hidden');
+            renderChannels();
+        } catch(e) {
+            document.getElementById('error-msg').textContent = 'Failed to reach backend: ' + e.message;
+            document.getElementById('error-msg').classList.remove('hidden');
+            document.getElementById('loading-msg').classList.add('hidden');
         }
-    } catch (err) {
-        console.error("Playback request failed:", err);
-    } finally {
-        if (startingAlert) startingAlert.style.display = 'none';
     }
-}
 
-async function stopStream() {
-    try {
-        const resp = await fetch('/twitch/stop', { method: 'POST' });
-        const data = await resp.json();
-        
-        // Reset local scope values
-        window._currentUrl = null;
-        window._currentStreamer = null;
-        
-        // Hide panel
-        const dashboard = document.getElementById('now_playing_twitch');
-        dashboard.classList.add('d-none');
-        dashboard.classList.remove('d-flex');
-        
-        // Auto kill recording state if active
-        if (window._recording) {
-            window._recording = false;
-            const btn = document.getElementById('recordBtn');
-            btn.classList.replace('btn-danger', 'btn-outline-danger');
-            btn.textContent = '⏺ Record';
-            document.getElementById('recordingStatus').style.display = 'none';
-        }
-    } catch (err) {
-        console.error("Stop request failed:", err);
+    function renderChannels() {
+        const q        = document.getElementById('filter-input').value.trim().toLowerCase();
+        const liveOnly = document.getElementById('live-only').checked;
+        const grid     = document.getElementById('channel-grid');
+        const empty    = document.getElementById('empty-msg');
+
+        let list = allChannels.filter(ch => {
+            if (liveOnly && !ch.is_live) return false;
+            if (q && !ch.display_name.toLowerCase().includes(q) && !ch.game.toLowerCase().includes(q)) return false;
+            return true;
+        });
+
+        const live  = list.filter(c => c.is_live).length;
+        document.getElementById('channel-count').textContent =
+            `${list.length} channel${list.length !== 1 ? 's' : ''} · ${live} live`;
+
+        if (!list.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+        empty.classList.add('hidden');
+
+        grid.innerHTML = list.map(ch => {
+            const isPlaying = ch.login === nowPlayingLogin;
+            const liveBadge = ch.is_live
+                ? `<span class="flex items-center gap-1 text-xs font-bold text-red-400">
+                       <span class="w-1.5 h-1.5 bg-red-400 rounded-full live-pulse"></span>LIVE
+                   </span>`
+                : `<span class="text-xs text-gray-600 font-medium">Offline</span>`;
+
+            const thumb = ch.thumbnail_url
+                ? `<img src="${esc(ch.thumbnail_url)}" onerror="this.style.display='none'"
+                        class="w-full aspect-video object-cover rounded-t-2xl bg-[#26262b]">`
+                : `<div class="w-full aspect-video bg-[#26262b] rounded-t-2xl flex items-center justify-center">
+                       <span class="text-4xl">📺</span>
+                   </div>`;
+
+            const viewers = ch.is_live && ch.viewer_count
+                ? `<span class="text-xs text-gray-500">${ch.viewer_count.toLocaleString()} viewers</span>`
+                : '';
+
+            const playBtn = ch.is_live
+                ? isPlaying
+                    ? `<button onclick="stopStream()"
+                              class="w-full py-2 rounded-xl text-xs font-bold bg-red-950/50 border border-red-900/50 text-red-400 hover:bg-red-900/40 transition-colors">
+                           ⏹ Stop
+                       </button>`
+                    : `<button onclick='playChannel(${JSON.stringify(ch).replace(/'/g,"&apos;")})'
+                              class="w-full py-2 rounded-xl text-xs font-bold bg-purple-700 hover:bg-purple-600 text-white transition-colors">
+                           ▶ Play
+                       </button>`
+                : `<button disabled
+                          class="w-full py-2 rounded-xl text-xs font-bold bg-[#26262b] text-gray-600 cursor-not-allowed">
+                       Offline
+                   </button>`;
+
+            return `<div class="bg-[#1a1a1e] border ${isPlaying ? 'border-purple-700' : 'border-[#26262b]'} rounded-2xl overflow-hidden hover:border-[#3a3a42] transition-colors">
+                ${thumb}
+                <div class="p-3">
+                    <div class="flex items-center justify-between mb-1">
+                        <h3 class="font-bold text-sm truncate">${esc(ch.display_name)}</h3>
+                        ${liveBadge}
+                    </div>
+                    ${ch.game ? `<p class="text-xs text-purple-400 truncate mb-1">${esc(ch.game)}</p>` : ''}
+                    ${ch.title ? `<p class="text-xs text-gray-500 truncate mb-2">${esc(ch.title)}</p>` : '<div class="mb-2"></div>'}
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex-1">${playBtn}</div>
+                        ${viewers}
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
     }
-}
 
-function updateNowPlayingUI(streamer) {
-    const dashboard = document.getElementById('now_playing_twitch');
-    const nameLabel = document.getElementById('np_name');
-    if (dashboard && nameLabel) {
-        nameLabel.textContent = streamer;
-        dashboard.classList.remove('d-none');
-        dashboard.classList.add('d-flex');
-    }
-}
-
-async function toggleRecording() {
-    const btn    = document.getElementById('recordBtn');
-    const status = document.getElementById('recordingStatus');
-    
-    if (!window._recording) {
-        if (!window._currentUrl) {
-            alert("No stream URL active to record!");
-            return;
-        }
-        const resp = await fetch('/record/start', {
+    async function playChannel(ch) {
+        nowPlayingLogin = ch.login;
+        renderChannels();
+        updateNowPlayingBar(ch.display_name);
+        await fetch('/api/twitch/play', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({url: window._currentUrl, label: window._currentStreamer || 'twitch'})
+            body: JSON.stringify({
+                login:        ch.login,
+                display_name: ch.display_name,
+                title:        ch.title,
+                game:         ch.game,
+            })
         });
-        const data = await resp.json();
-        if (data.status === 'recording' || data.status === 'already_recording') {
-            window._recording = true;
-            btn.classList.replace('btn-outline-danger', 'btn-danger');
-            btn.textContent = '⏹ Stop Recording';
-            status.style.display = '';
-            status.textContent = '● Recording...';
-        }
-    } else {
-        const resp = await fetch('/record/stop', {method: 'POST'});
-        const data = await resp.json();
-        window._recording = false;
-        btn.classList.replace('btn-danger', 'btn-outline-danger');
-        btn.textContent = '⏺ Record';
-        status.textContent = 'Saved!';
-        setTimeout(() => { status.style.display = 'none'; }, 4000);
     }
-}
 
-// Check initial server states upon page visibility changes/render loops
-function checkServerStatus() {
-    fetch('/twitch/now_playing')
-        .then(r => r.json())
-        .then(data => {
-            if (data.status === 'playing' && data.streamer) {
-                updateNowPlayingUI(data.streamer);
-                window._currentStreamer = data.streamer;
-                
-                // Track down the corresponding list URL to restore mapping parameters
-                const items = document.querySelectorAll('.stream-row');
-                items.forEach(item => {
-                    const streamerName = item.querySelector('strong').textContent.trim();
-                    if (streamerName === data.streamer) {
-                        window._currentUrl = item.querySelector('small').textContent.trim();
-                    }
-                });
+    async function stopStream() {
+        nowPlayingLogin = null;
+        document.getElementById('np-bar').classList.add('hidden');
+        renderChannels();
+        await fetch('/api/twitch/stop', {method: 'POST'});
+    }
+
+    function updateNowPlayingBar(name) {
+        document.getElementById('np-name').textContent = name;
+        document.getElementById('np-bar').classList.remove('hidden');
+        document.getElementById('np-bar').classList.add('flex');
+    }
+
+    function esc(s) {
+        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Poll now-playing to sync state if navigated away and back
+    async function syncNowPlaying() {
+        try {
+            const d = await fetch('/api/twitch/now-playing').then(r => r.json());
+            if (d.active && d.login) {
+                nowPlayingLogin = d.login;
+                updateNowPlayingBar(d.display_name || d.login);
+            } else {
+                nowPlayingLogin = null;
+                document.getElementById('np-bar').classList.add('hidden');
             }
-        });
+            renderChannels();
+        } catch(e) {}
+    }
 
-    fetch('/record/status')
-        .then(r => r.json())
-        .then(data => {
-            if (data.recording) {
-                window._recording = true;
-                const btn = document.getElementById('recordBtn');
-                if (btn) {
-                    btn.classList.replace('btn-outline-danger', 'btn-danger');
-                    btn.textContent = '⏹ Stop Recording';
-                    const status = document.getElementById('recordingStatus');
-                    status.style.display = '';
-                    status.textContent = '● Recording active';
-                }
-            }
-        });
-}
-
-document.addEventListener("DOMContentLoaded", checkServerStatus);
-</script>
+    loadChannels();
+    syncNowPlaying();
+    // Refresh live status every 60s
+    setInterval(loadChannels, 60000);
+    </script>
 </body>
 </html>

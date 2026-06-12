@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track History — DAB Radio Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #121214; }
+        ::-webkit-scrollbar-thumb { background: #29292e; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-[#121214] text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-[#1a1a1e] border-b border-[#26262b] px-6 py-4 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-gray-400 hover:text-green-400 transition-colors text-sm font-medium">← Back</a>
+            <h1 class="text-lg font-bold">🎵 Track History</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/recordings" class="text-sm text-gray-400 hover:text-green-400 transition-colors">📼 Recordings</a>
+            <button onclick="confirmClear()"
+                    class="text-xs px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-900/50 text-red-400 hover:bg-red-900/40 transition-colors">
+                Clear All
+            </button>
+        </div>
+    </header>
+
+    <!-- Filters -->
+    <div class="bg-[#1a1a1e] border-b border-[#26262b] px-6 py-3 flex flex-wrap gap-3 items-end">
+        <div class="flex flex-col gap-1">
+            <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Station</label>
+            <input id="filter-station" type="search" placeholder="Filter by station…" oninput="debouncedLoad()"
+                   class="bg-[#26262b] text-sm text-gray-100 px-3 py-2 rounded-xl border border-[#32323a] outline-none focus:border-green-500 w-52">
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Track search</label>
+            <input id="filter-track" type="search" placeholder="Filter by track…" oninput="applyClientFilter()"
+                   class="bg-[#26262b] text-sm text-gray-100 px-3 py-2 rounded-xl border border-[#32323a] outline-none focus:border-green-500 w-52">
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Per page</label>
+            <select id="per-page" onchange="currentOffset=0; loadHistory()"
+                    class="bg-[#26262b] text-sm text-gray-200 px-3 py-2 rounded-xl border border-[#32323a] outline-none focus:border-green-500 w-28">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="250">250</option>
+                <option value="500">500</option>
+            </select>
+        </div>
+        <div id="total-label" class="text-sm text-gray-500 self-end pb-2"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="flex-1 overflow-auto px-6 py-4">
+        <table class="w-full text-sm border-collapse">
+            <thead class="sticky top-0 bg-[#121214] z-10">
+                <tr class="text-left text-xs text-gray-500 uppercase tracking-wider border-b border-[#26262b]">
+                    <th class="py-2 pr-4 font-bold w-40">Date / Time</th>
+                    <th class="py-2 pr-4 font-bold w-48">Station</th>
+                    <th class="py-2 font-bold">Track</th>
+                </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+        </table>
+        <div id="empty-msg" class="hidden text-gray-500 text-sm py-8 text-center">No tracks found.</div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="bg-[#1a1a1e] border-t border-[#26262b] px-6 py-3 flex items-center justify-between">
+        <button onclick="prevPage()" id="btn-prev"
+                class="px-4 py-2 rounded-xl text-sm font-medium bg-[#26262b] border border-[#32323a] text-gray-300 hover:bg-[#2f2f35] transition-colors disabled:opacity-40">
+            ← Prev
+        </button>
+        <span id="page-info" class="text-sm text-gray-400"></span>
+        <button onclick="nextPage()" id="btn-next"
+                class="px-4 py-2 rounded-xl text-sm font-medium bg-[#26262b] border border-[#32323a] text-gray-300 hover:bg-[#2f2f35] transition-colors disabled:opacity-40">
+            Next →
+        </button>
+    </div>
+
+    <script>
+    let currentOffset = 0;
+    let totalRows     = 0;
+    let _debTimer     = null;
+    let _rawRows      = [];   // current page raw from server
+
+    function debouncedLoad() {
+        clearTimeout(_debTimer);
+        _debTimer = setTimeout(() => { currentOffset = 0; loadHistory(); }, 250);
+    }
+
+    async function loadHistory() {
+        const station = document.getElementById('filter-station').value.trim();
+        const limit   = parseInt(document.getElementById('per-page').value, 10);
+        const params  = new URLSearchParams({ limit, offset: currentOffset });
+        if (station) params.set('station', station);
+
+        const res  = await fetch('/api/history?' + params);
+        const data = await res.json();
+        totalRows  = data.total || 0;
+        _rawRows   = data.rows  || [];
+        applyClientFilter();
+        updatePagination(limit);
+    }
+
+    function applyClientFilter() {
+        const trackQ = document.getElementById('filter-track').value.trim().toLowerCase();
+        const rows   = trackQ
+            ? _rawRows.filter(r => r.track_title.toLowerCase().includes(trackQ))
+            : _rawRows;
+
+        const tbody = document.getElementById('history-body');
+        const empty = document.getElementById('empty-msg');
+
+        if (!rows.length) {
+            tbody.innerHTML = '';
+            empty.classList.remove('hidden');
+            return;
+        }
+        empty.classList.add('hidden');
+
+        tbody.innerHTML = rows.map(r => {
+            const dt    = formatDate(r.played_at);
+            const ytUrl = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(r.track_title);
+            return `<tr class="border-b border-[#1e1e22] hover:bg-[#1a1a1e] transition-colors">
+                <td class="py-2.5 pr-4 text-gray-500 whitespace-nowrap font-mono text-xs">${esc(dt)}</td>
+                <td class="py-2.5 pr-4 text-green-400 font-medium truncate max-w-[180px]">${esc(r.station_name)}</td>
+                <td class="py-2.5">
+                    <a href="${ytUrl}" target="_blank" rel="noopener"
+                       class="text-gray-100 hover:text-green-400 transition-colors flex items-center gap-1.5 group">
+                        ${esc(r.track_title)}
+                        <span class="opacity-0 group-hover:opacity-60 transition-opacity text-xs">▶ YouTube</span>
+                    </a>
+                </td>
+            </tr>`;
+        }).join('');
+
+        document.getElementById('total-label').textContent = `${totalRows.toLocaleString()} total entries`;
+    }
+
+    function updatePagination(limit) {
+        const page  = Math.floor(currentOffset / limit) + 1;
+        const pages = Math.max(1, Math.ceil(totalRows / limit));
+        document.getElementById('page-info').textContent = `Page ${page} of ${pages}`;
+        document.getElementById('btn-prev').disabled = currentOffset <= 0;
+        document.getElementById('btn-next').disabled = currentOffset + limit >= totalRows;
+    }
+
+    function prevPage() {
+        const limit = parseInt(document.getElementById('per-page').value, 10);
+        currentOffset = Math.max(0, currentOffset - limit);
+        loadHistory();
+    }
+
+    function nextPage() {
+        const limit = parseInt(document.getElementById('per-page').value, 10);
+        currentOffset += limit;
+        loadHistory();
+    }
+
+    function formatDate(iso) {
+        // Parse ISO UTC string and display in local time
+        const d = new Date(iso);
+        return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    }
+
+    function esc(s) {
+        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function confirmClear() {
+        if (!confirm('Clear the entire track history? This cannot be undone.')) return;
+        await fetch('/api/history', { method: 'DELETE' });
+        currentOffset = 0;
+        loadHistory();
+    }
+
+    loadHistory();
+    </script>
+</body>
+</html>

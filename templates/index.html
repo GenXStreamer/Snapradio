@@ -2,250 +2,932 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dan's Internet Radio Player</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-    
-    <!-- Google Material Symbols (Outlined Variant) -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
-    <link rel="manifest" href="/static/site.webmanifest">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>DAB Radio Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1a1a1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DAB Radio">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     <style>
-        /* Alignment helpers for layout symbols */
-        .btn-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.4rem;
+        body { font-family: 'Roboto', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #121214; }
+        ::-webkit-scrollbar-thumb { background: #29292e; border-radius: 4px; }
+        select, input, button { -webkit-tap-highlight-color: transparent; }
+        /* Dynamic viewport height — accounts for Android nav bar and browser chrome */
+        body {
+            height: 100vh;           /* fallback */
+            height: 100dvh;          /* modern browsers — excludes nav bar */
         }
-        .btn-icon .material-symbols-outlined {
-            font-size: 1.25rem;
+
+        /* ── Now-playing overlay ────────────────────────────────────────────── */
+        #np-overlay {
+            position: fixed; inset: 0; z-index: 500;
+            background: #0a0c0f;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity .25s ease;
         }
-        
-        /* High Contrast Main Player Area Icons (Snippet 1 styling) */
-        .btn-icon-lg {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.6rem;
-            width: 48px;
-            height: 48px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-            transition: all 0.2s ease;
+        #np-overlay.visible { opacity: 1; pointer-events: all; }
+        #np-artwork {
+            width: min(72vw, 320px); height: min(72vw, 320px);
+            object-fit: contain; border-radius: 20px;
+            box-shadow: 0 24px 80px rgba(0,0,0,.8);
         }
-        .btn-icon-lg .material-symbols-outlined {
-            font-size: 1.5rem;
+        @keyframes spin-slow { to { transform: rotate(360deg); } }
+        #np-artwork.spinning { animation: spin-slow 12s linear infinite; border-radius: 50%; }
+
+
+
+        /* ── Custom multi-select ───────────────────────────────────────────── */
+        .ms-wrap { position: relative; }
+        .ms-trigger {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 6px; cursor: pointer;
+            background: #26262b; border: 1px solid #32323a; border-radius: 12px;
+            padding: 7px 12px; font-size: 13px; color: #d1d5db;
+            white-space: nowrap; min-width: 0; user-select: none;
         }
+        .ms-trigger:hover { border-color: #4ade80; }
+        .ms-trigger.active { border-color: #16a34a; }
+        .ms-trigger .ms-arrow { flex-shrink: 0; opacity: .5; transition: transform .15s; }
+        .ms-trigger.open .ms-arrow { transform: rotate(180deg); }
+        .ms-dropdown {
+            display: none; position: absolute; top: calc(100% + 4px); left: 0;
+            min-width: 100%; max-width: 340px;
+            background: #1a1a1e; border: 1px solid #32323a; border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.6);
+            z-index: 200; overflow: hidden;
+        }
+        .ms-dropdown.open { display: block; }
+        .ms-search-box {
+            width: 100%; background: #26262b; border: none; border-bottom: 1px solid #32323a;
+            color: #e5e7eb; font-size: 13px; padding: 8px 12px; outline: none;
+        }
+        .ms-list { max-height: 240px; overflow-y: auto; padding: 4px 0; }
+        .ms-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 7px 12px; cursor: pointer; font-size: 13px; color: #d1d5db;
+        }
+        .ms-item:hover { background: #26262b; }
+        .ms-item.selected { color: #4ade80; }
+        .ms-item .ms-check {
+            width: 14px; height: 14px; border: 1px solid #4b5563; border-radius: 3px;
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+        }
+        .ms-item.selected .ms-check { background: #16a34a; border-color: #16a34a; color: #fff; font-size: 10px; }
+        .ms-footer {
+            display: flex; gap: 4px; padding: 6px 8px;
+            border-top: 1px solid #32323a; background: #121214;
+        }
+        .ms-footer button {
+            flex: 1; padding: 5px 8px; border-radius: 8px; font-size: 11px; font-weight: 700;
+            border: 1px solid #32323a; background: #26262b; color: #9ca3af; cursor: pointer;
+        }
+        .ms-footer button:hover { background: #2f2f35; }
     </style>
 </head>
+<body class="bg-[#121214] text-gray-100 flex flex-col overflow-hidden select-none" style="height: 100dvh;">
 
-<body class="container py-4">
+    <!-- ── PLAYER BAR ──────────────────────────────────────────────────────── -->
+    <header class="bg-[#1a1a1e] border-b border-[#26262b] px-4 py-3 flex flex-col sm:flex-row items-center gap-3 z-10 shadow-lg flex-shrink-0 cursor-pointer" onclick="openNowPlaying(event)">
+        <div class="flex items-center gap-3 w-full sm:w-auto min-w-0 flex-1">
+            <img id="dock-art" src="/logos/default_fallback.jpg"
+                 onerror="this.src='/logos/default_fallback.jpg'"
+                 class="w-12 h-12 rounded-xl object-cover border border-[#26262b] flex-shrink-0">
+            <div class="min-w-0 flex-1 text-center sm:text-left">
+                <p id="dock-station" class="text-xs text-gray-400 font-medium truncate leading-tight">Select a station</p>
+                <p id="dock-track"   class="text-sm font-bold text-gray-100 truncate leading-tight mt-0.5">Not Playing</p>
+            </div>
+        </div>
+        <div class="flex items-center justify-center sm:justify-end gap-2 w-full sm:w-auto flex-shrink-0">
+            <a href="/downloader" onclick="event.stopPropagation()" class="flex p-2.5 bg-[#26262b] border border-[#32323a] text-gray-400 hover:text-orange-400 rounded-full text-lg leading-none transition-colors" title="Downloader">☁</a>
+            <a href="/twitch"  onclick="event.stopPropagation()" class="flex p-2.5 bg-[#26262b] border border-[#32323a] text-gray-400 hover:text-purple-400 rounded-full text-lg leading-none transition-colors" title="Twitch">📺</a>
+            <a href="/history" onclick="event.stopPropagation()" class="flex p-2.5 bg-[#26262b] border border-[#32323a] text-gray-400 hover:text-green-400 rounded-full text-lg leading-none transition-colors" title="Track History">🎵</a>
+            <a href="/recordings" onclick="event.stopPropagation()" class="flex p-2.5 bg-[#26262b] border border-[#32323a] text-gray-400 hover:text-green-400 rounded-full text-lg leading-none transition-colors" title="Recordings">📼</a>
+            <button onclick="stopPlayback(); event.stopPropagation()"
+                    class="p-2.5 bg-red-950/40 border border-red-900/50 text-red-400 rounded-full text-lg leading-none">⏹</button>
+            <button onclick="toggleRecording(); event.stopPropagation()" id="dock-record-btn"
+                    class="p-2.5 bg-gray-800 border border-gray-700 text-gray-400 rounded-full text-lg leading-none">🔴</button>
+        </div>
+    </header>
 
-    <div class="tab-container">
-        <div class="tab active"> <a href="/">Radio Streams</a></div>
-        <div class="tab"> <a href="/twitch">Twitch Streams</a></div>
-        <div class="tab"> <a href="/mixcloud">Mixcloud Downloader</a></div>
-    </div>  
-    <br> 
+    <!-- ── BODY ───────────────────────────────────────────────────────────── -->
+    <div class="flex flex-1 overflow-hidden min-h-0">
 
-    {% if now_playing %}
-    <div class="alert alert-success text-center p-4">
+        <!-- Side nav desktop -->
+        <nav class="hidden md:flex w-20 bg-[#1a1a1e] border-r border-[#26262b] flex-col items-center py-6 gap-6 text-xs font-medium flex-shrink-0">
+            <button onclick="changeView('search')" id="nav-search"
+                    class="flex flex-col items-center gap-1 group text-green-400 w-full py-2">
+                <span id="nav-search-icon" class="p-2.5 bg-[#26262b] rounded-2xl group-hover:bg-[#2f2f35] transition text-xl">🌍</span>
+                <span>Stations</span>
+            </button>
+            <button onclick="changeView('favorites')" id="nav-favorites"
+                    class="flex flex-col items-center gap-1 group text-gray-400 w-full py-2">
+                <span id="nav-fav-icon" class="p-2.5 rounded-2xl group-hover:bg-[#2f2f35] transition text-xl">❤️</span>
+                <span>Favourites</span>
+            </button>
+        </nav>
 
-      <div class="mb-3">
-        <img id="nowPlayingLogo" src="{{ url_for('static', filename='logos/' + (now_playing.IMG if now_playing.IMG else 'placeholder.png')) }}" class="img-fluid" style="max-height:250px;border-radius: 8px;">
-      </div>
+        <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-      <div class="mb-3">
-        <h5 class="mb-1">{{ now_playing.Name }}</h5>
-        <p class="mb-0" style="font-size: 0.95rem;">
-          {% if now_playing.Bitrate %} {{ now_playing.Bitrate }} Kbit/s {% endif %}
-          {% if now_playing.Codec %} | {{ now_playing.Codec|upper }} {% else %} AAC {% endif %}
-          {% if now_playing.SampleRate %} | {{ (now_playing.SampleRate|int / 1000)|round(1) }} kHz {% else %} &nbsp; {% endif %}
-          <br>
-          {% if now_playing.Category %} {{ now_playing.Category }} {% endif %} | {% if now_playing.Description %} {{ now_playing.Description }} {% endif %}
-        </p>
-      </div>
+            <!-- Mobile tabs -->
+            <div class="md:hidden flex border-b border-[#26262b] bg-[#1a1a1e] flex-shrink-0">
+                <button onclick="changeView('search')" id="mob-search"
+                        class="flex-1 py-3 text-sm font-medium text-green-400 border-b-2 border-green-500">🌍 Stations</button>
+                <button onclick="changeView('favorites')" id="mob-fav"
+                        class="flex-1 py-3 text-sm font-medium text-gray-400 border-b-2 border-transparent">❤️ Favourites</button>
+            </div>
 
-      <div id="liveTrackContainer" class="mb-3">
-        <hr class="my-3">
-        <p id="liveTrackTitle" class="mb-0 fw-bold text-secondary" style="font-size: 1.15rem; white-space: pre-line;">
-          &nbsp;
-        </p>
-      </div>
+            <!-- Filter panel -->
+            <div id="filter-panel" class="bg-[#1a1a1e] border-b border-[#26262b] p-3 flex flex-wrap items-end gap-2 flex-shrink-0">
 
-      <!-- Snippet 1 Functional Control Group Layout -->
-      <div class="d-flex justify-content-center gap-3 align-items-center">
-        <!-- Solid Dark Neutral Stop Control -->
-        <a href="{{ url_for('stop_stream') }}" 
-           class="btn btn-dark btn-icon-lg rounded-circle" 
-           title="Stop Playback">
-          <span class="material-symbols-outlined">stop</span>
-        </a>
-        
-        <!-- Open Neutral Gray Outline Record Control (Changes state dynamically via JS) -->
-        <button id="recordBtn" 
-                class="btn btn-outline-secondary btn-icon-lg rounded-circle"
-                title="Start Recording"
-                onclick="toggleRecording('{{ now_playing.FinalURL }}', '{{ now_playing.Name }}')">
-          <span class="material-symbols-outlined" style="color: #dc3545;">fiber_manual_record</span>
-        </button>
-      </div>
-      <div id="recordingStatus" class="mt-2 small text-muted" style="display:none;"></div>
+                <!-- Country multi-select -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Country</label>
+                    <div class="ms-wrap" id="ms-country"></div>
+                </div>
 
+                <!-- Codec multi-select -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Codec</label>
+                    <div class="ms-wrap" id="ms-codec"></div>
+                </div>
+
+                <!-- Bitrate multi-select -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Min Bitrate</label>
+                    <div class="ms-wrap" id="ms-bitrate"></div>
+                </div>
+
+                <!-- Tag multi-select -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Tag</label>
+                    <div class="ms-wrap" id="ms-tag"></div>
+                </div>
+
+                <!-- Search -->
+                <div class="flex flex-col gap-1 flex-1 min-w-[140px]">
+                    <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Search</label>
+                    <input id="filter-text" type="search" placeholder="Station name…"
+                           oninput="debouncedFilter()"
+                           class="bg-[#26262b] text-sm text-gray-100 px-3 py-2 rounded-xl border border-[#32323a] outline-none focus:border-green-500 w-full">
+                </div>
+
+                <!-- Sort -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Sort</label>
+                    <div class="flex gap-1">
+                        <button id="sort-name"   onclick="setSort('name')"
+                                class="px-3 py-2 rounded-xl text-xs font-bold border transition-colors bg-green-700 border-green-600 text-white">Name</button>
+                        <button id="sort-clicks" onclick="setSort('clicks')"
+                                class="px-3 py-2 rounded-xl text-xs font-bold border transition-colors bg-[#26262b] border-[#32323a] text-gray-400">Clicks</button>
+                        <button id="sort-votes"  onclick="setSort('votes')"
+                                class="px-3 py-2 rounded-xl text-xs font-bold border transition-colors bg-[#26262b] border-[#32323a] text-gray-400">Votes</button>
+                    </div>
+                </div>
+
+                <!-- Per-page + count -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs text-gray-500 font-bold uppercase tracking-wider">Per Page</label>
+                    <div class="flex items-center gap-2">
+                        <select id="per-page" onchange="onPerPageChange()"
+                                class="bg-[#26262b] text-sm text-gray-200 px-3 py-2 rounded-xl border border-[#32323a] outline-none focus:border-green-500 w-24">
+                            <option value="10">10</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                            <option value="250">250</option>
+                        </select>
+                        <div id="station-count" class="text-green-400 font-bold text-sm px-3 py-2 bg-[#26262b] rounded-xl border border-[#32323a] whitespace-nowrap">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid -->
+            <div id="cards-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
+
+            <!-- Pagination -->
+            <div id="pagination" class="bg-[#1a1a1e] border-t border-[#26262b] px-4 py-2 flex items-center justify-between gap-2 flex-shrink-0 hidden" style="padding-bottom: max(8px, env(safe-area-inset-bottom));">
+                <button id="pg-prev" onclick="goToPage(currentPage - 1)"
+                        class="px-4 py-2 rounded-xl text-sm font-medium bg-[#26262b] border border-[#32323a] text-gray-300 hover:bg-[#2f2f35] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                    ← Prev
+                </button>
+                <span id="pg-info" class="text-sm text-gray-400"></span>
+                <button id="pg-next" onclick="goToPage(currentPage + 1)"
+                        class="px-4 py-2 rounded-xl text-sm font-medium bg-[#26262b] border border-[#32323a] text-gray-300 hover:bg-[#2f2f35] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                    Next →
+                </button>
+            </div>
+        </main>
     </div>
-    {% endif %}
 
     <script>
-    let _recording = false;
+    // ═══════════════════════════════════════════════════════════════════════════
+    // MULTI-SELECT COMPONENT
+    // Each instance: { el, items:[{value,label}], selected:Set, onChange, search }
+    // ═══════════════════════════════════════════════════════════════════════════
+    const multiSelects = {};
 
-    async function toggleRecording(url, label) {
-      const btn = document.getElementById('recordBtn');
-      const icon = btn.querySelector('.material-symbols-outlined');
-      const status = document.getElementById('recordingStatus');
-      
-      if (!_recording) {
-        const resp = await fetch('/record/start', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({url, label})
-        });
-        const data = await resp.json();
-        if (data.status === 'recording') {
-          _recording = true;
-          // Pop to vivid filled red when active
-          btn.classList.replace('btn-outline-secondary', 'btn-danger');
-          icon.style.color = '#ffffff'; 
-          icon.textContent = 'pause'; 
-          btn.setAttribute('title', 'Stop Recording');
-          status.style.display = '';
-          status.textContent = '● Recording to ' + data.path;
+    function createMultiSelect(containerId, opts) {
+        // opts: { placeholder, searchable, allLabel, onChange }
+        const wrap = document.getElementById(containerId);
+        wrap.innerHTML = '';
+
+        const ms = {
+            items: [],
+            selected: new Set(),
+            onChange: opts.onChange || (() => {}),
+            placeholder: opts.placeholder || 'All',
+            allLabel: opts.allLabel || 'All',
+            searchable: !!opts.searchable,
+            _filterQ: ''
+        };
+
+        // Trigger button
+        const trigger = document.createElement('div');
+        trigger.className = 'ms-trigger';
+        trigger.innerHTML = `<span class="ms-label">${esc(ms.placeholder)}</span><span class="ms-arrow">▾</span>`;
+        trigger.addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(containerId); });
+        wrap.appendChild(trigger);
+
+        // Dropdown
+        const dd = document.createElement('div');
+        dd.className = 'ms-dropdown';
+
+        if (ms.searchable) {
+            const si = document.createElement('input');
+            si.type = 'text';
+            si.placeholder = 'Search…';
+            si.className = 'ms-search-box';
+            si.addEventListener('input', () => {
+                ms._filterQ = si.value.toLowerCase();
+                renderItems(containerId);
+            });
+            dd.appendChild(si);
         }
-      } else {
-        const resp = await fetch('/record/stop', {method: 'POST'});
-        const data = await resp.json();
-        _recording = false;
-        // Revert back to safe idle neutral layout profile
-        btn.classList.replace('btn-danger', 'btn-outline-secondary');
-        icon.style.color = '#dc3545';
-        icon.textContent = 'fiber_manual_record';
-        btn.setAttribute('title', 'Start Recording');
-        status.textContent = 'Saved to ' + data.path;
-      }
+
+        const list = document.createElement('div');
+        list.className = 'ms-list';
+        dd.appendChild(list);
+
+        const footer = document.createElement('div');
+        footer.className = 'ms-footer';
+        footer.innerHTML = '<button onclick="msSelectAll(\'' + containerId + '\')">All</button><button onclick="msClearAll(\'' + containerId + '\')">Clear</button>';
+        dd.appendChild(footer);
+
+        wrap.appendChild(dd);
+        ms.triggerEl = trigger;
+        ms.dropdownEl = dd;
+        ms.listEl = list;
+        multiSelects[containerId] = ms;
+        return ms;
     }
 
-    // Sync button state on page load in case recording is already active
-    fetch('/record/status').then(r => r.json()).then(data => {
-      if (data.recording) {
-        _recording = true;
-        const btn = document.getElementById('recordBtn');
-        if (btn) {
-          btn.classList.replace('btn-outline-secondary', 'btn-danger');
-          btn.setAttribute('title', 'Stop Recording');
-          const icon = btn.querySelector('.material-symbols-outlined');
-          if (icon) {
-            icon.style.color = '#ffffff';
-            icon.textContent = 'pause';
-          }
-          
-          const status = document.getElementById('recordingStatus');
-          status.style.display = '';
-          status.textContent = '● Recording to ' + data.path;
+    function msSetItems(containerId, items) {
+        // items: [{value, label}]
+        const ms = multiSelects[containerId];
+        if (!ms) return;
+        ms.items = items;
+        ms.selected.clear();
+        renderItems(containerId);
+        updateTriggerLabel(containerId);
+    }
+
+    function renderItems(containerId) {
+        const ms = multiSelects[containerId];
+        const q  = ms._filterQ || '';
+        ms.listEl.innerHTML = ms.items
+            .filter(it => !q || it.label.toLowerCase().includes(q))
+            .map(it => {
+                const sel = ms.selected.has(it.value);
+                return `<div class="ms-item ${sel ? 'selected' : ''}" onclick="msToggleItem('${containerId}','${it.value.replace(/'/g,"\\'")}')">
+                    <span class="ms-check">${sel ? '✓' : ''}</span>
+                    <span>${it.label}</span>
+                </div>`;
+            }).join('');
+    }
+
+    function msToggleItem(containerId, value) {
+        const ms = multiSelects[containerId];
+        if (!ms) return;
+        if (ms.selected.has(value)) ms.selected.delete(value);
+        else ms.selected.add(value);
+        renderItems(containerId);
+        updateTriggerLabel(containerId);
+        ms.onChange();
+    }
+
+    function msSelectAll(containerId) {
+        const ms = multiSelects[containerId];
+        ms.items.forEach(it => ms.selected.add(it.value));
+        renderItems(containerId);
+        updateTriggerLabel(containerId);
+        ms.onChange();
+    }
+
+    function msClearAll(containerId) {
+        const ms = multiSelects[containerId];
+        ms.selected.clear();
+        renderItems(containerId);
+        updateTriggerLabel(containerId);
+        ms.onChange();
+    }
+
+    function msGetSelected(containerId) {
+        return multiSelects[containerId]?.selected || new Set();
+    }
+
+    function updateTriggerLabel(containerId) {
+        const ms = multiSelects[containerId];
+        const n  = ms.selected.size;
+        const label = ms.triggerEl.querySelector('.ms-label');
+        const trigger = ms.triggerEl;
+        if (n === 0) {
+            label.textContent = ms.placeholder;
+            trigger.classList.remove('active');
+        } else if (n === 1) {
+            const val = [...ms.selected][0];
+            const item = ms.items.find(i => i.value === val);
+            label.textContent = item ? item.label : val;
+            trigger.classList.add('active');
+        } else {
+            label.textContent = `${n} selected`;
+            trigger.classList.add('active');
         }
-      }
-    });
+    }
 
-function openPopout(stationId) {
-    const width = 450;
-    const height = 300;
-    const left = (window.screen.width / 2) - (width / 2);
-    const top = (window.screen.height / 2) - (height / 2);
-    
-    window.open(
-        '/radio/popout/' + stationId,
-        'RadioPopout_' + stationId,
-        `width=${width},height=${height},top=${top},left=${left},status=no,menubar=no,toolbar=no,location=no,resizable=yes`
-    );
-}
-    </script>
-
-    <table id="stationsTable" class="table table-hover table-striped align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>Logo</th>
-                <th>Last Play Status</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Category</th>
-                <th>Format</th>
-                <th>Stereo/Mono</th>
-                <th class="text-center" style="width: 100px;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for station in stations %}
-            <tr class="{% if station[9] != 1 %}table-warning{% endif %}">
-                <td><img src="{{ url_for('static', filename='logos/' + (station[11] if station[11] else 'placeholder.png')) }}" height="64"></td>
-                <td>
-                  {% if station[9] == 1 %}
-                    <span class="badge bg-success">OK</span>
-                    <p class="mb-0 small text-muted">Last tried: {{ station[10] }}</p>
-                  {% elif station[9] == 0 %}
-                    <span class="badge bg-danger">Fail</span>
-                    <p class="mb-0 small text-muted">Last tried: {{ station[10] }}</p>
-                  {% else %}
-                    <span class="badge bg-warning">Unknown</span>
-                  {% endif %}
-                </td>
-                <td><strong>{{ station[1] }}</strong></td>
-                <td>{{ station[3] }}</td>
-                <td>{{ station[4] }}</td>
-                <td>
-                    {% if station[6] %} {{ station[6] }} Kbit/s {% endif %}
-                    {% if station[12] %} / {{ station[12]|upper }} {% else %} / AAC {% endif %}
-                    {% if station[13] %} / {{ (station[13]|int / 1000)|round(1) }} kHz {% endif %}
-                </td>
-                <td>{{ station[7] }}</td>
-                <td>
-                    <div class="d-flex justify-content-center gap-2"> 
-                        <!-- Play Stream Symbol Button -->
-                        <a href="{{ url_for('play_station', station_id=station[0]) }}" 
-                           class="btn btn-outline-success btn-icon rounded-circle" 
-                           title="Play Stream">
-                            <span class="material-symbols-outlined">play_arrow</span>
-                        </a>
-                        
-                        <!-- Standalone Window Popout Symbol Button -->
-                        <button class="btn btn-outline-secondary btn-icon rounded-circle" 
-                                title="Open Pop-out Window"
-                                onclick="openPopout({{ station[0] }}); event.stopPropagation();">
-                            <span class="material-symbols-outlined">open_in_new</span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <script>
-    $(document).ready(function() {
-        $('#stationsTable').DataTable({
-            paging: false,
-            info: false
+    function toggleDropdown(containerId) {
+        // Close all others first
+        Object.keys(multiSelects).forEach(id => {
+            if (id !== containerId) closeDropdown(id);
         });
+        const ms = multiSelects[containerId];
+        const isOpen = ms.dropdownEl.classList.toggle('open');
+        ms.triggerEl.classList.toggle('open', isOpen);
+    }
+
+    function closeDropdown(containerId) {
+        const ms = multiSelects[containerId];
+        if (!ms) return;
+        ms.dropdownEl.classList.remove('open');
+        ms.triggerEl.classList.remove('open');
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', () => {
+        Object.keys(multiSelects).forEach(id => closeDropdown(id));
     });
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FLAG HELPER  — ISO 3166-1 alpha-2 → emoji flag
+    // ═══════════════════════════════════════════════════════════════════════════
+    function countryFlag(cc) {
+        if (!cc || cc.length !== 2) return '🏳';
+        const cp = [...cc.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65);
+        return String.fromCodePoint(...cp);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // APP STATE
+    // ═══════════════════════════════════════════════════════════════════════════
+    let currentView     = 'search';
+    let allStations     = [];   // combined pool across all loaded countries
+    let searchIndex     = [];   // 1:1 lowercase string per station
+    let filteredList    = [];
+    let favoritesList   = [];
+    let currentSort     = 'name';
+    let currentPage     = 1;
+    let perPage         = 50;
+    let _filterTimer    = null;
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // BOOT
+    // ═══════════════════════════════════════════════════════════════════════════
+    async function initApp() {
+        // Create all multi-selects with their callbacks
+        createMultiSelect('ms-country', { placeholder: 'Country', searchable: true,
+            onChange: onCountryFilterChange });
+        createMultiSelect('ms-codec',   { placeholder: 'All Codecs',
+            onChange: () => { currentPage = 1; applyFiltersAndRender(); } });
+        createMultiSelect('ms-bitrate', { placeholder: 'Any Bitrate',
+            onChange: () => { currentPage = 1; applyFiltersAndRender(); } });
+        createMultiSelect('ms-tag',     { placeholder: 'All Tags', searchable: true,
+            onChange: () => { currentPage = 1; applyFiltersAndRender(); } });
+
+        showGridSpinner('Loading countries…');
+        await syncFavorites();
+        await loadCountryList();
+        pollPlaybackState();
+        setInterval(pollPlaybackState, 4000);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // COUNTRIES
+    // ═══════════════════════════════════════════════════════════════════════════
+    async function loadCountryList() {
+        try {
+            const data = await apiFetch('/api/countries');
+            const items = data.countries.map(c => ({
+                value: c.code,
+                label: `${countryFlag(c.code)} (${c.code}) — ${c.stationcount.toLocaleString()}`
+            }));
+            msSetItems('ms-country', items);
+
+            // Default: select GB
+            const ms = multiSelects['ms-country'];
+            if (items.some(i => i.value === 'GB')) {
+                ms.selected.add('GB');
+                updateTriggerLabel('ms-country');
+                renderItems('ms-country');
+            }
+
+            await fetchStationsForSelectedCountries();
+        } catch(e) {
+            showError('Could not reach backend: ' + e.message);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FETCH STATIONS  — fetches for each selected country, merges, deduplicates
+    // ═══════════════════════════════════════════════════════════════════════════
+    async function fetchStationsForSelectedCountries() {
+        const selected = [...msGetSelected('ms-country')];
+        if (selected.length === 0) {
+            allStations = [];
+            searchIndex = [];
+            rebuildSecondaryFilters([],[],[]);
+            currentPage = 1;
+            applyFiltersAndRender();
+            return;
+        }
+
+        showGridSpinner(`Fetching stations for ${selected.join(', ')}…`);
+        setFiltersDisabled(true);
+
+        const seen = {};
+        for (const cc of selected) {
+            try {
+                const data = await apiFetch(`/api/fetch-stations?countrycode=${encodeURIComponent(cc)}`);
+                for (const s of (data.stations || [])) {
+                    if (s.stationuuid && !seen[s.stationuuid]) seen[s.stationuuid] = s;
+                }
+            } catch(e) {
+                console.warn(`Failed ${cc}:`, e.message);
+            }
+        }
+
+        allStations = Object.values(seen);
+        searchIndex = allStations.map(s =>
+            [s.name, s.tags, s.homepage].filter(Boolean).join(' ').toLowerCase()
+        );
+
+        // Build secondary filter options from the merged pool
+        const codecs   = new Set();
+        const bitrates = new Set();
+        const tags     = new Set();
+        for (const s of allStations) {
+            const c = (s.codec || '').toUpperCase().trim();
+            if (c) codecs.add(c);
+            const b = parseInt(s.bitrate, 10);
+            if (b > 0) bitrates.add(b);
+            if (s.tags) s.tags.split(',').map(t => t.trim().toLowerCase()).filter(t => t && t.length < 40).forEach(t => tags.add(t));
+        }
+
+        rebuildSecondaryFilters(
+            [...codecs].sort(),
+            [...bitrates].sort((a,b) => a - b),
+            [...tags].sort()
+        );
+
+        document.getElementById('filter-text').value = '';
+        setFiltersDisabled(false);
+        currentPage = 1;
+        applyFiltersAndRender();
+    }
+
+    function rebuildSecondaryFilters(codecs, bitrates, tags) {
+        msSetItems('ms-codec',   codecs.map(c => ({ value: c, label: c })));
+        msSetItems('ms-bitrate', bitrates.map(b => ({ value: String(b), label: `${b} kbps` })));
+        msSetItems('ms-tag',     tags.map(t => ({ value: t, label: t.replace(/\b\w/g, c => c.toUpperCase()) })));
+    }
+
+    async function onCountryFilterChange() {
+        await fetchStationsForSelectedCountries();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FILTERING & SORTING
+    // ═══════════════════════════════════════════════════════════════════════════
+    function debouncedFilter() {
+        clearTimeout(_filterTimer);
+        _filterTimer = setTimeout(() => { currentPage = 1; applyFiltersAndRender(); }, 200);
+    }
+
+    function setSort(key) {
+        currentSort = key;
+        ['name','clicks','votes'].forEach(k => {
+            document.getElementById('sort-' + k).className =
+                'px-3 py-2 rounded-xl text-xs font-bold border transition-colors ' +
+                (k === key ? 'bg-green-700 border-green-600 text-white'
+                           : 'bg-[#26262b] border-[#32323a] text-gray-400');
+        });
+        currentPage = 1;
+        applyFiltersAndRender();
+    }
+
+    function onPerPageChange() {
+        perPage = parseInt(document.getElementById('per-page').value, 10);
+        currentPage = 1;
+        renderPage();
+    }
+
+    function goToPage(n) {
+        const totalPages = Math.ceil(filteredList.length / perPage);
+        currentPage = Math.max(1, Math.min(n, totalPages));
+        renderPage();
+        document.getElementById('cards-grid').scrollTop = 0;
+    }
+
+    function applyFiltersAndRender() {
+        if (currentView === 'favorites') {
+            filteredList = [...favoritesList];
+        } else {
+            const selCodecs   = msGetSelected('ms-codec');
+            const selBitrates = msGetSelected('ms-bitrate');
+            const selTags     = msGetSelected('ms-tag');
+            const query       = document.getElementById('filter-text').value.trim().toLowerCase();
+
+            filteredList = allStations.filter((s, i) => {
+                // Codec — if nothing selected = show all
+                if (selCodecs.size > 0 && !selCodecs.has((s.codec || '').toUpperCase().trim())) return false;
+
+                // Bitrate — treat selected values as minimum thresholds; station must meet at least one
+                if (selBitrates.size > 0) {
+                    const br = parseInt(s.bitrate, 10) || 0;
+                    const ok = [...selBitrates].some(v => br >= parseInt(v, 10));
+                    if (!ok) return false;
+                }
+
+                // Tags — station must have ALL selected tags
+                if (selTags.size > 0) {
+                    const stTags = (s.tags || '').toLowerCase().split(',').map(t => t.trim());
+                    if (![...selTags].every(t => stTags.includes(t))) return false;
+                }
+
+                // Text search
+                if (query && !searchIndex[i].includes(query)) return false;
+
+                return true;
+            });
+        }
+
+        if (currentSort === 'name') {
+            filteredList.sort((a, b) => (a.name||'').localeCompare((b.name||''), undefined, {sensitivity:'base', numeric:false}));
+        } else if (currentSort === 'clicks') {
+            filteredList.sort((a, b) => (parseInt(b.clickcount,10)||0) - (parseInt(a.clickcount,10)||0));
+        } else if (currentSort === 'votes') {
+            filteredList.sort((a, b) => (parseInt(b.votes,10)||0) - (parseInt(a.votes,10)||0));
+        }
+
+        renderPage();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // RENDER PAGE
+    // ═══════════════════════════════════════════════════════════════════════════
+    function renderPage() {
+        const grid  = document.getElementById('cards-grid');
+        const total = filteredList.length;
+        const totalPages = Math.max(1, Math.ceil(total / perPage));
+        currentPage = Math.min(currentPage, totalPages);
+        const start = (currentPage - 1) * perPage;
+        const slice = filteredList.slice(start, start + perPage);
+
+        document.getElementById('station-count').textContent = total.toLocaleString();
+        document.getElementById('pg-info').textContent =
+            `Page ${currentPage} / ${totalPages}  (${start+1}–${Math.min(start+perPage, total)} of ${total})`;
+        document.getElementById('pg-prev').disabled = currentPage <= 1;
+        document.getElementById('pg-next').disabled = currentPage >= totalPages;
+        document.getElementById('pagination').classList.toggle('hidden', total === 0);
+
+        if (total === 0) {
+            grid.innerHTML = '<div class="col-span-2 text-gray-500 text-sm p-4">No stations match the current filters.</div>';
+            return;
+        }
+
+        const inFavView = currentView === 'favorites';
+        grid.innerHTML = slice.map(station => {
+            const isFav   = favoritesList.some(f => f.stationuuid === station.stationuuid);
+            const logoSrc = station.favicon
+                ? `/proxy-image?url=${encodeURIComponent(station.favicon)}&station_name=${encodeURIComponent(station.name)}`
+                : '/logos/default_fallback.jpg';
+            const sJson   = JSON.stringify(station).replace(/'/g, '&apos;');
+            const bitrate = parseInt(station.bitrate, 10) || 0;
+            const codec   = (station.codec || 'UNK').toUpperCase();
+            const favCls  = inFavView
+                ? 'p-2.5 bg-red-950/40 hover:bg-red-900/50 border border-red-900/40 text-red-400 rounded-xl transition-colors'
+                : 'p-2.5 bg-[#26262b] hover:bg-[#32323a] border border-transparent rounded-xl transition-colors';
+
+            return `<div class="bg-[#1a1a1e] border border-[#26262b] p-3 rounded-2xl flex items-start gap-3 hover:border-[#3a3a42] transition-colors">
+                <img src="${esc(logoSrc)}" onerror="this.src='/logos/default_fallback.jpg'"
+                     class="w-14 h-14 rounded-xl object-contain bg-[#121214] p-1 flex-shrink-0 mt-0.5">
+                <div class="min-w-0 flex-1">
+                    <h4 class="font-bold text-gray-100 text-sm leading-snug">${esc(station.name)}</h4>
+                    <p class="text-xs text-gray-400 mt-0.5">
+                        <span class="text-green-500">${bitrate} kbps</span> · <span class="uppercase">${esc(codec)}</span>
+                    </p>
+                    ${renderTags(station.tags)}
+                </div>
+                <div class="flex flex-col gap-1.5 flex-shrink-0">
+                    <button onclick='playStation(${sJson})'
+                            title="Play via Snapcast"
+                            class="p-2.5 bg-green-950/30 hover:bg-green-900/40 border border-green-900/40 text-green-400 rounded-xl transition-colors text-sm">▶</button>
+                    <button onclick='playLocal(${sJson})'
+                            title="Play on this device"
+                            class="p-2.5 bg-blue-950/40 hover:bg-blue-900/40 border border-blue-900/40 text-blue-400 rounded-xl transition-colors text-sm">📱</button>
+                    <button onclick='toggleFavorite(${sJson})' class="${favCls}">
+                        ${inFavView ? '✕' : isFav ? '❤️' : '🖤'}
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // HELPERS
+    // ═══════════════════════════════════════════════════════════════════════════
+    function renderTags(tagStr) {
+        if (!tagStr) return '';
+        const tags = tagStr.split(',').map(t => t.trim()).filter(t => t && t.length < 40);
+        if (!tags.length) return '';
+        // Show max 4 tags, indicate overflow
+        const show    = tags.slice(0, 4);
+        const extra   = tags.length - show.length;
+        const pills   = show.map(t =>
+            `<span class="px-1.5 py-0.5 rounded border border-[#32323a] bg-[#121214] text-gray-400 text-xs">${esc(t.replace(/\b\w/g, c => c.toUpperCase()))}</span>`
+        ).join('');
+        const morePill = extra > 0
+            ? `<span class="px-1.5 py-0.5 rounded border border-[#32323a] bg-[#121214] text-gray-600 text-xs">+${extra}</span>`
+            : '';
+        return `<div class="flex flex-wrap gap-1 mt-1.5">${pills}${morePill}</div>`;
+    }
+
+    function esc(str) {
+        return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function apiFetch(url) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    }
+
+    function setFiltersDisabled(d) {
+        ['ms-codec','ms-bitrate','ms-tag','ms-country'].forEach(id => {
+            const ms = multiSelects[id];
+            if (ms) ms.triggerEl.style.opacity = d ? '0.5' : '1';
+        });
+        document.getElementById('filter-text').disabled = d;
+    }
+
+    function showGridSpinner(msg) {
+        document.getElementById('cards-grid').innerHTML =
+            `<div class="col-span-2 text-gray-500 text-sm p-4 flex items-center gap-3">
+                <svg class="animate-spin w-4 h-4 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>${esc(msg)}</div>`;
+        document.getElementById('pagination').classList.add('hidden');
+        document.getElementById('station-count').textContent = '…';
+    }
+
+    function showError(msg) {
+        document.getElementById('cards-grid').innerHTML =
+            `<div class="col-span-2 text-red-400 text-sm p-4">${esc(msg)}</div>`;
+        document.getElementById('station-count').textContent = 'Err';
+    }
+
+    function setNavActive(view) {
+        const s = view === 'search';
+        document.getElementById('nav-search').className    = `flex flex-col items-center gap-1 group w-full py-2 ${s?'text-green-400':'text-gray-400'}`;
+        document.getElementById('nav-search-icon').className = `p-2.5 ${s?'bg-[#26262b]':''} rounded-2xl group-hover:bg-[#2f2f35] transition text-xl`;
+        document.getElementById('nav-favorites').className = `flex flex-col items-center gap-1 group w-full py-2 ${!s?'text-green-400':'text-gray-400'}`;
+        document.getElementById('nav-fav-icon').className  = `p-2.5 ${!s?'bg-[#26262b]':''} rounded-2xl group-hover:bg-[#2f2f35] transition text-xl`;
+        const at = 'flex-1 py-3 text-sm font-medium text-green-400 border-b-2 border-green-500';
+        const it = 'flex-1 py-3 text-sm font-medium text-gray-400 border-b-2 border-transparent';
+        document.getElementById('mob-search').className = s ? at : it;
+        document.getElementById('mob-fav').className    = s ? it : at;
+    }
+
+    function changeView(view) {
+        currentView = view;
+        setNavActive(view);
+        document.getElementById('filter-panel').style.display = view === 'favorites' ? 'none' : '';
+        currentPage = 1;
+        applyFiltersAndRender();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PLAYBACK
+    // ═══════════════════════════════════════════════════════════════════════════
+    async function syncFavorites() {
+        try { favoritesList = await apiFetch('/api/favorites'); } catch(e) {}
+    }
+
+    async function playStation(station) {
+        await fetch('/api/play', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({station}) });
+        pollPlaybackState();
+    }
+
+    async function stopPlayback() {
+        await fetch('/api/stop', { method:'POST' });
+        pollPlaybackState();
+    }
+
+    async function toggleRecording() {
+        await fetch('/api/record/toggle', { method:'POST' });
+        pollPlaybackState();
+    }
+
+    async function toggleFavorite(station) {
+        await fetch('/api/favorites/toggle', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(station) });
+        await syncFavorites();
+        applyFiltersAndRender();
+    }
+
+    async function pollPlaybackState() {
+        try {
+            const d = await apiFetch('/api/now-playing');
+            // Header bar
+            document.getElementById('dock-station').textContent = d.station_name;
+            document.getElementById('dock-track').textContent   = d.track_title;
+            if (d.artwork) document.getElementById('dock-art').src = d.artwork;
+            const recCls = d.is_recording
+                ? 'p-2.5 bg-red-950/40 border border-red-900 text-red-400 rounded-full text-lg leading-none'
+                : 'p-2.5 bg-gray-800 border border-gray-700 text-gray-400 rounded-full text-lg leading-none';
+            document.getElementById('dock-record-btn').className = recCls;
+
+            // Overlay
+            document.getElementById('np-station').textContent = d.station_name;
+            document.getElementById('np-track').textContent   = d.track_title;
+            const art = document.getElementById('np-artwork');
+            if (d.artwork) {
+                art.src = d.artwork;
+                art.classList.add('spinning');
+            } else {
+                art.src = '/logos/default_fallback.jpg';
+                art.classList.remove('spinning');
+            }
+            const npRec = document.getElementById('np-record-btn');
+            npRec.className = d.is_recording
+                ? 'flex items-center gap-2 px-6 py-3 bg-red-950/50 border border-red-900 text-red-400 rounded-2xl text-sm font-bold hover:bg-red-900/50 transition-colors'
+                : 'flex items-center gap-2 px-6 py-3 bg-[#1a1a1e] border border-[#32323a] text-gray-400 rounded-2xl text-sm font-bold hover:bg-[#26262b] transition-colors';
+        } catch(e) {}
+    }
+
+
+    let _npOpen = false;
+
+    function openNowPlaying(e) {
+        if (e && e.target.closest('button')) return;
+        // Ensure we're in Snapcast mode when opening via the header
+        document.getElementById('np-mode-badge').textContent = 'Snapcast';
+        document.getElementById('np-controls-snapcast').classList.remove('hidden');
+        document.getElementById('np-controls-local').classList.add('hidden');
+        document.getElementById('np-controls-local').classList.remove('flex');
+        _npOpen = true;
+        document.getElementById('np-overlay').classList.add('visible');
+    }
+
+    function closeNowPlaying() {
+        _npOpen = false;
+        document.getElementById('np-overlay').classList.remove('visible');
+    }
+
+    // Close on Escape
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNowPlaying(); });
+
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // LOCAL (DEVICE) PLAYER  — reuses the shared fullscreen overlay
+    // ═══════════════════════════════════════════════════════════════════════════
+    let _localStation   = null;
+    let _lpPollInterval = null;
+
+    async function playLocal(station) {
+        const url = station.url_resolved || station.url_stream || station.url;
+        if (!url) { alert('No stream URL for this station.'); return; }
+
+        _localStation = station;
+
+        // Tell server to start metadata polling for this station
+        await fetch('/api/local-play', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({station})
+        }).catch(() => {});
+
+        // Wire up the audio element
+        const audio = document.getElementById('lp-audio');
+        audio.src = url;
+        audio.load();
+        audio.play().catch(() => {});
+
+        // Switch overlay to local mode
+        document.getElementById('np-mode-badge').textContent         = '📱 Local';
+        document.getElementById('np-station').textContent            = station.name || '—';
+        document.getElementById('np-track').textContent              = 'Connecting…';
+        document.getElementById('np-artwork').src                    = station.favicon
+            ? `/proxy-image?url=${encodeURIComponent(station.favicon)}&station_name=${encodeURIComponent(station.name)}`
+            : '/logos/default_fallback.jpg';
+        document.getElementById('np-controls-snapcast').classList.add('hidden');
+        document.getElementById('np-controls-local').classList.remove('hidden');
+        document.getElementById('np-controls-local').classList.add('flex');
+
+        _npOpen = true;
+        document.getElementById('np-overlay').classList.add('visible');
+
+        // Poll for track info / artwork
+        clearInterval(_lpPollInterval);
+        _lpPollInterval = setInterval(async () => {
+            if (!_localStation) return;
+            try {
+                const d = await apiFetch('/api/now-playing');
+                if (d.track_title && d.track_title !== 'Not Playing')
+                    document.getElementById('np-track').textContent = d.track_title;
+                if (d.artwork)
+                    document.getElementById('np-artwork').src = d.artwork;
+            } catch(e) {}
+        }, 4000);
+    }
+
+    function closeLocalPlayer() {
+        const audio = document.getElementById('lp-audio');
+        audio.pause();
+        audio.src = '';
+        _localStation = null;
+        clearInterval(_lpPollInterval);
+        _lpPollInterval = null;
+        // Restore overlay to snapcast mode and close
+        document.getElementById('np-controls-snapcast').classList.remove('hidden');
+        document.getElementById('np-controls-local').classList.add('hidden');
+        document.getElementById('np-controls-local').classList.remove('flex');
+        document.getElementById('np-mode-badge').textContent = 'Snapcast';
+        closeNowPlaying();
+    }
+
+    window.onload = initApp;
     </script>
 
-    <script src="{{ url_for('static', filename='js/radio_metadata.js') }}"></script>
+    <!-- ── NOW PLAYING OVERLAY (shared by Snapcast + Local modes) ───────────── -->
+    <div id="np-overlay">
+        <!-- Close -->
+        <button onclick="closeNowPlaying()"
+                class="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white text-xl transition-colors">✕</button>
+
+        <!-- Mode badge -->
+        <div id="np-mode-badge"
+             class="absolute top-5 left-5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-white/10 text-gray-300">
+            Snapcast
+        </div>
+
+        <!-- Artwork -->
+        <img id="np-artwork" src="/logos/default_fallback.jpg"
+             onerror="this.src='/logos/default_fallback.jpg'"
+             class="mb-8">
+
+        <!-- Station / track info -->
+        <div class="text-center px-8 mb-6 max-w-sm w-full">
+            <p id="np-station" class="text-green-400 text-sm font-semibold uppercase tracking-widest mb-2 truncate">—</p>
+            <p id="np-track"   class="text-white text-2xl font-bold leading-snug">Not Playing</p>
+        </div>
+
+        <!-- Snapcast controls -->
+        <div id="np-controls-snapcast" class="flex items-center gap-4">
+            <button onclick="stopPlayback()"
+                    class="flex items-center gap-2 px-6 py-3 bg-red-950/50 border border-red-900/60 text-red-400 rounded-2xl text-sm font-bold hover:bg-red-900/50 transition-colors">
+                ⏹ Stop
+            </button>
+            <button onclick="toggleRecording()" id="np-record-btn"
+                    class="flex items-center gap-2 px-6 py-3 bg-[#1a1a1e] border border-[#32323a] text-gray-400 rounded-2xl text-sm font-bold hover:bg-[#26262b] transition-colors">
+                🔴 Record
+            </button>
+        </div>
+
+        <!-- Local controls -->
+        <div id="np-controls-local" class="hidden flex-col items-center gap-4 w-full max-w-sm px-8">
+            <audio id="lp-audio" controls preload="none"
+                   class="w-full" style="height:44px; border-radius:12px;"></audio>
+            <button onclick="closeLocalPlayer()"
+                    class="flex items-center gap-2 px-6 py-3 bg-red-950/50 border border-red-900/60 text-red-400 rounded-2xl text-sm font-bold hover:bg-red-900/50 transition-colors">
+                ⏹ Stop Local
+            </button>
+        </div>
+    </div>
 
 </body>
 </html>

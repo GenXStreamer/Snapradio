@@ -1,0 +1,20 @@
+[Unit]
+Description=DAB Radio Studio (Snapradio)
+After=network.target pipewire.service pipewire-pulse.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/Snapradio-new
+Environment="PATH=/home/dan/venv/bin:/usr/bin:/usr/local/bin"
+ExecStart=/home/dan/venv/bin/python main.py
+ExecStop=/bin/kill -TERM $MAINPID
+KillMode=control-group
+KillSignal=SIGTERM
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
