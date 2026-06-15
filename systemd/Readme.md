@@ -9,7 +9,7 @@ mkdir -p ~/.config/systemd/user
 Create the service file (or copy it from this directory):
 
 ```bash
-cp /opt/Snapradio/systemd/user/Snapradio.service ~/.config/systemd/user/
+cp /opt/Snapradio/systemd/user/* ~/.config/systemd/user/
 ```
 
 The service uses the `%h` specifier to automatically find your home directory (assuming the virtual environment is at `~/venv`).
@@ -23,13 +23,13 @@ systemctl --user daemon-reload
 Enable the service to start automatically when the user logs in:
 
 ```bash
-systemctl --user enable Snapradio.service
+systemctl --user enable Snapradio.service reload-stations.timer
 ```
 
 Start the service:
 
 ```bash
-systemctl --user start Snapradio.service
+systemctl --user start Snapradio.service reload-stations.timer
 ```
 
 Check service status:
@@ -61,4 +61,5 @@ loginctl show-user YOUR_USERNAME | grep Linger
 ```
 
 The SnapRadio service will now start automatically at boot and continue running even when no user session is active.
+Radio stations will be updated every 12hrs
 
