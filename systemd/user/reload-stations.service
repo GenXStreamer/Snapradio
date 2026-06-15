@@ -1,0 +1,6 @@
+[Unit]
+Description=Reload Radio Stations
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/curl -X POST http://localhost:8882/api/reload-stations
