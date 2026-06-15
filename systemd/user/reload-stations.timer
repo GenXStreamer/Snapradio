@@ -1,0 +1,10 @@
+[Unit]
+Description=Reload Radio Stations Every 12 Hours
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=12h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
