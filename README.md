@@ -44,12 +44,18 @@ SnapRadio routes audio to the following PipeWire/PulseAudio devices (configured 
 ### System Packages
 - `ffmpeg`: Required for audio transcoding and downloading.
 - `pw-cat`: Required for PipeWire audio playback.
-- `streamlink`: Required for Twitch stream extraction.
+- `python3-venv`: Required for Running the application
+
+```bash
+apt install ffmpeg pipewire-bin python3-venv
+```
 
 ### Python Environment
 SnapRadio requires Python 3.10+.
 
 ```bash
+python3 -m venv ~/venv
+source ~/venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -88,6 +94,7 @@ pulse.cmd = [
 The main entry point is `main.py`.
 
 ```bash
+source ~/venv/bin/activate
 python main.py
 ```
 By default, the UI is available at `http://localhost:8882`.
@@ -125,7 +132,7 @@ To use Twitch features, you must provide a Client ID and Secret in your `.env`.
 
 ## Snapserver Configuration
 
-Setup your FIFO inputs in snamcast server. 
+Setup your FIFO inputs in snapcast server. 
 
 source entries in `/etc/snapserver.conf`:
 
