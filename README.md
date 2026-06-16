@@ -8,6 +8,7 @@ Built with **FastAPI** and **Tailwind CSS**, it provides a responsive mobile-fri
 
 - **Global Radio Discovery:** Browses tens of thousands of stations worldwide via the [Radio-Browser.info](https://www.radio-browser.info/) API.
 - **Configurable Defaults:** Set your preferred default country in `.env` using the 2-code country alpha code (e.g., `DEFAULT_COUNTRY=GB`). [Country Codes](https://www.iban.com/country-codes) .
+- **Favourites:** Save your favourite stations for quick access
 - **Track History:** Automatically logs played tracks from radio stations (where information is available from the stream)
 - **Recording Function:** Record stream to local mp3
 - **Local Player:** Basic player to play on the local device. For those times when you have your speakers connected via Bluetooth
