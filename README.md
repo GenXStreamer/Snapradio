@@ -92,6 +92,13 @@ Configurable in .env
 
 Alternatively, start/stop via [systemd](systemd)
 
+**Important** it is presumed you have a active logged  user session on your device; by default pipewire runs on logged in user sessions;
+and the systemd user services start on user login.
+I belive it is possible to run pipewire without requiring a logged in session, but I have not explored this option. [Pipewire Headless](https://www.google.com/search?q=pipewire+headless)
+
+In my setup (Mint Linux) I autologin my snapcast user to a minimal desktop.
+
+
 ---
 
 ## Media Downloader
