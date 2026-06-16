@@ -1,6 +1,8 @@
 # SnapRadio
 
-SnapRadio is a modern, web-based interface for playing global Internet radio and Twitch streams on headless systems. It designed for seamless integration with Snapcast via PipeWire/PulseAudio FIFOs allowing you to sned Internet radio or Twitch streams to your snapcast server.
+SnapRadio is a modern, web-based interface for playing global Internet radio and Twitch streams on headless systems.
+
+It designed for seamless integration with Snapcast via PipeWire/PulseAudio FIFOs allowing you to sned Internet radio or Twitch streams to your snapcast server.
 
 Built with **FastAPI** and **Tailwind CSS**, it provides a responsive mobile-friendly experience for managing your radio listening and media downloads.
 
