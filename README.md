@@ -72,7 +72,14 @@ pulse.cmd = [
   }
 ]
 ```
-Repeat for the Twitch sink as defined in your `.env`.
+File: `~/.config/pipewire/pipewire-pulse.conf.d/Twitch.conf`
+```ini
+pulse.cmd = [
+  { cmd = "load-module"
+    args = "module-pipe-sink file=/tmp/Twitch sink_name=Twitch format=s16le rate=48000 channels=2"
+  }
+]
+```
 
 ## 3. Running the Application
 The main entry point is `main.py`.
@@ -82,6 +89,8 @@ python main.py
 ```
 By default, the UI is available at `http://localhost:8882`.
 Configurable in .env
+
+Alternatively, start/stop via [systemd](systemd)
 
 ---
 
@@ -105,7 +114,11 @@ To use Twitch features, you must provide a Client ID and Secret in your `.env`.
 5. You also need to find your numeric Twitch User ID (e.g. using an online lookup tool) and add it to `TWITCH_USER_ID` in `.env` to see your followed channels. https://www.streamweasels.com/tools/convert-twitch-username-%20to-user-id/
 
 ## Snapserver Configuration
-Example `snapserver.conf` input:
+
+Setup your FIFO inputs in snamcast server. 
+
+source entries in `/etc/snapserver.conf`:
+
 ```ini
 source = pipe:///tmp/snapcastDAB?name=Radio&mode=read
 source = pipe:///tmp/Twitch?name=Twitch&mode=read
