@@ -140,6 +140,8 @@ source = pipe:///tmp/Twitch?name=Twitch&mode=read
 
 - **[Radio-Browser.info](https://www.radio-browser.info/):** For providing the incredible open-source station database.
 - **[Snapcast](https://github.com/snapcast/snapcast):** The foundation of this multi-room setup.
+- **[ffmpeg](https://www.ffmpeg.org/):** THE audio and video converter! 
+- **[Streamlink](https://streamlink.github.io/):** pipes video streams from various services 
 - **[yt-dlp](https://github.com/yt-dlp/yt-dlp):** Powering the media downloader.
 
 ## License
