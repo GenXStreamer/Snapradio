@@ -1,6 +1,6 @@
 # SnapRadio
 
-SnapRadio is a modern, web-based interface for playing global Internet radio and Twitch streams, designed for seamless integration with Snapcast via PipeWire/PulseAudio FIFOs.
+SnapRadio is a modern, web-based interface for playing global Internet radio and Twitch streams on headless systems. It designed for seamless integration with Snapcast via PipeWire/PulseAudio FIFOs allowing you to sned Internet radio or Twitch streams to your snapcast server.
 
 Built with **FastAPI** and **Tailwind CSS**, it provides a responsive mobile-friendly experience for managing your radio listening and media downloads.
 
@@ -8,11 +8,17 @@ Built with **FastAPI** and **Tailwind CSS**, it provides a responsive mobile-fri
 
 - **Global Radio Discovery:** Browses tens of thousands of stations worldwide via the [Radio-Browser.info](https://www.radio-browser.info/) API.
 - **Configurable Defaults:** Set your preferred default country in `.env` using the 2-code country alpha code (e.g., `DEFAULT_COUNTRY=GB`). [Country Codes](https://www.iban.com/country-codes) .
-- **Twitch Integration:** Play Twitch audio streams directly to a dedicated Snapcast source.
+- **Track History:** Automatically logs played tracks from radio stations (where information is available from the stream)
+- **Recording Function:** Record stream to local mp3
+- **Local Player:** Basic player to play on the local device. For those times when you have your speakers connected via Bluetooth
+- **Twitch Integration:** Play your followed Twitch audio streams.
 - **Media Downloader:** A versatile background downloader for Mixcloud, YouTube, and other platforms with automatic MP3 conversion, ID3 tagging, and artwork embedding.
 - **Snapcast Ready:** Orchestrates audio routing to local FIFOs for multi-room synchronization.
 - **Mobile Optimized:** A clutter-free, responsive UI that works perfectly on phones and tablets.
-- **Track History:** Automatically logs played tracks and fetches album artwork via Deezer.
+
+## Scrennshots
+
+[Screenshots](./Screenshots)
 
 ## Architecture
 
